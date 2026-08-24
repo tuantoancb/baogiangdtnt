@@ -4835,7 +4835,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.108</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.151</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -4905,11 +4905,29 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 <div class="v470-today-title"><span class="v470-today-icon">📅</span><div><b id="v5116DayTitle">LỊCH DẠY HÔM NAY</b><small id="v4122DaySubtitle">Xem nhanh các tiết dạy trong ngày</small></div></div>
 <div class="v4104-today-head-actions">
 <span class="v470-today-badge" hidden="" id="v470TodayBadge">Hôm nay</span>
+<button class="v4150-extra-toggle" onclick="v4150ToggleExtraPanel()" title="Thêm một tiết dạy ngoài TKB" type="button">＋ <span>Tiết phát sinh</span></button>
 <button class="v4104-copy-today" onclick="copyTodayScheduleImage(this)" title="Sao chép lịch hôm nay thành ảnh để dán vào Zalo" type="button">📋 <span>Sao chép ảnh</span></button>
 </div>
 </div>
 <div class="v5116-day-tabs" id="v5116DayTabs"><button class="active" data-mode="today" onclick="v4122PickMain('today')" type="button">Hôm nay</button><button data-mode="tomorrow" onclick="v4122PickMain('tomorrow')" type="button">Ngày mai</button><button data-mode="week" onclick="v4122PickMain('week')" type="button">Cả tuần</button></div>
 <div class="v4122-week-tabs" id="v4122WeekTabs" hidden></div>
+<div class="v4150-extra-panel" id="v4150ExtraPanel" hidden>
+  <div class="v4150-extra-panel-head"><div><b>＋ Thêm tiết phát sinh</b><small>Không sửa TKB gốc · PPCT tự dồn theo thời gian dạy thực tế</small></div><button type="button" onclick="v4150ToggleExtraPanel(false)">×</button></div>
+  <div class="v4150-extra-grid">
+    <label><span>Ngày dạy</span><input id="v4150ExtraDate" type="date" onchange="v4150ExtraFieldChanged()"></label>
+    <label><span>Buổi</span><div class="v4150-segment"><button class="active" id="v4150SessionMorning" type="button" onclick="v4150SetSession('Sáng')">Sáng</button><button id="v4150SessionAfternoon" type="button" onclick="v4150SetSession('Chiều')">Chiều</button></div></label>
+    <label><span>Tiết</span><select id="v4150ExtraPeriod" onchange="v4150ExtraFieldChanged()"></select></label>
+    <label><span>Lớp</span><select id="v4150ExtraClass" onchange="v4150ExtraFieldChanged()"></select></label>
+    <label><span>Môn</span><select id="v4150ExtraSubject" onchange="v4150ExtraFieldChanged()"></select></label>
+    <label><span>Loại tiết</span><div class="v4150-segment"><button class="active" id="v4150TrackRegular" type="button" onclick="v4150SetTrack('regular')">Chính khóa</button><button id="v4150TrackElective" type="button" onclick="v4150SetTrack('elective')">Chuyên đề</button></div></label>
+    <label class="v4150-auto"><span>PPCT</span><output id="v4150ExtraPpct">Tự lấy PPCT kế tiếp</output></label>
+    <label class="v4150-auto v4150-lesson"><span>Tên bài</span><output id="v4150ExtraLesson">Chọn ngày, tiết và lớp để xem trước</output></label>
+  </div>
+  <label class="v4150-note-field"><span>Ghi chú <em>(không bắt buộc)</em></span><input id="v4150ExtraNote" maxlength="300" placeholder="Ví dụ: Dạy tăng cường, dạy bù riêng lớp..." type="text"></label>
+  <div class="v4150-extra-status" id="v4150ExtraStatus">Tiết phát sinh sẽ hiện ngay trong lịch ngày với nhãn <b>Phát sinh</b>.</div>
+  <div class="v4150-extra-actions"><button class="primary" id="v4150ExtraSave" onclick="v4150SaveExtra()" type="button">✓ Lưu tiết phát sinh</button><button onclick="v4150PreviewExtra(false)" type="button">◉ Xem trước</button><button onclick="v4150ResetExtraForm()" type="button">Hủy</button></div>
+  <div class="v4150-extra-list-wrap" id="v4150ExtraListWrap" hidden><div class="v4150-extra-list-title"><b>Tiết phát sinh đã thêm</b><span id="v4150ExtraCount">0</span></div><div id="v4150ExtraList"></div></div>
+</div>
 <div class="v470-today-summary" id="v470TodaySummary">Đang tải lịch dạy...</div>
 <div class="v488-session-tabs" id="v488SessionTabs" style="display:none"></div>
 <div class="v470-today-list" id="v470TodayList"></div>
@@ -4917,7 +4935,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </div>
 </div>
 <div class="v4107-card v4107-tools-card">
-<div class="v458-tools"><div class="v4121-tools-head"><h3>CÔNG CỤ KHÁC</h3><div class="v4136-tools-configs"><button class="v4121-source-config v4136-makeup-config" onclick="openMakeupScheduleModal()" type="button" title="Thiết lập dạy bù / đổi TKB cho tuần đang chọn">🔁 Dạy bù</button><button class="v4121-source-config" onclick="openPpctSourceModal()" type="button" title="Thiết lập nguồn PPCT chuẩn">⚙ Nguồn PPCT</button></div></div><div class="v458-grid">
+<div class="v458-tools"><div class="v4121-tools-head"><h3>CÔNG CỤ KHÁC</h3><div class="v4136-tools-configs"><button class="v4121-source-config v4136-makeup-config" onclick="openMakeupScheduleModal()" type="button" title="Thiết lập dạy bù / đổi TKB cho tuần đang chọn">🔁 Dạy bù</button><button class="v4121-source-config" onclick="openPpctSourceModal()" type="button" title="Kho PPCT chuẩn của trường">📚 Kho PPCT</button></div></div><div class="v458-grid">
 <button onclick="openReport()" type="button"><i>📖</i><b>Báo giảng</b><small>Xem / sửa lịch<br/>đã lưu</small><em>→</em></button>
 <button class="v4121-rebalance-tool" onclick="openPpctRebalanceModal()" type="button"><i>🔄</i><b>Cập nhật PPCT</b><small>Dồn lại sau khi<br/>xóa / sửa lịch</small><em>→</em></button>
 <button onclick="openProgressReport()" type="button"><i>📈</i><b>Tiến độ</b><small>Theo dõi tiến độ<br/>dạy học</small><em>→</em></button>
@@ -5059,9 +5077,9 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </div>
 <div class="v4106-ppct-backdrop" id="v4106PpctModal">
 <div aria-labelledby="v4106PpctTitle" aria-modal="true" class="v4106-ppct-modal v4120-source-only" role="dialog">
-<div class="v4106-ppct-head"><div><h3 id="v4106PpctTitle">📚 Nguồn PPCT chuẩn</h3><p>Mỗi môn dùng một nguồn PPCT riêng; app chỉ lấy tên bài từ nguồn đã khai báo.</p></div><button onclick="closePpctSourceModal()" type="button">×</button></div>
-<div class="v4120-source-info">ⓘ PPCT được theo dõi độc lập theo <b>Lớp + Môn + loại tiết</b> (chính khóa / CĐ). <b>Không có nguồn = app không tự đoán tên bài và sẽ chặn GHI BÁO GIẢNG.</b></div>
-<div class="v4117-ppct-source v4127-ppct-sources"><label>Nguồn PPCT theo từng môn</label><div id="v4127PpctSourceList"><small id="ppctSourceStatus">Đang nhận diện các môn giáo viên đang dạy…</small></div></div>
+<div class="v4106-ppct-head"><div><h3 id="v4106PpctTitle">📚 Kho PPCT chuẩn của trường</h3><p>App tự nhận môn từ TKB và dùng nguồn chuẩn tích hợp sẵn. Giáo viên không cần dán link.</p></div><button onclick="closePpctSourceModal()" type="button">×</button></div>
+<div class="v4120-source-info">ⓘ Mặc định app dùng <b>Kho PPCT chuẩn của trường</b> theo <b>Lớp + Môn + loại tiết</b>. Chỉ bấm <b>Thay nguồn</b> khi giáo viên thật sự cần PPCT cá nhân.</div>
+<div class="v4117-ppct-source v4127-ppct-sources"><label>Nguồn chuẩn theo môn giáo viên đang dạy</label><div id="v4127PpctSourceList"><small id="ppctSourceStatus">Đang nhận diện các môn giáo viên đang dạy…</small></div></div>
 <div class="v4120-source-footer"><button onclick="closePpctSourceModal()" type="button">Đóng</button></div>
 </div>
 </div>
@@ -5151,9 +5169,13 @@ if(!(window.google&&window.google.script&&window.google.script.run)){
       writeWeeklyPlan:()=>({written:3,skipped:[],sheetName:'Tuan 17-22.8'}),
       getMakeupScheduleConfig:()=>({teacher:'Nguyễn Thanh Tuấn',tkbSheet:'TKB 24-29.8',weekToken:'24.8-29.8',weekLabel:'24-29.8',rules:[],baseCount:16,effectiveCount:16,moved:[],error:''}),
       saveMakeupScheduleConfig:(payload,rules)=>({teacher:'Nguyễn Thanh Tuấn',tkbSheet:'TKB 24-29.8',weekToken:'24.8-29.8',weekLabel:'24-29.8',rules:(rules||[]).map((r,i)=>Object.assign({},r,{id:r.id||('rule_'+(i+1)),label:(r.targetSession+' Thứ '+r.targetDay+' ← '+r.sourceSession+' Thứ '+r.sourceDay+' · bắt đầu tiết '+r.targetStartPeriod),sourceCount:2})),baseCount:16,effectiveCount:16,moved:[],error:''}),
-      clearMakeupScheduleConfig:()=>({teacher:'Nguyễn Thanh Tuấn',tkbSheet:'TKB 24-29.8',weekToken:'24.8-29.8',weekLabel:'24-29.8',rules:[],baseCount:16,effectiveCount:16,moved:[],error:''})
+      clearMakeupScheduleConfig:()=>({teacher:'Nguyễn Thanh Tuấn',tkbSheet:'TKB 24-29.8',weekToken:'24.8-29.8',weekLabel:'24-29.8',rules:[],baseCount:16,effectiveCount:16,moved:[],error:''}),
+      getExtraLessonConfig:()=>({ok:true,classOptions:['11A3','11A4','12A2','12A4'],subjectOptions:['Toán'],items:[],count:0}),
+      previewExtraLesson:(payload,item)=>({ok:true,item:Object.assign({},item,{ppct:5,lesson:'Bài 3. Hàm số bậc hai'})}),
+      saveExtraLesson:(payload,item)=>({ok:true,classOptions:['11A3','11A4','12A2','12A4'],subjectOptions:['Toán'],items:[Object.assign({id:'extra_demo',ppct:5,lesson:'Bài 3. Hàm số bậc hai'},item)],count:1}),
+      deleteExtraLesson:()=>({ok:true,classOptions:['11A3','11A4','12A2','12A4'],subjectOptions:['Toán'],items:[],count:0})
     };
-    ['getInitialData','getClassPpctSuggestions','previewBaoGiang','getTkbClassCheck','checkExistingWrite','ghiBaoGiangStep1','capNhatTienDoStep2','undoLastWrite','getPpctSourceConfig','savePpctSourceConfig','getPpctSourceConfigs','savePpctSubjectSourceConfig','getPpctAuthorizationInfo','previewPpctRebalance','applyPpctRebalance','undoPpctRebalance','previewWeeklyPlan','writeWeeklyPlan','getMakeupScheduleConfig','saveMakeupScheduleConfig','clearMakeupScheduleConfig'].forEach(name=>{
+    ['getInitialData','getClassPpctSuggestions','previewBaoGiang','getTkbClassCheck','checkExistingWrite','ghiBaoGiangStep1','capNhatTienDoStep2','undoLastWrite','getPpctSourceConfig','savePpctSourceConfig','getPpctSourceConfigs','savePpctSubjectSourceConfig','getPpctAuthorizationInfo','previewPpctRebalance','applyPpctRebalance','undoPpctRebalance','previewWeeklyPlan','writeWeeklyPlan','getMakeupScheduleConfig','saveMakeupScheduleConfig','clearMakeupScheduleConfig','getExtraLessonConfig','previewExtraLesson','saveExtraLesson','deleteExtraLesson'].forEach(name=>{
       runner[name]=function(...args){
         const ok=success,fail=failure;success=function(){};failure=function(){};
         setTimeout(()=>{try{ok(samples[name](...args))}catch(err){fail(err)}},180);
@@ -5430,7 +5452,7 @@ function v470RenderTodayQuick(res){
   sumEl.textContent=info.label+' · '+v470FmtDate(info.date)+' · '+total+' tiết'+(sourceLabel?' · '+sourceLabel:'');
   v4122ApplySourceBadge(source,sourceLabel);
   const noteEl=document.getElementById('v470TodayNote');
-  if(noteEl) noteEl.textContent=source==='tkb_fallback'?'Ngày này chưa có dữ liệu trong Lịch báo giảng nên app đang tạm lấy từ TKB.':'';
+  if(noteEl) noteEl.textContent=source==='tkb_fallback'?'Ngày này chưa có dữ liệu trong Lịch báo giảng nên app đang tạm lấy từ TKB.':(source==='schedule_extra'?'Đang hiển thị lịch đã chèn Tiết phát sinh; bấm Ghi Báo giảng để đồng bộ vào sheet.':'');
   v488TodayData={sessions:sessions}; v488TodaySession=''; v488RenderSession();
 }
 function v4122ApplySourceBadge(source,label){
@@ -5438,6 +5460,7 @@ function v4122ApplySourceBadge(source,label){
   if(source==='bao_giang'){badgeEl.hidden=false;badgeEl.textContent=label||'Báo giảng';}
   else if(source==='tkb_fallback'){badgeEl.hidden=false;badgeEl.textContent='TKB dự phòng';}
   else if(source==='mixed'){badgeEl.hidden=false;badgeEl.textContent='Báo giảng + TKB';}
+  else if(source==='schedule_extra'){badgeEl.hidden=false;badgeEl.textContent=label||'Lịch + Phát sinh';}
   else badgeEl.hidden=true;
 }
 function v4122TotalSessions(sessions){return ((sessions&&sessions['Sáng'])||[]).length+((sessions&&sessions['Chiều'])||[]).length;}
@@ -5458,9 +5481,10 @@ function v4122RenderWeekChoice(){
     const from=days[0]&&v4122ShortDate(days[0].targetYmd), to=days[5]&&v4122ShortDate(days[5].targetYmd);
     const anyFallback=days.some(d=>d.source==='tkb_fallback');
     const anyReport=days.some(d=>d.source==='bao_giang');
-    sumEl.textContent='Tuần '+(from||'')+' → '+(to||'')+' · '+total+' tiết'+(anyFallback?' · Có TKB dự phòng':' · Lịch báo giảng');
-    v4122ApplySourceBadge(anyFallback&&anyReport?'mixed':(anyFallback?'tkb_fallback':'bao_giang'),'Lịch báo giảng');
-    if(noteEl) noteEl.textContent=anyFallback?'Một số ngày chưa có Báo giảng nên app đang hiển thị TKB dự phòng cho riêng ngày đó.':'';
+    const anyExtra=days.some(d=>d.source==='schedule_extra');
+    sumEl.textContent='Tuần '+(from||'')+' → '+(to||'')+' · '+total+' tiết'+(anyExtra?' · Có Tiết phát sinh':(anyFallback?' · Có TKB dự phòng':' · Lịch báo giảng'));
+    v4122ApplySourceBadge(anyExtra?'schedule_extra':(anyFallback&&anyReport?'mixed':(anyFallback?'tkb_fallback':'bao_giang')),anyExtra?'Lịch + Phát sinh':'Lịch báo giảng');
+    if(noteEl) noteEl.textContent=anyExtra?'PPCT đã được dồn theo Tiết phát sinh. Bấm Ghi Báo giảng để đồng bộ vào sheet.':(anyFallback?'Một số ngày chưa có Báo giảng nên app đang hiển thị TKB dự phòng cho riêng ngày đó.':'');
     listEl.innerHTML='';
     days.forEach((d,i)=>{
       const group=document.createElement('div');group.className='v4122-week-group';
@@ -5476,7 +5500,7 @@ function v4122RenderWeekChoice(){
   const total=v4122TotalSessions(d.sessions);
   sumEl.textContent=d.label+' · '+v4122ShortDate(d.targetYmd)+'/'+String(v4122DateFromYmd(d.targetYmd).getFullYear())+' · '+total+' tiết'+(d.sourceLabel?' · '+d.sourceLabel:'');
   v4122ApplySourceBadge(d.source,d.sourceLabel);
-  if(noteEl) noteEl.textContent=d.source==='tkb_fallback'?'Ngày này chưa có dữ liệu trong Lịch báo giảng nên app đang tạm lấy từ TKB.':'';
+  if(noteEl) noteEl.textContent=d.source==='tkb_fallback'?'Ngày này chưa có dữ liệu trong Lịch báo giảng nên app đang tạm lấy từ TKB.':(d.source==='schedule_extra'?'Đang hiển thị lịch đã chèn Tiết phát sinh; bấm Ghi Báo giảng để đồng bộ vào sheet.':'');
   v488TodayData={sessions:d.sessions||{Sáng:[],Chiều:[]}};v488TodaySession='';v488RenderSession();
 }
 function v4122MakeLessonRow(r){
@@ -6707,12 +6731,15 @@ function v488RenderSession(){
   listEl.innerHTML='';
   (sessions[v488TodaySession]||[]).forEach(r=>{
     const div=document.createElement('div');div.className='v470-today-item';div.classList.add('v5102-period-'+Number(r.period));
-    div.innerHTML='<span class="period">Tiết '+(r.period||'')+'</span><span class="class">'+(r.className||'')+'</span><span class="ppct">'+v4135PpctBadgeText(r.ppct)+'</span><span class="lesson">'+(r.lesson||r.subject||'')+'</span><span class="v488-time">'+(r.time||v488SessionTime(v488TodaySession,r.period))+'</span>';listEl.appendChild(div);
+    if(r.isExtra)div.classList.add('v4150-extra-row');
+    const extraBadge=r.isExtra?'<span class="v4150-extra-badge">★ Phát sinh</span>':'';
+    div.innerHTML='<span class="period">Tiết '+(r.period||'')+'</span><span class="class">'+(r.className||'')+'</span><span class="ppct">'+v4135PpctBadgeText(r.ppct)+'</span><span class="lesson">'+(r.lesson||r.subject||'')+extraBadge+'</span><span class="v488-time">'+(r.time||v488SessionTime(v488TodaySession,r.period))+'</span>';listEl.appendChild(div);
   });
 }
 function v4122MakeLessonRow(r){
   const div=document.createElement('div');div.className='v470-today-item';div.classList.add('v5102-period-'+Number(r.period));
-  div.innerHTML='<span class="period">Tiết '+(r.period||'')+'</span><span class="class">'+(r.className||'')+'</span><span class="ppct">'+v4135PpctBadgeText(r.ppct)+'</span><span class="lesson">'+(r.lesson||r.subject||'')+'</span><span class="v488-time">'+(r.time||v488SessionTime(r.session||'Sáng',r.period))+'</span>';return div;
+  if(r.isExtra)div.classList.add('v4150-extra-row');const extraBadge=r.isExtra?'<span class="v4150-extra-badge">★ Phát sinh</span>':'';
+  div.innerHTML='<span class="period">Tiết '+(r.period||'')+'</span><span class="class">'+(r.className||'')+'</span><span class="ppct">'+v4135PpctBadgeText(r.ppct)+'</span><span class="lesson">'+(r.lesson||r.subject||'')+extraBadge+'</span><span class="v488-time">'+(r.time||v488SessionTime(r.session||'Sáng',r.period))+'</span>';return div;
 }
 </script>
 
@@ -8383,10 +8410,11 @@ function loadClasses(){
     else if(subjects.length===1) sourceText='Môn: '+subjects[0]+'. ';
     const missing=sources.filter(x=>!x.configured).map(x=>x.subject);
     if(missing.length) sourceText+='Chưa gắn nguồn PPCT cho: '+missing.join(', ')+'. ';
-    else if(sources.length) sourceText+='Đã có nguồn PPCT riêng cho các môn. ';
+    else if(sources.length) sourceText+='Đã có nguồn PPCT cho các môn. ';
     setStatus('Đã tự lấy tiến độ gần nhất riêng cho từng Lớp + Môn. '+sourceText+'Nếu không có thay đổi, giữ nguyên PPCT đề xuất.',true);
     refreshTkbCheck();
     refreshTodayQuickView();
+    if(typeof v4150ReloadIfOpen==='function')v4150ReloadIfOpen();
   }).withFailureHandler(e=>setStatus('Không lấy được PPCT từ Lịch báo giảng: '+e.message,false))
     .getClassPpctSuggestions(key,reportSheet,document.getElementById('tkbSheet').value);
 }
@@ -8503,6 +8531,50 @@ function savePpctSource(){
 }
 </script>
 
+
+<style id="v4150-extra-style">
+.v4150-extra-toggle{height:31px;border:1px solid #8ebdf2;border-radius:9px;background:#f4f9ff;color:#0e61bd;padding:0 10px;font-size:10.5px;font-weight:900;cursor:pointer;white-space:nowrap}.v4150-extra-toggle:hover{background:#eaf4ff}
+.v4150-extra-panel{margin:7px 0 9px;padding:10px;border:1px solid #cfe0f2;border-radius:12px;background:#fbfdff;box-shadow:0 4px 15px rgba(25,79,133,.05)}
+@media(min-width:761px){.v4107-today-card:has(#v4150ExtraPanel:not([hidden])){display:block!important;width:100%!important;margin:0 0 8px!important}.v4107-today-card:has(#v4150ExtraPanel:not([hidden])) + .v4107-tools-card{display:block!important;width:100%!important;margin:0!important}.v4107-today-card:has(#v4150ExtraPanel:not([hidden])) + .v4107-tools-card .v458-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
+.v4150-extra-panel-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:9px}.v4150-extra-panel-head b{display:block;color:#134f8e;font-size:13px}.v4150-extra-panel-head small{display:block;margin-top:2px;color:#73869a;font-size:9.6px}.v4150-extra-panel-head>button{border:0;background:#eef3f8;color:#647b91;width:28px;height:28px;border-radius:8px;font-size:18px;cursor:pointer}
+.v4150-extra-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.v4150-extra-grid label,.v4150-note-field{display:block;min-width:0}.v4150-extra-grid label>span,.v4150-note-field>span{display:block;margin-bottom:4px;color:#315873;font-size:9.5px;font-weight:850}.v4150-extra-grid input,.v4150-extra-grid select,.v4150-note-field input,.v4150-auto output{box-sizing:border-box;width:100%;height:34px;border:1px solid #c9d9e8;border-radius:8px;background:#fff;color:#23435f;padding:0 9px;font-size:10.5px;outline:none}.v4150-extra-grid input:focus,.v4150-extra-grid select:focus,.v4150-note-field input:focus{border-color:#589be5;box-shadow:0 0 0 3px rgba(60,139,226,.10)}
+.v4150-segment{display:grid;grid-template-columns:1fr 1fr;height:34px}.v4150-segment button{border:1px solid #c9d9e8;background:#fff;color:#456078;font-size:9.8px;font-weight:800;cursor:pointer}.v4150-segment button:first-child{border-radius:8px 0 0 8px}.v4150-segment button:last-child{border-radius:0 8px 8px 0;border-left:0}.v4150-segment button.active{background:#edf6ff;color:#0f61bc;border-color:#75a9e5}.v4150-segment button.active+button{border-left-color:#75a9e5}
+.v4150-auto output{display:flex;align-items:center;background:#f7fbff;color:#185e9e;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v4150-lesson{grid-column:span 2}.v4150-note-field{margin-top:8px}.v4150-note-field em{font-style:normal;font-weight:600;color:#8998a8}.v4150-extra-status{margin-top:8px;padding:7px 9px;border-left:3px solid #77a9df;background:#f2f8ff;color:#57728c;font-size:9.4px;line-height:1.35}.v4150-extra-status.ok{border-left-color:#25a66a;background:#f1fbf6;color:#287151}.v4150-extra-status.warn{border-left-color:#e5a93d;background:#fff9ed;color:#8a611a}
+.v4150-extra-actions{display:flex;gap:7px;margin-top:8px}.v4150-extra-actions button{height:34px;padding:0 12px;border:1px solid #c4d5e6;border-radius:8px;background:#fff;color:#31516e;font-size:9.8px;font-weight:850;cursor:pointer}.v4150-extra-actions .primary{background:#0fa66a;border-color:#0fa66a;color:#fff}.v4150-extra-actions button:disabled{opacity:.55;cursor:wait}
+.v4150-extra-list-wrap{margin-top:9px;border-top:1px solid #e2ebf4;padding-top:8px}.v4150-extra-list-title{display:flex;align-items:center;gap:7px;margin-bottom:5px;color:#31516e;font-size:10px}.v4150-extra-list-title span{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:#eaf3ff;color:#1662b6;font-weight:900}.v4150-extra-item{display:grid;grid-template-columns:80px 55px 55px 60px minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:6px 4px;border-bottom:1px solid #edf2f7;font-size:9.5px}.v4150-extra-item:last-child{border-bottom:0}.v4150-extra-item b{color:#183d61}.v4150-extra-item .chip{display:inline-flex;justify-content:center;padding:4px 6px;border-radius:999px;background:#eef6ff;color:#1662b6;font-weight:850}.v4150-extra-item .lesson{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#435d74}.v4150-extra-item button{height:27px;border:1px solid #c9d9e8;border-radius:7px;background:#fff;font-size:9px;font-weight:800;color:#1763b7;padding:0 7px;cursor:pointer}.v4150-extra-item button.delete{color:#c44848;border-color:#f0cccc}
+.v470-today-item.v4150-extra-row{background:linear-gradient(90deg,#f3fcf7,#fbfffd)!important;box-shadow:inset 3px 0 #19a66a}.v4150-extra-badge{display:inline-flex;align-items:center;margin-left:8px;padding:3px 7px;border:1px solid #b8e6ce;border-radius:999px;background:#eaf9f1;color:#138252;font-size:9px;font-weight:900;vertical-align:middle;white-space:nowrap}
+@media(max-width:760px){.v4150-extra-toggle{height:30px;padding:0 7px;font-size:9px}.v4150-extra-toggle span{display:none}.v4150-extra-panel{padding:8px;margin:6px 0 8px}.v4150-extra-grid{grid-template-columns:1fr 1fr;gap:6px}.v4150-lesson{grid-column:1/-1}.v4150-extra-grid label>span,.v4150-note-field>span{font-size:8.8px}.v4150-extra-grid input,.v4150-extra-grid select,.v4150-auto output,.v4150-segment{height:33px}.v4150-extra-actions{display:grid;grid-template-columns:1.3fr 1fr .7fr}.v4150-extra-actions button{padding:0 5px;font-size:8.8px}.v4150-extra-item{grid-template-columns:1fr 48px 48px 52px auto auto;grid-template-areas:'date date date date edit delete' 'period class ppct lesson lesson lesson';gap:5px}.v4150-extra-item .date{grid-area:date}.v4150-extra-item .period{grid-area:period}.v4150-extra-item .class{grid-area:class}.v4150-extra-item .ppct{grid-area:ppct}.v4150-extra-item .lesson{grid-area:lesson}.v4150-extra-item .edit{grid-area:edit}.v4150-extra-item .delete{grid-area:delete}.v4150-extra-badge{margin-left:4px;font-size:8px;padding:2px 5px}}
+</style>
+<script id="v4150-extra-js">
+let v4150ExtraMeta={items:[],classOptions:[],subjectOptions:[]};
+let v4150EditingId='';
+let v4150Session='Sáng';
+let v4150Track='regular';
+let v4150PreviewTimer=null;
+function v4150Esc(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function v4150Ymd(d){return d&&/^\d{4}-\d{2}-\d{2}$/.test(d)?d:'';}
+function v4150MondayYmd(){const p=getWeekPayload();return v4150Ymd(p&&p.monday)||'';}
+function v4150AddDaysYmd(ymd,n){if(!ymd)return'';const a=ymd.split('-').map(Number),d=new Date(a[0],a[1]-1,a[2],12);d.setDate(d.getDate()+Number(n||0));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function v4150DayNumFromYmd(ymd){if(!ymd)return null;const a=ymd.split('-').map(Number),d=new Date(a[0],a[1]-1,a[2],12),g=d.getDay();return g===0?8:g+1;}
+function v4150DefaultDate(){if(v4122ViewMode==='week'&&v4122WeekData&&Array.isArray(v4122WeekData.days)&&v4122WeekChoice>=0){const d=v4122WeekData.days[v4122WeekChoice];if(d&&d.targetYmd)return d.targetYmd;}const mon=v4150MondayYmd();if(!mon)return'';if(v4122ViewMode==='week')return mon;const now=new Date(),off=Number(v5116DayOffset||0);now.setDate(now.getDate()+off);const y=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');return y>=mon&&y<=v4150AddDaysYmd(mon,5)?y:mon;}
+function v4150ToggleExtraPanel(force){const p=document.getElementById('v4150ExtraPanel');if(!p)return;const show=force==null?p.hidden:!!force;p.hidden=!show;if(show){v4150LoadExtraConfig();setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'nearest'}),30);}}
+function v4150ReloadIfOpen(){const p=document.getElementById('v4150ExtraPanel');if(p&&!p.hidden)v4150LoadExtraConfig();}
+function v4150SetSession(v){v4150Session=v==='Chiều'?'Chiều':'Sáng';document.getElementById('v4150SessionMorning')?.classList.toggle('active',v4150Session==='Sáng');document.getElementById('v4150SessionAfternoon')?.classList.toggle('active',v4150Session==='Chiều');v4150BuildPeriods();v4150ExtraFieldChanged();}
+function v4150SetTrack(v){v4150Track=v==='elective'?'elective':'regular';document.getElementById('v4150TrackRegular')?.classList.toggle('active',v4150Track==='regular');document.getElementById('v4150TrackElective')?.classList.toggle('active',v4150Track==='elective');v4150ExtraFieldChanged();}
+function v4150BuildPeriods(selected){const el=document.getElementById('v4150ExtraPeriod');if(!el)return;const max=v4150Session==='Chiều'?3:5;const prev=Number(selected||el.value||1);el.innerHTML='';for(let i=1;i<=max;i++){const o=document.createElement('option');o.value=i;o.textContent='Tiết '+i;el.appendChild(o);}el.value=String(Math.min(Math.max(prev,1),max));}
+function v4150SetOptions(elId,items,selected){const el=document.getElementById(elId);if(!el)return;el.innerHTML='';(items||[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});if(selected&&items.includes(selected))el.value=selected;}
+function v4150Status(msg,cls){const el=document.getElementById('v4150ExtraStatus');if(!el)return;el.className='v4150-extra-status'+(cls?' '+cls:'');el.innerHTML=msg;}
+function v4150LoadExtraConfig(){v4150Status('Đang đọc Tiết phát sinh của tuần...','');google.script.run.withSuccessHandler(res=>{v4150ExtraMeta=res||{items:[]};v4150SetOptions('v4150ExtraClass',v4150ExtraMeta.classOptions||[],document.getElementById('v4150ExtraClass')?.value);v4150SetOptions('v4150ExtraSubject',v4150ExtraMeta.subjectOptions||[],document.getElementById('v4150ExtraSubject')?.value);v4150RenderExtraList();if(!v4150EditingId)v4150ResetExtraForm(true);else v4150PreviewExtra(true);v4150Status('Chọn ngày, tiết, lớp; app tự lấy PPCT và tên bài trước khi lưu.','ok');}).withFailureHandler(e=>v4150Status('⚠ '+v4150Esc((e&&e.message)||e||'Không đọc được Tiết phát sinh.'),'warn')).getExtraLessonConfig(currentWritePayload());}
+function v4150ResetExtraForm(keepConfig){v4150EditingId='';v4150Session='Sáng';v4150Track='regular';v4150SetSession('Sáng');v4150SetTrack('regular');const d=document.getElementById('v4150ExtraDate');if(d){const mon=v4150MondayYmd();d.min=mon;d.max=v4150AddDaysYmd(mon,5);d.value=v4150DefaultDate();}v4150BuildPeriods(1);const n=document.getElementById('v4150ExtraNote');if(n)n.value='';const pp=document.getElementById('v4150ExtraPpct');if(pp)pp.textContent='Tự lấy PPCT kế tiếp';const le=document.getElementById('v4150ExtraLesson');if(le)le.textContent='Chọn ngày, tiết và lớp để xem trước';const b=document.getElementById('v4150ExtraSave');if(b)b.textContent='✓ Lưu tiết phát sinh';if(!keepConfig)v4150PreviewExtra(true);else setTimeout(()=>v4150PreviewExtra(true),0);}
+function v4150FormItem(){const date=document.getElementById('v4150ExtraDate')?.value||'';return{id:v4150EditingId||'',dayNum:v4150DayNumFromYmd(date),session:v4150Session,period:Number(document.getElementById('v4150ExtraPeriod')?.value||1),className:document.getElementById('v4150ExtraClass')?.value||'',subject:document.getElementById('v4150ExtraSubject')?.value||'',track:v4150Track,note:document.getElementById('v4150ExtraNote')?.value||''};}
+function v4150ExtraFieldChanged(){clearTimeout(v4150PreviewTimer);v4150PreviewTimer=setTimeout(()=>v4150PreviewExtra(true),250);}
+function v4150PreviewExtra(silent){const item=v4150FormItem();if(!item.dayNum||!item.className||!item.subject)return;const pp=document.getElementById('v4150ExtraPpct'),le=document.getElementById('v4150ExtraLesson');if(pp)pp.textContent='Đang tính...';if(le)le.textContent='Đang lấy tên bài...';google.script.run.withSuccessHandler(res=>{const x=res&&res.item||{};if(pp)pp.textContent=v4135PpctBadgeText(x.ppct).replace(/^CT\s+/,'PPCT ');if(le)le.textContent=x.lesson||'Chưa có tên bài';v4150Status('✓ '+v4150Esc(x.className||'')+' · '+v4150Esc(v4150Session)+' · Tiết '+v4150Esc(x.period||'')+' → '+v4150Esc(v4135PpctBadgeText(x.ppct))+(silent?'':' · Sẵn sàng lưu'),'ok');}).withFailureHandler(e=>{if(pp)pp.textContent='Chưa xác định';if(le)le.textContent='Không thể lấy tên bài';v4150Status('⚠ '+v4150Esc((e&&e.message)||e||'Không xem trước được.'),'warn');}).previewExtraLesson(currentWritePayload(),item);}
+function v4150SaveExtra(){const b=document.getElementById('v4150ExtraSave');if(b){b.disabled=true;b.textContent='Đang lưu...';}google.script.run.withSuccessHandler(res=>{v4150ExtraMeta=res||v4150ExtraMeta;v4150RenderExtraList();v4150ResetExtraForm(true);refreshTodayQuickView();if(typeof refreshTkbCheck==='function')refreshTkbCheck();v4150Status('✓ Đã lưu Tiết phát sinh. PPCT các tiết sau của đúng lớp/môn đã tự dồn lại.','ok');if(typeof setStatus==='function')setStatus('✓ Đã thêm Tiết phát sinh. Bấm Ghi Báo giảng để đồng bộ vào sheet.',true);if(b){b.disabled=false;b.textContent='✓ Lưu tiết phát sinh';}}).withFailureHandler(e=>{v4150Status('⚠ '+v4150Esc((e&&e.message)||e||'Không lưu được.'),'warn');if(b){b.disabled=false;b.textContent=v4150EditingId?'✓ Lưu thay đổi':'✓ Lưu tiết phát sinh';}}).saveExtraLesson(currentWritePayload(),v4150FormItem());}
+function v4150RenderExtraList(){const arr=v4150ExtraMeta.items||[],wrap=document.getElementById('v4150ExtraListWrap'),list=document.getElementById('v4150ExtraList'),count=document.getElementById('v4150ExtraCount');if(!wrap||!list)return;wrap.hidden=!arr.length;if(count)count.textContent=arr.length;list.innerHTML='';arr.forEach(x=>{const row=document.createElement('div');row.className='v4150-extra-item';const day='Thứ '+x.dayNum;row.innerHTML='<b class="date">'+day+' · '+v4150Esc(x.session)+'</b><span class="chip period">Tiết '+x.period+'</span><span class="chip class">'+v4150Esc(x.className)+'</span><span class="chip ppct">'+v4150Esc(v4135PpctBadgeText(x.ppct))+'</span><span class="lesson">'+v4150Esc(x.lesson||x.subject||'')+'</span><button class="edit" type="button">Sửa</button><button class="delete" type="button">Xóa</button>';row.querySelector('.edit').onclick=()=>v4150EditExtra(x.id);row.querySelector('.delete').onclick=()=>v4150DeleteExtra(x.id);list.appendChild(row);});}
+function v4150EditExtra(id){const x=(v4150ExtraMeta.items||[]).find(z=>z.id===id);if(!x)return;v4150EditingId=x.id;v4150SetSession(x.session);v4150SetTrack(x.track);const d=document.getElementById('v4150ExtraDate');if(d)d.value=v4150AddDaysYmd(v4150MondayYmd(),Number(x.dayNum)-2);v4150BuildPeriods(x.period);v4150SetOptions('v4150ExtraClass',v4150ExtraMeta.classOptions||[],x.className);v4150SetOptions('v4150ExtraSubject',v4150ExtraMeta.subjectOptions||[],x.baseSubject||String(x.subject||'').replace(/\s+CĐ$/i,''));const n=document.getElementById('v4150ExtraNote');if(n)n.value=x.note||'';const b=document.getElementById('v4150ExtraSave');if(b)b.textContent='✓ Lưu thay đổi';v4150PreviewExtra(true);document.getElementById('v4150ExtraPanel')?.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function v4150DeleteExtra(id){const x=(v4150ExtraMeta.items||[]).find(z=>z.id===id);if(!x)return;if(!confirm('Xóa Tiết '+x.period+' · '+x.className+' ở Thứ '+x.dayNum+'?'))return;google.script.run.withSuccessHandler(res=>{v4150ExtraMeta=res||v4150ExtraMeta;if(v4150EditingId===id)v4150ResetExtraForm(true);v4150RenderExtraList();refreshTodayQuickView();if(typeof refreshTkbCheck==='function')refreshTkbCheck();v4150Status('✓ Đã xóa Tiết phát sinh. Nếu tuần đã ghi, hãy Ghi Báo giảng lại để đồng bộ PPCT.','ok');}).withFailureHandler(e=>v4150Status('⚠ '+v4150Esc((e&&e.message)||e||'Không xóa được.'),'warn')).deleteExtraLesson(currentWritePayload(),id);}
+</script>
+
 <style id="v4136-makeup-style">
 .v4136-tools-configs{display:flex;align-items:center;justify-content:flex-end;gap:6px}
 .v4136-makeup-config{border-color:#d5c8f5!important;background:#faf8ff!important;color:#6642b6!important}
@@ -8569,3 +8641,111 @@ function v4136ClearAllMakeup(){
   .withFailureHandler(e=>showSaveToast('warning','⚠️ Chưa xóa được',((e&&e.message)||e||''),'',false)).clearMakeupScheduleConfig(currentWritePayload());
 }
 </script>
+
+
+<style id="v4151-school-source-style">
+/* V4.151 — Kho PPCT chuẩn toàn trường */
+.v4127-source-item{padding:12px!important;border:1px solid #d9e7f5!important;border-radius:12px!important;background:linear-gradient(180deg,#fff,#fbfdff)!important}
+.v4127-source-head{gap:10px!important}
+.v4151-source-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.v4151-source-actions button{height:32px;padding:0 11px;border-radius:8px;border:1px solid #b9d2ea;background:#f7fbff;color:#1d5f9f;font-size:9.8px;font-weight:850;cursor:pointer}
+.v4151-source-actions .school{border-color:#bce0cb;background:#f4fbf7;color:#267449}
+.v4151-source-actions .personal{border-color:#b8cff0;background:#f5f9ff;color:#245eac}
+.v4151-override{display:none;margin-top:9px;padding:9px;border:1px dashed #bcd3ea;border-radius:9px;background:#f8fbff}
+.v4151-override.show{display:block}
+.v4151-override-label{display:block;margin-bottom:6px;color:#355f86;font-size:9.5px;font-weight:800}
+.v4151-override-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+.v4151-override-row input{height:35px!important;font-size:10px!important}
+.v4151-override-row button{height:35px!important;min-width:112px!important}
+.v4151-source-detail{display:block;margin-top:6px!important;color:#58738d!important;line-height:1.45!important}
+.v4151-source-warning{margin-top:7px;padding:7px 8px;border:1px solid #f0d7ad;border-radius:8px;background:#fffaf2;color:#87591d;font-size:9.2px;line-height:1.4}
+.v4127-source-state.school-ok{background:#eaf8ef!important;color:#197344!important;border-color:#bfe5ce!important}
+.v4127-source-state.personal-ok{background:#edf5ff!important;color:#1b5fa7!important;border-color:#bed7f1!important}
+.v4127-source-state.school-warn{background:#fff5df!important;color:#98620c!important;border-color:#efd39e!important}
+@media(max-width:600px){
+ .v4151-override-row{grid-template-columns:1fr}.v4151-override-row button{width:100%}
+ .v4151-source-actions button{flex:1}
+}
+</style>
+<script id="v4151-school-source-js">
+function v4127SourceStateText(src){
+  if(src&&src.configured&&src.entries>0){
+    if(src.sourceType==='personal')return {cls:'personal-ok',text:'✓ Nguồn riêng'};
+    if(src.partial)return {cls:'school-warn',text:'⚠ Nguồn trường'};
+    return {cls:'school-ok',text:'✓ Nguồn trường'};
+  }
+  if(src&&src.configured&&src.error)return {cls:'warn',text:'⚠ Lỗi nguồn riêng'};
+  return {cls:'warn',text:'Chưa có nguồn'};
+}
+function v4151CountText(src){
+  const reg=src&&src.gradeCounts||{}, ele=src&&src.electiveGradeCounts||{}, parts=[];
+  [10,11,12].forEach(g=>{const n=Number(reg[g]||reg[String(g)]||0);if(n)parts.push('Lớp '+g+': '+n+' PPCT');});
+  const eparts=[];[10,11,12].forEach(g=>{const n=Number(ele[g]||ele[String(g)]||0);if(n)eparts.push('Lớp '+g+': '+n+' CĐ');});
+  return parts.join(' · ')+(eparts.length?(' · Chuyên đề: '+eparts.join(' · ')):'');
+}
+function v4134PpctSourceDetail(src){
+  if(!(src&&src.configured&&src.entries>0))return src&&src.error?('⚠ '+src.error):'Chưa có nguồn chuẩn cho môn này.';
+  const prefix=src.sourceType==='personal'?'Đang dùng nguồn cá nhân':'Đang dùng Kho PPCT chuẩn của trường';
+  const count=v4151CountText(src);
+  return prefix+(count?(' · '+count):'')+(src.format?(' · '+src.format):'');
+}
+function v4151WarningsHtml(src){
+  const arr=(src&&src.partial?((src.criticalWarnings&&src.criticalWarnings.length)?src.criticalWarnings:src.warnings):[])||[];if(!arr.length)return '';
+  const shown=arr.slice(0,2).map(x=>'• '+v4127Esc(x)).join('<br>');
+  return '<div class="v4151-source-warning"><b>⚠ Lưu ý từ tài liệu nguồn</b><br>'+shown+(arr.length>2?('<br>… và '+(arr.length-2)+' lưu ý khác.'):'')+'</div>';
+}
+function renderPpctSourceConfigs(res){
+  const list=document.getElementById('v4127PpctSourceList');if(!list)return;
+  const sources=(res&&res.sources)||[];
+  if(!sources.length){list.innerHTML='<small id="ppctSourceStatus">Chưa nhận diện được môn từ TKB đang chọn.</small>';return;}
+  list.innerHTML='';
+  sources.forEach(src=>{
+    const item=document.createElement('div');item.className='v4127-source-item';item.dataset.subject=src.subject||'';
+    const state=v4127SourceStateText(src);
+    const personal=src.sourceType==='personal'||!!src.isOverride;
+    item.innerHTML=
+      '<div class="v4127-source-head"><b>📘 '+v4127Esc(src.subject||'Môn')+'</b><span class="v4127-source-state '+state.cls+'">'+v4127Esc(state.text)+'</span></div>'+
+      '<small class="v4151-source-detail">'+v4127Esc(v4134PpctSourceDetail(src))+'</small>'+
+      v4151WarningsHtml(src)+
+      '<div class="v4151-source-actions">'+
+        '<button type="button" class="personal">'+(personal?'✏ Đổi nguồn riêng':'✏ Thay nguồn')+'</button>'+
+        (personal&&src.defaultAvailable?'<button type="button" class="school">↩ Dùng nguồn trường</button>':'')+
+      '</div>'+
+      '<div class="v4151-override"><span class="v4151-override-label">Nguồn cá nhân (Google Docs/Sheets) — chỉ dùng khi muốn thay PPCT chuẩn của trường</span>'+
+        '<div class="v4151-override-row"><input type="text" value="'+v4127Esc(src.url||'')+'" placeholder="Dán link nguồn cá nhân cho '+v4127Esc(src.subject||'')+'"><button type="button">✓ Lưu nguồn riêng</button></div>'+
+      '</div>';
+    const actions=item.querySelectorAll('.v4151-source-actions button');
+    if(actions[0])actions[0].addEventListener('click',()=>item.querySelector('.v4151-override')?.classList.toggle('show'));
+    if(actions[1])actions[1].addEventListener('click',()=>v4151UseSchoolSource(item));
+    const save=item.querySelector('.v4151-override-row button');if(save)save.addEventListener('click',()=>savePpctSubjectSource(item));
+    list.appendChild(item);
+    if(src.error&&personal)v4132AttachAuthButton(item,src.error);
+  });
+}
+function v4151UseSchoolSource(item){
+  if(!item)return;const subject=item.dataset.subject||'';
+  const btn=item.querySelector('.v4151-source-actions .school');if(btn){btn.disabled=true;btn.textContent='Đang chuyển…';}
+  google.script.run.withSuccessHandler(()=>{
+    if(typeof setStatus==='function')setStatus('✓ '+subject+' đã quay lại Kho PPCT chuẩn của trường.',true);
+    loadPpctSourceUi();loadClasses();
+  }).withFailureHandler(e=>{
+    if(btn){btn.disabled=false;btn.textContent='↩ Dùng nguồn trường';}
+    if(typeof setStatus==='function')setStatus(v4129CleanPpctError(e),false);
+  }).savePpctSubjectSourceConfig(subject,'');
+}
+function savePpctSubjectSource(item){
+  if(!item)return;
+  const subject=item.dataset.subject||'',input=item.querySelector('.v4151-override input'),btn=item.querySelector('.v4151-override-row button');
+  const url=input?input.value.trim():'';
+  if(!url){if(typeof setStatus==='function')setStatus('Hãy dán link nguồn cá nhân, hoặc dùng nút “Dùng nguồn trường”.',false);return;}
+  if(btn){btn.disabled=true;btn.textContent='Đang kiểm tra…';}
+  google.script.run.withSuccessHandler(src=>{
+    if(typeof setStatus==='function')setStatus('✓ Đã lưu nguồn PPCT cá nhân cho '+subject+'.',true);
+    loadPpctSourceUi();loadClasses();
+  }).withFailureHandler(e=>{
+    const msg=v4129CleanPpctError(e);if(btn){btn.disabled=false;btn.textContent='✓ Lưu nguồn riêng';}
+    if(typeof setStatus==='function')setStatus(msg,false);v4132AttachAuthButton(item,msg);
+  }).savePpctSubjectSourceConfig(subject,url);
+}
+</script>
+
