@@ -1,3 +1,33 @@
+# BÁO GIẢNG V4.154 — CỔNG GIÁO VIÊN & KHO PPCT HOÀN THIỆN
+
+Xem `CHANGELOG_V4_154.md` và `KIEM_THU_V4_154.md` để biết các thay đổi đã chốt.
+
+# V4.153 — Hoán đổi tiết tự đồng bộ
+
+Bản này kế thừa V4.152/V4.151 và bổ sung giao dịch Tiết nhận + Tiết nhường. Xem `CHANGELOG_V4_153.md` và `KIEM_THU_V4_153.md`.
+
+# V4.152 — Tiết phát sinh tự đồng bộ Lịch báo giảng + PPCT
+
+Bản này kế thừa toàn bộ V4.151 và hoàn thiện quy trình Tiết phát sinh theo nguyên tắc: **một thao tác của giáo viên → hệ thống tự xử lý phần còn lại**.
+
+## Điểm mới V4.152
+
+- Bấm **Lưu tiết phát sinh** → tự ghi ngay vào **Lịch báo giảng**.
+- Tự tính lại **PPCT + tên bài** của đúng **Lớp + Môn + Chính khóa/Chuyên đề** từ vị trí phát sinh trở đi.
+- **Sửa/Xóa** cũng tự xóa ô cũ, ghi ô mới và tính lại PPCT; không cần bấm **Ghi Báo giảng** lần nữa.
+- Không ghi đè dữ liệu lớp khác khi tuần đã có Báo giảng.
+- Tự cập nhật số tiết **Tiến độ**; lỗi Tiến độ được báo riêng.
+- Nếu đồng bộ Báo giảng thất bại, Tiết phát sinh tự hoàn tác để tránh lệch dữ liệu.
+- Lịch ngày/tuần hiển thị đúng nhãn **★ Phát sinh**.
+
+## Cập nhật V4.152
+
+1. **Apps Script (bắt buộc):** thay `Code.gs` bằng `apps-script/Code.gs` của V4.152 rồi triển khai **Phiên bản mới trên deployment hiện tại**.
+2. **GitHub/Vercel (khuyến nghị):** cập nhật project để giao diện V4.152 hiển thị đúng thông báo “đã tự đồng bộ”, bỏ hướng dẫn cũ “bấm Ghi Báo giảng”.
+3. Giữ nguyên URL `/exec`; không tạo deployment Apps Script mới.
+
+---
+
 # V4.151 — Kho PPCT chuẩn toàn trường
 
 Bản này kế thừa toàn bộ V4.150 (Tiết phát sinh), V4.149 (lọc TKB chữ trắng/gạch ngang) và Parser PPCT V2.

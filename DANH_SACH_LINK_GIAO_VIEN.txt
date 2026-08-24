@@ -1,36 +1,37 @@
-DANH SÁCH ĐƯỜNG DẪN GIÁO VIÊN — V4.144
+DANH SÁCH ĐƯỜNG DẪN GIÁO VIÊN — V4.154
 
 Ghép tên miền Vercel với đường dẫn:
 
-Nguyễn Thanh Tuấn | Toán | /gv/t-tuan
-Vi Thị Diệp | Toán | /gv/v-diep
-Lâm Thị Thu Hường | Toán | /gv/huong
-Nguyễn Thế Phong | Toán | /gv/phong
-Hà Thị Thu Oanh | Toán | /gv/ha-oanh
-Lưu Công Tuấn | Vật lí | /gv/l-tuan
-Nông Thị Bích Ngọc | Vật lí | /gv/n-ngoc
-Trương Thị Mỹ Ngọc | Vật lí | /gv/t-ngoc
-Vũ Huyền Chi | Hoá học | /gv/chi
-Nguyễn Thị Na | Hoá học | /gv/na
-Nguyễn Hồng Quyên | Sinh học | /gv/quyen
-Nông Thị Huệ | Sinh học | /gv/hue
-Ma Thị Anh | Tin học | /gv/m-anh
-Nông Hồng Lanh | Tin học | /gv/lanh
-Đàm Thị Diệp | Ngữ văn | /gv/d-diep
-Hoàng Khánh Diệp | Ngữ văn | /gv/k-diep
-Trần Thị Vân Anh | Ngữ văn | /gv/v-anh
-Lý Thu Hiền | Ngữ văn | /gv/hien
-Nông Thị Thu Bằng | Ngữ văn | /gv/bang
-Lê Kim Thoa | Lịch sử | /gv/thoa
-Nguyễn Thị Liễu | Lịch sử | /gv/ng-lieu
-Lương Thị Thanh Thủy | Địa lí | /gv/l-thuy
-Trần Thị Kim Oanh | Địa lí | /gv/t-oanh
-Hoàng Thị Ngọc Hà | GDKTPL | /gv/ha
-Lê Thị Mai | Tiếng Anh | /gv/mai
-Hà Thị Phương Dung | Tiếng Anh | /gv/dung
-Hoàng Thị Thanh Vân | Tiếng Anh | /gv/van
-Triệu Thị Đàn | Tiếng Anh | /gv/dan
-Nguyễn Thị Ngọc Liễu | GDTC | /gv/lieu
-Trần Chiến Thắng | GDTC | /gv/thang
-Nông Trung Hiếu | GDQPAN | /gv/hieu
-Lương Vũ Long | Công nghệ | /gv/long
+Lê Thị Lan Phương | GDĐP | KHXH | Hiệu trưởng | /gv/phuong
+Nguyễn Thế Phong | Toán | KHTN | Phó Hiệu trưởng | /gv/phong
+Hà Thị Thu Oanh | Toán | KHTN | Phó Hiệu trưởng | /gv/ha-oanh
+Nguyễn Thanh Tuấn | Toán | KHTN | /gv/t-tuan
+Vi Thị Diệp | Toán | KHTN | /gv/v-diep
+Lâm Thị Thu Hường | Toán | KHTN | /gv/huong
+Lưu Công Tuấn | Vật lí | KHTN | /gv/l-tuan
+Nông Thị Bích Ngọc | Vật lí | KHTN | /gv/n-ngoc
+Trương Thị Mỹ Ngọc | Vật lí | KHTN | /gv/t-ngoc
+Vũ Huyền Chi | Hoá học | KHTN | /gv/chi
+Nguyễn Thị Na | Hoá học | KHTN | /gv/na
+Nguyễn Hồng Quyên | Sinh học | KHTN | /gv/quyen
+Nông Thị Huệ | Sinh học | KHTN | /gv/hue
+Ma Thị Anh | Tin học | KHTN | /gv/m-anh
+Nông Hồng Lanh | Tin học | KHTN | /gv/lanh
+Lương Vũ Long | Công nghệ | KHTN | /gv/long
+Đàm Thị Diệp | Ngữ văn | KHXH | /gv/d-diep
+Hoàng Khánh Diệp | Ngữ văn | KHXH | /gv/k-diep
+Trần Thị Vân Anh | Ngữ văn | KHXH | /gv/v-anh
+Lý Thu Hiền | Ngữ văn | KHXH | /gv/hien
+Nông Thị Thu Bằng | Ngữ văn | KHXH | /gv/bang
+Lê Kim Thoa | Lịch sử | KHXH | /gv/thoa
+Nguyễn Thị Liễu | Lịch sử | KHXH | /gv/ng-lieu
+Lương Thị Thanh Thủy | Địa lí | KHXH | /gv/l-thuy
+Trần Thị Kim Oanh | Địa lí | KHXH | /gv/t-oanh
+Hoàng Thị Ngọc Hà | GDKTPL | KHXH | /gv/ha
+Lê Thị Mai | Tiếng Anh | KHXH | /gv/mai
+Hà Thị Phương Dung | Tiếng Anh | KHXH | /gv/dung
+Hoàng Thị Thanh Vân | Tiếng Anh | KHXH | /gv/van
+Triệu Thị Đàn | Tiếng Anh | KHXH | /gv/dan
+Nguyễn Thị Ngọc Liễu | GDTC | KHXH | /gv/lieu
+Trần Chiến Thắng | GDTC | KHXH | /gv/thang
+Nông Trung Hiếu | GDQPAN | KHXH | /gv/hieu

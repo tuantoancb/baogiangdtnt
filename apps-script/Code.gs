@@ -1,4 +1,4 @@
-// V4.151 — Kho PPCT chuẩn toàn trường; tự nhận môn từ TKB; nguồn cá nhân chỉ là tùy chọn ghi đè.
+// V4.153 — Hoán đổi tiết 2 đầu (Tiết nhận + Tiết nhường), tự đồng bộ Lịch báo giảng + PPCT; giữ V4.152/V4.151.
 
 const TKB_SPREADSHEET_ID = '1i0-iNIQeETSy__VGcNUmsD0Rj23XV-GaMF4FkNwgu58';
 
@@ -17,11 +17,13 @@ const DEFAULT_BAO_GIANG_SHEET_NAME = '17-22.8';
 // Nguồn PPCT là cấu hình ít dùng, chỉ để tra tên bài theo số PPCT.
 // Hỗ trợ Google Sheets hoặc Google Docs (bảng có cột PPCT + Tên bài/Nội dung + Khối/Lớp).
 const PPCT_SOURCE_DEFAULT = '';
+// V4.154 — Hoàn thiện Cổng giáo viên, chuẩn hóa tổ/BGH và sửa Kho PPCT lần mở đầu.
 const PPCT_SOURCE_PROPERTY = 'PPCT_SOURCE_URL';
 
 // V4.143 — Một bộ mã dùng chung cho nhiều giáo viên. Mỗi giáo viên mở bằng ?gv=<slug>.
 const FIXED_TEACHER_KEY = 'T.Tuấn'; // fallback khi link không có/không hợp lệ
 const TEACHER_PROFILES = {
+  'Phương': {fullName:'Lê Thị Lan Phương', slug:'phuong'},
   'T.Tuấn': {fullName:'Nguyễn Thanh Tuấn', slug:'t-tuan'},
   'V.Diệp': {fullName:'Vi Thị Diệp', slug:'v-diep'},
   'Hường': {fullName:'Lâm Thị Thu Hường', slug:'huong'},
@@ -79,14 +81,14 @@ function resolveTeacherKey_(ref){
 // V4.124 — Danh mục giáo viên tích hợp sẵn để nhận diện tổ tức thì, không cần quét Sheet khi mở app.
 // Nguồn đối chiếu: danh sách đội ngũ của trường (Họ tên, Tổ CM/CN, Môn).
 const TEACHER_DIRECTORY = {
-  'Lê Thị Lan Phương': {org:'KHXH', team:'KHXH', subject:'Ngữ văn'},
-  'Nguyễn Thế Phong': {org:'KHTN', team:'KHTN', subject:'Toán'},
-  'Hà Thị Thu Oanh': {org:'KHTN', team:'KHTN', subject:'Toán'},
+  'Lê Thị Lan Phương': {org:'BGH', team:'KHXH', subject:'GDĐP', role:'Hiệu trưởng'},
+  'Nguyễn Thế Phong': {org:'BGH', team:'KHTN', subject:'Toán', role:'Phó Hiệu trưởng'},
+  'Hà Thị Thu Oanh': {org:'BGH', team:'KHTN', subject:'Toán', role:'Phó Hiệu trưởng'},
   'Lưu Công Tuấn': {org:'KHTN', team:'KHTN', subject:'Vật lí'},
   'Hoàng Thị Lan': {org:'KHTN', team:'KHTN', subject:'Toán'},
   'Đàm Thị Diệp': {org:'KHXH', team:'KHXH', subject:'Ngữ văn'},
   'Triệu Thị Đàn': {org:'KHXH', team:'KHXH', subject:'Tiếng Anh'},
-  'Nguyễn Thị Ngọc Liễu': {org:'QLHS', team:'', subject:'GDTC'},
+  'Nguyễn Thị Ngọc Liễu': {org:'KHXH', team:'KHXH', subject:'GDTC'},
   'Hoàng Khánh Diệp': {org:'KHXH', team:'KHXH', subject:'Ngữ văn'},
   'Hoàng Thị Ngọc Hà': {org:'KHXH', team:'KHXH', subject:'GDKTPL'},
   'Nông Thị Thu Bằng': {org:'KHXH', team:'KHXH', subject:'Ngữ văn'},
@@ -94,15 +96,15 @@ const TEACHER_DIRECTORY = {
   'Trần Thị Vân Anh': {org:'KHXH', team:'KHXH', subject:'Ngữ văn'},
   'Hà Thị Phương Dung': {org:'KHXH', team:'KHXH', subject:'Tiếng Anh'},
   'Nguyễn Hồng Quyên': {org:'KHTN', team:'KHTN', subject:'Sinh học'},
-  'Ma Thị Anh': {org:'QLHS', team:'', subject:'Tin học'},
+  'Ma Thị Anh': {org:'KHTN', team:'KHTN', subject:'Tin học'},
   'Nông Thị Huệ': {org:'KHTN', team:'KHTN', subject:'Sinh học'},
-  'Nông Thị Bích Ngọc': {org:'Văn phòng', team:'', subject:'Vật lí'},
-  'Nông Hồng Lanh': {org:'Văn phòng', team:'', subject:'Tin học'},
+  'Nông Thị Bích Ngọc': {org:'KHTN', team:'KHTN', subject:'Vật lí'},
+  'Nông Hồng Lanh': {org:'KHTN', team:'KHTN', subject:'Tin học'},
   'Trương Thị Mỹ Ngọc': {org:'KHTN', team:'KHTN', subject:'Vật lí'},
   'Vi Thị Diệp': {org:'KHTN', team:'KHTN', subject:'Toán'},
   'Nguyễn Thanh Tuấn': {org:'KHTN', team:'KHTN', subject:'Toán'},
-  'Nông Trung Hiếu': {org:'QLHS', team:'', subject:'GDQPAN'},
-  'Trần Chiến Thắng': {org:'QLHS', team:'', subject:'GDTC'},
+  'Nông Trung Hiếu': {org:'KHXH', team:'KHXH', subject:'GDQPAN'},
+  'Trần Chiến Thắng': {org:'KHXH', team:'KHXH', subject:'GDTC'},
   'Nguyễn Thị Na': {org:'KHTN', team:'KHTN', subject:'Hoá học'},
   'Vũ Huyền Chi': {org:'KHTN', team:'KHTN', subject:'Hoá học'},
   'Lê Kim Thoa': {org:'KHXH', team:'KHXH', subject:'Lịch sử'},
@@ -128,7 +130,7 @@ function getTeacherDirectoryInfo_(teacherKeyOrName){
   if(!name)return {name:fullName,org:'',team:'',subject:'',leader:''};
   const info=TEACHER_DIRECTORY[name]||{};
   const team=info.team||'';
-  return {name:name,org:info.org||'',team:team,subject:info.subject||'',leader:TEAM_LEADERS[team]||''};
+  return {name:name,org:info.org||'',team:team,subject:info.subject||'',role:info.role||'',leader:TEAM_LEADERS[team]||''};
 }
 function getTeacherTeam_(teacherKeyOrName){return getTeacherDirectoryInfo_(teacherKeyOrName).team||'';}
 
@@ -2002,7 +2004,7 @@ function getDayDashboard(payload, offsetDays) {
   if (extraSheet && v4150HasExtraPlan_(payload.teacherKey, extraSheet)) {
     const plan = readTkbDashboardForDate_(payload.teacherKey, targetDate, extraSheet, payload.starts || {});
     return {
-      outsideWeek:false, source:'schedule_extra', sourceLabel:'Lịch + Phát sinh', sheetName:plan.sheetName,
+      outsideWeek:false, source:'schedule_extra', sourceLabel:'Lịch báo giảng + Điều chỉnh', sheetName:plan.sheetName,
       targetYmd:Utilities.formatDate(targetDate,'Asia/Ho_Chi_Minh','yyyy-MM-dd'), sessions:plan.sessions
     };
   }
@@ -2049,7 +2051,7 @@ function getWeekDashboard(payload) {
     let sessions={Sáng:[],Chiều:[]}, source='', sourceLabel='', sheetName='';
     if (hasExtraPlan) {
       const tkb = readTkbDashboardForDate_(payload.teacherKey, targetDate, planSheet, payload.starts || {});
-      sessions = tkb.sessions; source='schedule_extra'; sourceLabel='Lịch + Phát sinh'; sheetName=tkb.sheetName||planSheet;
+      sessions = tkb.sessions; source='schedule_extra'; sourceLabel='Lịch báo giảng + Phát sinh'; sheetName=tkb.sheetName||planSheet;
     } else {
       const report = readBaoGiangDashboardForDate_(payload.teacherKey, targetDate);
       sessions = report.sessions;
@@ -4751,7 +4753,13 @@ function v4127StoredSourceConfig_(subject) {
 }
 
 function getPpctSourceConfigs(teacherKey, tkbSheetName) {
-  teacherKey = teacherKey || FIXED_TEACHER_KEY;
+  // V4.154: không dùng Toán làm fallback khi giao diện chưa truyền xong giáo viên.
+  // Nếu teacherKey rỗng, trả trạng thái pending để lần mở đầu không chớp sai môn.
+  const requested = normalizeText_(teacherKey);
+  if (!requested) {
+    return {teacher:'', subjects:[], sources:[], pending:true, warehouseVersion:V4151_PPCT_WAREHOUSE_VERSION};
+  }
+  teacherKey = resolveTeacherKey_(requested);
   let subjects = [];
   try {
     subjects = readMathSchedule_(teacherKey, tkbSheetName)
@@ -4761,11 +4769,11 @@ function getPpctSourceConfigs(teacherKey, tkbSheetName) {
   const directory = getTeacherDirectoryInfo_(teacherKey);
   if (!subjects.length && directory.subject) subjects.push(v4151CanonicalSubject_(directory.subject));
   subjects = subjects.filter((s,i,arr)=>arr.findIndex(x=>v4151PlainSubjectKey_(x)===v4151PlainSubjectKey_(s))===i);
-  if (!subjects.length) subjects=['Toán'];
   return {
     teacher:TEACHER_MAP[teacherKey] || teacherKey,
     subjects:subjects,
     sources:subjects.map(s=>getPpctSourceConfig(s)),
+    pending:false,
     warehouseVersion:V4151_PPCT_WAREHOUSE_VERSION
   };
 }
@@ -4803,7 +4811,9 @@ function savePpctSourceConfig(url) {
 }
 
 function v4137GetPpctSourceStatus(teacherKey, tkbSheetName) {
-  teacherKey = teacherKey || FIXED_TEACHER_KEY;
+  const requested = normalizeText_(teacherKey);
+  if (!requested) return {subjects:[],sources:[],missing:[],pending:true,warehouseVersion:V4151_PPCT_WAREHOUSE_VERSION};
+  teacherKey = resolveTeacherKey_(requested);
   let subjects = [];
   try {
     subjects = readMathSchedule_(teacherKey, tkbSheetName).map(r=>v4151CanonicalSubject_(r.subject)).filter(Boolean);
@@ -4811,12 +4821,11 @@ function v4137GetPpctSourceStatus(teacherKey, tkbSheetName) {
   const directory = getTeacherDirectoryInfo_(teacherKey);
   if (!subjects.length && directory.subject) subjects.push(v4151CanonicalSubject_(directory.subject));
   subjects = subjects.filter((s,i,arr)=>arr.findIndex(x=>v4151PlainSubjectKey_(x)===v4151PlainSubjectKey_(s))===i);
-  if (!subjects.length) subjects=['Toán'];
   const sources=subjects.map(subject=>{
     const school=!!v4151WarehouseSource_(subject), personal=!!getPpctSourceUrl_(subject);
     return {subject:subject,configured:school||personal,sourceType:personal?'personal':(school?'school':'missing')};
   });
-  return {subjects:subjects,sources:sources,missing:sources.filter(x=>!x.configured).map(x=>x.subject),warehouseVersion:V4151_PPCT_WAREHOUSE_VERSION};
+  return {subjects:subjects,sources:sources,missing:sources.filter(x=>!x.configured).map(x=>x.subject),pending:false,warehouseVersion:V4151_PPCT_WAREHOUSE_VERSION};
 }
 
 
@@ -4824,6 +4833,727 @@ function v4137GetPpctSourceStatus(teacherKey, tkbSheetName) {
 
 
 // V4.144 — API adapter cho giao diện Vercel.
+// ============================================================================
+// V4.152 — TIẾT PHÁT SINH TỰ ĐỒNG BỘ BÁO GIẢNG + PPCT
+// - Lưu/Sửa/Xóa Tiết phát sinh => ghi ngay vào Lịch báo giảng của tuần.
+// - Chỉ tính/ghi lại đúng Lớp + Môn + loại tiết bị ảnh hưởng; các lớp khác giữ nguyên.
+// - Nếu Báo giảng tuần còn hoàn toàn trống và toàn bộ nguồn PPCT hợp lệ, tự ghi luôn cả tuần.
+// - Khi xóa/di chuyển tiết phát sinh, ô cũ được xóa và PPCT các tiết phía sau tự lùi/tiến.
+// - Cập nhật luôn số tiết Tiến độ; lỗi Tiến độ không làm mất phần Báo giảng đã đồng bộ.
+// ============================================================================
+
+function v4152ExtraPairKey_(x) {
+  x = x || {};
+  const info = v4135SubjectTrackInfo_(x.baseSubject || x.subject || '');
+  return v4127PairKey_(x.className || '', info.baseSubject || '', x.track || info.track || 'regular');
+}
+
+function v4152PreviewPairKey_(r) {
+  r = r || {};
+  const info = v4135SubjectTrackInfo_(r.baseSubject || r.subject || '');
+  return v4127PairKey_(r.className || '', info.baseSubject || '', r.track || info.track || 'regular');
+}
+
+function v4152ReportPairKey_(r) {
+  r = r || {};
+  const cls = normalizeText_(r.className).replace(/\s+/g, '');
+  const subject = normalizeText_(r.subject);
+  if (!cls || !subject) return '';
+  const info = v4135SubjectTrackInfo_(subject);
+  const ppctTrack = v4135TrackFromPpct_(r.ppct);
+  const track = ppctTrack === 'elective' ? 'elective' : info.track;
+  return v4127PairKey_(cls, info.baseSubject, track);
+}
+
+function v4152ReadReportRows_(sheet, blockStartZero) {
+  const sections = findTeacherSectionRows_(sheet, blockStartZero);
+  const startCol1 = blockStartZero + 1;
+  const out = [];
+  [['Sáng', sections.morning], ['Chiều', sections.afternoon]].forEach(pair => {
+    const session = pair[0];
+    const firstDataRow = pair[1] + 3;
+    const vals = sheet.getRange(firstDataRow, startCol1, 30, 6).getDisplayValues();
+    let currentDay = null;
+    vals.forEach((row, i) => {
+      const dayCell = normalizeText_(row[0]);
+      if (dayCell) {
+        const m = dayCell.match(/^([2-7])/);
+        if (m) currentDay = Number(m[1]);
+      }
+      const period = Number(normalizeText_(row[1]));
+      if (!currentDay || !period) return;
+      out.push({
+        row:firstDataRow + i,
+        session:session,
+        dayNum:currentDay,
+        period:period,
+        subject:normalizeText_(row[2]),
+        className:normalizeText_(row[3]).replace(/\s+/g, ''),
+        ppct:normalizeText_(row[4]),
+        lesson:normalizeText_(row[5])
+      });
+    });
+  });
+  return out;
+}
+
+function v4152ReportHasData_(rows) {
+  return (rows || []).some(r => normalizeText_(r.subject) || normalizeText_(r.className) || normalizeText_(r.ppct) || normalizeText_(r.lesson));
+}
+
+function v4152SnapshotReport_(sheet, blockStartZero) {
+  const sections = findTeacherSectionRows_(sheet, blockStartZero);
+  const startCol1 = blockStartZero + 1;
+  return [sections.morning, sections.afternoon].map(titleRow => {
+    const row = titleRow + 3;
+    const col = startCol1 + 2;
+    return {row:row, col:col, values:sheet.getRange(row, col, 30, 4).getValues()};
+  });
+}
+
+function v4152RestoreReport_(sheet, snapshot) {
+  (snapshot || []).forEach(s => sheet.getRange(s.row, s.col, s.values.length, s.values[0].length).setValues(s.values));
+}
+
+function v4152SyncExtraToBaoGiang_(payload, affectedPairKeys, reason) {
+  payload = payload || {};
+  if (!payload.teacherKey) throw new Error('Thiếu giáo viên để đồng bộ Tiết phát sinh.');
+  const teacherKey = payload.teacherKey;
+  const fullName = TEACHER_MAP[teacherKey];
+  if (!fullName) throw new Error('Giáo viên không hợp lệ.');
+
+  // Validate tuần/ngày và suy ra đúng sheet Báo giảng từ TKB đang chọn.
+  const weekMeta = buildWeekMeta_(payload);
+  const reportSheetName = getSelectedReportSheetName_(payload);
+  const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(reportSheetName);
+  if (!sh) throw new Error('Không tìm thấy sheet Báo giảng: ' + reportSheetName);
+
+  const blockStartZero = findTeacherBlockStart_(sh, fullName);
+  const startCol1 = blockStartZero + 1;
+  const reportRows = v4152ReadReportRows_(sh, blockStartZero);
+  const reportWasBlank = !v4152ReportHasData_(reportRows);
+  const slotByKey = {};
+  reportRows.forEach(r => slotByKey[r.session + '|' + r.dayNum + '|' + r.period] = r);
+
+  const allRecords = buildPreview_(teacherKey, payload.starts || {}, payload.monday || '', payload.tkbSheet);
+  const affected = {};
+  (affectedPairKeys || []).forEach(k => { if (normalizeText_(k)) affected[k] = true; });
+  if (!Object.keys(affected).length) throw new Error('Không xác định được lớp/môn cần đồng bộ.');
+
+  const affectedRecords = allRecords.filter(r => affected[v4152PreviewPairKey_(r)]);
+  const affectedMissing = affectedRecords.filter(r => !normalizeText_(r.lesson) || r.lessonMissing);
+  if (affectedMissing.length) {
+    const r = affectedMissing[0];
+    throw new Error(r.lessonMissingReason || ('Chưa có tên bài PPCT cho ' + r.className + ' · ' + r.subject + ' · ' + r.ppct + '.'));
+  }
+
+  // Nếu tuần đang trống, chỉ ghi toàn bộ tuần khi tất cả nguồn đều đầy đủ.
+  const allMissing = allRecords.filter(r => !normalizeText_(r.lesson) || r.lessonMissing);
+  const fullSync = reportWasBlank && allMissing.length === 0;
+  const recordsToWrite = fullSync ? allRecords : affectedRecords;
+
+  recordsToWrite.forEach(r => {
+    if (!slotByKey[r.session + '|' + r.dayNum + '|' + r.period]) {
+      throw new Error('Không tìm thấy ô Báo giảng cho ' + r.session + ' Thứ ' + r.dayNum + ' tiết ' + r.period + '.');
+    }
+  });
+
+  const snapshot = v4152SnapshotReport_(sh, blockStartZero);
+  let cleared = 0;
+  let written = 0;
+  try {
+    updateReportMetadata_(sh, blockStartZero, payload);
+
+    if (fullSync) {
+      reportRows.forEach(r => {
+        sh.getRange(r.row, startCol1 + 2, 1, 4).clearContent();
+        cleared += 1;
+      });
+    } else {
+      reportRows.forEach(r => {
+        const pairKey = v4152ReportPairKey_(r);
+        if (pairKey && affected[pairKey]) {
+          sh.getRange(r.row, startCol1 + 2, 1, 4).clearContent();
+          cleared += 1;
+        }
+      });
+    }
+
+    recordsToWrite.forEach(r => {
+      const slot = slotByKey[r.session + '|' + r.dayNum + '|' + r.period];
+      sh.getRange(slot.row, startCol1 + 2, 1, 4).setValues([[
+        r.subject,
+        r.className,
+        r.ppct,
+        r.lesson
+      ]]);
+      v4141FormatWrittenRow_(sh, blockStartZero, slot.row);
+      written += 1;
+    });
+    SpreadsheetApp.flush();
+  } catch (e) {
+    try {
+      v4152RestoreReport_(sh, snapshot);
+      SpreadsheetApp.flush();
+    } catch (restoreErr) {}
+    throw e;
+  }
+
+  let progressDetails = [];
+  let progressError = '';
+  try {
+    progressDetails = updateProgressReport_(payload, allRecords);
+  } catch (e) {
+    progressError = e && e.message ? e.message : String(e);
+  }
+
+  const affectedRows = allRecords.filter(r => affected[v4152PreviewPairKey_(r)]);
+  const affectedClasses = Array.from(new Set(affectedRows.map(r => r.className))).sort();
+  const affectedSubjects = Array.from(new Set(affectedRows.map(r => r.subject))).sort();
+  return {
+    ok:true,
+    reason:reason || 'save',
+    sheet:reportSheetName,
+    reportWasBlank:reportWasBlank,
+    fullSync:fullSync,
+    partialInitial:reportWasBlank && !fullSync,
+    written:written,
+    cleared:cleared,
+    affectedClasses:affectedClasses,
+    affectedSubjects:affectedSubjects,
+    weekInfo:{week:weekMeta.week,from:fmtDMY_(weekMeta.monday),to:fmtDMY_(weekMeta.saturday)},
+    progress:{ok:!progressError,error:progressError,details:progressDetails}
+  };
+}
+
+// Override cuối cùng: giữ đủ cờ Phát sinh để Lịch ngày/tuần hiển thị nhãn chính xác.
+function readTeacherScheduleAll_(teacherKey, tkbSheetName) {
+  return v4136ReadEffectiveSchedule_(teacherKey, tkbSheetName).map(x => ({
+    dayNum:x.dayNum, session:x.session, period:x.period, className:x.className, subject:x.subject,
+    isMakeup:!!x.isMakeup, makeupSource:x.makeupSource||'', originalDayNum:x.originalDayNum||null,
+    originalSession:x.originalSession||'', originalPeriod:x.originalPeriod||null,
+    isExtra:!!x.isExtra, extraId:x.extraId||'', extraNote:x.extraNote||''
+  }));
+}
+
+// Override V4.150: lưu và đồng bộ là MỘT giao dịch người dùng.
+function saveExtraLesson(payload, item) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const preview = v4150HypotheticalPreview_(payload, item);
+  if (preview.lessonMissing || !normalizeText_(preview.lesson)) {
+    throw new Error(preview.lessonMissingReason || ('Chưa có tên bài PPCT cho ' + preview.className + ' · ' + preview.baseSubject + '.'));
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý một thay đổi khác. Anh thử lưu lại sau vài giây.');
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const key = v4150ExtraStorageKey_(teacherKey, tkbSheetName);
+    const oldRaw = props.getProperty(key);
+    const before = v4150LoadExtraLessons_(teacherKey, tkbSheetName);
+    const oldItem = before.find(x => x.id === preview.id) || null;
+    const arr = before.filter(x => x.id !== preview.id);
+    arr.push(v4150NormalizeExtra_(preview, arr.length));
+    v4150SortSchedule_(arr);
+
+    const affected = {};
+    if (oldItem) affected[v4152ExtraPairKey_(oldItem)] = true;
+    affected[v4152ExtraPairKey_(preview)] = true;
+
+    props.setProperty(key, JSON.stringify(arr));
+    let sync;
+    try {
+      sync = v4152SyncExtraToBaoGiang_(payload, Object.keys(affected), oldItem ? 'edit' : 'save');
+    } catch (e) {
+      if (oldRaw == null) props.deleteProperty(key); else props.setProperty(key, oldRaw);
+      throw new Error('Không thể hoàn tất Tiết phát sinh nên app đã hoàn tác thay đổi. ' + (e && e.message ? e.message : String(e)));
+    }
+
+    const result = getExtraLessonConfig(payload);
+    result.sync = sync;
+    result.message = oldItem ? 'Đã sửa Tiết phát sinh, cập nhật Lịch báo giảng và tính lại PPCT.' : 'Đã lưu Tiết phát sinh, cập nhật Lịch báo giảng và tính lại PPCT.';
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function deleteExtraLesson(payload, id) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý một thay đổi khác. Anh thử xóa lại sau vài giây.');
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const key = v4150ExtraStorageKey_(teacherKey, tkbSheetName);
+    const oldRaw = props.getProperty(key);
+    const before = v4150LoadExtraLessons_(teacherKey, tkbSheetName);
+    const targetId = normalizeText_(id);
+    const removed = before.find(x => x.id === targetId);
+    if (!removed) throw new Error('Không tìm thấy tiết phát sinh cần xóa.');
+    const after = before.filter(x => x.id !== targetId);
+    if (after.length) props.setProperty(key, JSON.stringify(after)); else props.deleteProperty(key);
+
+    let sync;
+    try {
+      sync = v4152SyncExtraToBaoGiang_(payload, [v4152ExtraPairKey_(removed)], 'delete');
+    } catch (e) {
+      if (oldRaw == null) props.deleteProperty(key); else props.setProperty(key, oldRaw);
+      throw new Error('Không thể xóa đồng bộ nên app đã hoàn tác. ' + (e && e.message ? e.message : String(e)));
+    }
+
+    const result = getExtraLessonConfig(payload);
+    result.sync = sync;
+    result.message = 'Đã xóa Tiết phát sinh, cập nhật Lịch báo giảng và tính lại PPCT.';
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function clearExtraLessons(payload) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý một thay đổi khác. Anh thử lại sau vài giây.');
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const key = v4150ExtraStorageKey_(teacherKey, tkbSheetName);
+    const oldRaw = props.getProperty(key);
+    const before = v4150LoadExtraLessons_(teacherKey, tkbSheetName);
+    const affected = Array.from(new Set(before.map(v4152ExtraPairKey_).filter(Boolean)));
+    props.deleteProperty(key);
+    if (!affected.length) return getExtraLessonConfig(payload);
+    let sync;
+    try {
+      sync = v4152SyncExtraToBaoGiang_(payload, affected, 'clear');
+    } catch (e) {
+      if (oldRaw != null) props.setProperty(key, oldRaw);
+      throw new Error('Không thể xóa đồng bộ nên app đã hoàn tác. ' + (e && e.message ? e.message : String(e)));
+    }
+    const result = getExtraLessonConfig(payload);
+    result.sync = sync;
+    result.message = 'Đã xóa toàn bộ Tiết phát sinh và tính lại Lịch báo giảng/PPCT.';
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+// ============================================================================
+// V4.153 — HOÁN ĐỔI TIẾT 2 ĐẦU
+// - Một giao dịch gồm TIẾT NHẬN + TIẾT NHƯỜNG.
+// - Tiết nhường chỉ bị loại khỏi lịch thực tế, KHÔNG sửa TKB gốc.
+// - Tiết nhận được chèn vào đúng ngày/buổi/tiết và gắn cờ Hoán đổi.
+// - Có thể dùng một Tiết phát sinh đã có làm "tiết nhận"; khi đó Tiết phát sinh
+//   được chuyển vào giao dịch Hoán đổi. Nếu Hủy hoán đổi, tiết phát sinh gốc
+//   được khôi phục đúng trạng thái trước khi ghép.
+// - Lưu/Hủy => tự đồng bộ Lịch báo giảng + tính lại PPCT + Tiến độ.
+// ============================================================================
+const V4153_SWAP_PREFIX = 'V4153_SWAP_';
+
+function v4153SwapStorageKey_(teacherKey, tkbSheetName) {
+  const token = extractWeekToken_(tkbSheetName) || normalizeText_(tkbSheetName) || 'week';
+  const t = v4127SubjectKey_(teacherKey || FIXED_TEACHER_KEY);
+  const w = keyText_(token).replace(/[^a-z0-9]+/g, '_');
+  return V4153_SWAP_PREFIX + t + '_' + w;
+}
+
+function v4153SlotKey_(x) {
+  x = x || {};
+  return Number(x.dayNum) + '|' + (normalizeText_(x.session) === 'Chiều' ? 'Chiều' : 'Sáng') + '|' + Number(x.period);
+}
+
+function v4153NormalizeSlot_(raw, role) {
+  raw = raw || {};
+  const dayNum = Number(raw.dayNum);
+  const session = normalizeText_(raw.session) === 'Chiều' ? 'Chiều' : 'Sáng';
+  const period = Math.floor(Number(raw.period));
+  if (!Number.isFinite(dayNum) || dayNum < 2 || dayNum > 7) throw new Error((role || 'Tiết') + ' phải nằm từ Thứ 2 đến Thứ 7.');
+  const maxPeriod = role === 'Tiết nhường' ? 5 : (session === 'Chiều' ? 3 : 5);
+  if (!Number.isFinite(period) || period < 1 || period > maxPeriod) throw new Error((role || 'Tiết') + ' không có Tiết ' + period + ' hợp lệ ở buổi ' + session.toLowerCase() + '.');
+  return {dayNum:dayNum, dayLabel:'Thứ ' + dayNum, session:session, period:period};
+}
+
+function v4153NormalizeReceive_(raw) {
+  raw = raw || {};
+  const slot = v4153NormalizeSlot_(raw, 'Tiết nhận');
+  const className = normalizeText_(raw.className).replace(/\s+/g, '');
+  const track = normalizeText_(raw.track).toLowerCase() === 'elective' ? 'elective' : 'regular';
+  const info = v4135SubjectTrackInfo_(normalizeText_(raw.baseSubject || raw.subject));
+  const baseSubject = info.baseSubject;
+  if (!v4146ClassGrade_(className)) throw new Error('Lớp của Tiết nhận không hợp lệ.');
+  if (!baseSubject) throw new Error('Chưa chọn môn cho Tiết nhận.');
+  return Object.assign({}, slot, {
+    className:className,
+    baseSubject:baseSubject,
+    subject:track === 'elective' ? (baseSubject + ' CĐ') : baseSubject,
+    track:track
+  });
+}
+
+function v4153NormalizeSwap_(raw, idx) {
+  raw = raw || {};
+  const give = Object.assign(v4153NormalizeSlot_(raw.give || {}, 'Tiết nhường'), {
+    className:normalizeText_((raw.give || {}).className).replace(/\s+/g, ''),
+    subject:normalizeText_((raw.give || {}).subject),
+    baseSubject:normalizeText_((raw.give || {}).baseSubject),
+    track:normalizeText_((raw.give || {}).track) === 'elective' ? 'elective' : 'regular'
+  });
+  const receive = v4153NormalizeReceive_(raw.receive || {});
+  if (v4153SlotKey_(give) === v4153SlotKey_(receive)) throw new Error('Tiết nhận và Tiết nhường không được trùng cùng một ô thời khóa biểu.');
+  const originExtra = raw.originExtra ? v4150NormalizeExtra_(raw.originExtra, 0) : null;
+  return {
+    id:normalizeText_(raw.id) || ('swap_' + Utilities.getUuid()),
+    give:give,
+    receive:receive,
+    otherTeacher:normalizeText_(raw.otherTeacher).slice(0, 120),
+    note:normalizeText_(raw.note).slice(0, 300),
+    receiveOrigin:normalizeText_(raw.receiveOrigin) === 'existing_extra' ? 'existing_extra' : 'new',
+    sourceExtraId:normalizeText_(raw.sourceExtraId),
+    restoreExtraOnCancel:!!raw.restoreExtraOnCancel,
+    originExtra:originExtra,
+    createdAt:normalizeText_(raw.createdAt) || new Date().toISOString()
+  };
+}
+
+function v4153LoadSwaps_(teacherKey, tkbSheetName) {
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(v4153SwapStorageKey_(teacherKey, tkbSheetName)) || '';
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr.map((x,i) => v4153NormalizeSwap_(x,i));
+  } catch (e) { return []; }
+}
+
+function v4153BaseBeforeSwaps_(teacherKey, tkbSheetName) {
+  const base = readMathSchedule_(teacherKey, tkbSheetName);
+  return v4136ApplyMakeupRules_(base, v4136LoadMakeupRules_(teacherKey, tkbSheetName), true);
+}
+
+function v4153ApplySwaps_(schedule, swaps, strict) {
+  const original = (schedule || []).map(r => Object.assign({}, r));
+  const normalized = (swaps || []).map((x,i) => v4153NormalizeSwap_(x,i));
+  const giveSeen = {}, receiveSeen = {};
+
+  normalized.forEach(sw => {
+    const gk = v4153SlotKey_(sw.give);
+    if (giveSeen[gk]) throw new Error('Một tiết đang bị nhường trong nhiều giao dịch Hoán đổi.');
+    giveSeen[gk] = sw.id;
+    const found = original.find(r => v4153SlotKey_(r) === gk);
+    if (!found && strict) throw new Error('Không còn tiết để nhường ở ' + sw.give.session + ' Thứ ' + sw.give.dayNum + ' · Tiết ' + sw.give.period + '.');
+  });
+
+  let out = original.filter(r => !giveSeen[v4153SlotKey_(r)]).map(r => Object.assign({}, r));
+  normalized.forEach(sw => {
+    const rk = v4153SlotKey_(sw.receive);
+    if (receiveSeen[rk]) throw new Error('Hai giao dịch Hoán đổi đang nhận vào cùng một tiết.');
+    receiveSeen[rk] = sw.id;
+    const conflict = out.find(r => v4153SlotKey_(r) === rk);
+    if (conflict) {
+      if (strict) throw new Error('Tiết nhận ' + sw.receive.session + ' Thứ ' + sw.receive.dayNum + ' · Tiết ' + sw.receive.period + ' đang có ' + conflict.className + '. Hãy chọn tiết trống hoặc chọn đúng tiết đã được nhường ở giao dịch khác.');
+      return;
+    }
+    out.push({
+      dayNum:sw.receive.dayNum, dayLabel:'Thứ ' + sw.receive.dayNum, dateLabel:'',
+      session:sw.receive.session, period:sw.receive.period,
+      className:sw.receive.className, subject:sw.receive.subject,
+      isSwap:true, swapId:sw.id, swapOtherTeacher:sw.otherTeacher || '', swapNote:sw.note || '',
+      swapGiveDayNum:sw.give.dayNum, swapGiveSession:sw.give.session, swapGivePeriod:sw.give.period,
+      swapReceiveOrigin:sw.receiveOrigin || 'new'
+    });
+  });
+  return v4150SortSchedule_(out);
+}
+
+// V4.153: TKB thực tế = TKB gốc -> Dạy bù -> Hoán đổi -> Tiết phát sinh.
+function v4150BaseAdjustedSchedule_(teacherKey, tkbSheetName) {
+  return v4153ApplySwaps_(v4153BaseBeforeSwaps_(teacherKey, tkbSheetName), v4153LoadSwaps_(teacherKey, tkbSheetName), true);
+}
+
+function v4136ReadEffectiveSchedule_(teacherKey, tkbSheetName) {
+  const swapped = v4150BaseAdjustedSchedule_(teacherKey, tkbSheetName);
+  return v4150ApplyExtraLessons_(swapped, v4150LoadExtraLessons_(teacherKey, tkbSheetName), true);
+}
+
+function v4150HasExtraPlan_(teacherKey, tkbSheetName) {
+  try { return v4150LoadExtraLessons_(teacherKey, tkbSheetName).length > 0 || v4153LoadSwaps_(teacherKey, tkbSheetName).length > 0; }
+  catch (e) { return false; }
+}
+
+function readTeacherScheduleAll_(teacherKey, tkbSheetName) {
+  return v4136ReadEffectiveSchedule_(teacherKey, tkbSheetName).map(x => ({
+    dayNum:x.dayNum, session:x.session, period:x.period, className:x.className, subject:x.subject,
+    isMakeup:!!x.isMakeup, makeupSource:x.makeupSource||'', originalDayNum:x.originalDayNum||null,
+    originalSession:x.originalSession||'', originalPeriod:x.originalPeriod||null,
+    isExtra:!!x.isExtra, extraId:x.extraId||'', extraNote:x.extraNote||'',
+    isSwap:!!x.isSwap, swapId:x.swapId||'', swapOtherTeacher:x.swapOtherTeacher||'', swapNote:x.swapNote||'',
+    swapGiveDayNum:x.swapGiveDayNum||null, swapGiveSession:x.swapGiveSession||'', swapGivePeriod:x.swapGivePeriod||null
+  }));
+}
+
+// Override dashboard để giữ cờ Hoán đổi/Phát sinh khi hiển thị Lịch ngày/Cả tuần.
+function readTkbDashboardForDate_(teacherKey, targetDate, tkbSheetName, starts) {
+  const jsDay = targetDate.getDay();
+  const dayNum = jsDay === 0 ? 8 : jsDay + 1;
+  const sessions = {Sáng:[], Chiều:[]};
+  if (dayNum < 2 || dayNum > 7) return {sessions:sessions, sheetName:''};
+  const sheetName = tkbSheetForDate_(targetDate, tkbSheetName);
+  if (!sheetName) return {sessions:sessions, sheetName:''};
+  const schedule = readTeacherScheduleAll_(teacherKey, sheetName).slice().sort((a,b) =>
+    (a.dayNum-b.dayNum) || ((a.session==='Sáng'?0:1)-(b.session==='Sáng'?0:1)) ||
+    (a.period-b.period) || String(a.className).localeCompare(String(b.className)) || String(a.subject).localeCompare(String(b.subject))
+  );
+  const counters = {}, curriculums = {}, times = dashboardTimes_();
+  schedule.forEach(rec => {
+    const info = v4135SubjectTrackInfo_(rec.subject);
+    const subject = info.displaySubject, baseSubject = info.baseSubject, track = info.track;
+    const pairKey = v4127PairKey_(rec.className, subject, track);
+    if (counters[pairKey] == null) {
+      let raw = starts && starts[pairKey] != null ? starts[pairKey] : null;
+      if (raw == null && track === 'regular' && starts && starts[rec.className] != null) raw = starts[rec.className];
+      const custom = Number(raw);
+      counters[pairKey] = isFinite(custom) && custom > 0 ? custom : 1;
+    } else counters[pairKey] += 1;
+    if (rec.dayNum !== dayNum || !sessions[rec.session]) return;
+    const grade = v4146ClassGrade_(rec.className);
+    const sk = v4127SubjectKey_(baseSubject);
+    if (!curriculums[sk]) curriculums[sk] = loadPpctCurriculum_(baseSubject);
+    const ppctNum = counters[pairKey];
+    sessions[rec.session].push({
+      session:rec.session, period:rec.period, className:rec.className,
+      ppct:v4135PpctLabel_(ppctNum, track), ppctNumber:ppctNum,
+      subject:subject, baseSubject:baseSubject, track:track, isElective:track === 'elective',
+      lesson:lessonFor_(grade, ppctNum, curriculums[sk], baseSubject, track) || 'Chưa có tên bài từ Nguồn PPCT',
+      isExtra:!!rec.isExtra, extraId:rec.extraId||'', note:rec.extraNote||'',
+      isSwap:!!rec.isSwap, swapId:rec.swapId||'', swapOtherTeacher:rec.swapOtherTeacher||'', swapNote:rec.swapNote||'',
+      time:(times[rec.session] && times[rec.session][Number(rec.period)]) || ''
+    });
+  });
+  return {sessions:sessions, sheetName:sheetName};
+}
+
+function v4153PairKeyFromLesson_(x) {
+  x = x || {};
+  const info = v4135SubjectTrackInfo_(x.baseSubject || x.subject || '');
+  return v4127PairKey_(x.className || '', info.baseSubject || '', x.track || info.track || 'regular');
+}
+
+function v4153GiveOptions_(teacherKey, tkbSheetName, swaps) {
+  const base = v4153BaseBeforeSwaps_(teacherKey, tkbSheetName);
+  const used = {};
+  (swaps || []).forEach(sw => used[v4153SlotKey_(sw.give)] = true);
+  return base.filter(r => !used[v4153SlotKey_(r)]).map(r => {
+    const info = v4135SubjectTrackInfo_(r.subject);
+    return {
+      key:v4153SlotKey_(r), dayNum:Number(r.dayNum), session:r.session, period:Number(r.period),
+      className:r.className, subject:info.displaySubject, baseSubject:info.baseSubject, track:info.track,
+      label:'Thứ ' + r.dayNum + ' · ' + r.session + ' · Tiết ' + r.period + ' · ' + r.className + ' · ' + info.displaySubject
+    };
+  }).sort((a,b) => (a.dayNum-b.dayNum) || ((a.session==='Sáng'?0:1)-(b.session==='Sáng'?0:1)) || (a.period-b.period));
+}
+
+function v4153Candidate_(payload, item) {
+  payload = payload || {}; item = item || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const swaps = v4153LoadSwaps_(teacherKey, tkbSheetName);
+  const currentOthers = swaps.filter(x => x.id !== normalizeText_(item.id));
+  const extras = v4150LoadExtraLessons_(teacherKey, tkbSheetName);
+  const existingExtraId = normalizeText_(item.existingExtraId);
+  let receiveRaw = item.receive || {};
+  let originExtra = null;
+  let receiveOrigin = 'new';
+  let restoreExtraOnCancel = false;
+  let sourceExtraId = '';
+  let finalExtras = extras.slice();
+
+  if (existingExtraId) {
+    originExtra = extras.find(x => x.id === existingExtraId) || null;
+    if (!originExtra) throw new Error('Không tìm thấy Tiết phát sinh đã chọn. Có thể tiết này vừa được sửa/xóa ở nơi khác.');
+    receiveRaw = originExtra;
+    receiveOrigin = 'existing_extra';
+    restoreExtraOnCancel = true;
+    sourceExtraId = originExtra.id;
+    finalExtras = extras.filter(x => x.id !== existingExtraId);
+  }
+
+  const giveSlot = v4153NormalizeSlot_(item.give || {}, 'Tiết nhường');
+  const base = v4153BaseBeforeSwaps_(teacherKey, tkbSheetName);
+  const alreadyGiven = currentOthers.some(sw => v4153SlotKey_(sw.give) === v4153SlotKey_(giveSlot));
+  if (alreadyGiven) throw new Error('Tiết nhường này đã thuộc một giao dịch Hoán đổi khác.');
+  const giveRow = base.find(r => v4153SlotKey_(r) === v4153SlotKey_(giveSlot));
+  if (!giveRow) throw new Error('Không tìm thấy tiết đang dạy để nhường ở vị trí đã chọn.');
+  const giveInfo = v4135SubjectTrackInfo_(giveRow.subject);
+  const give = Object.assign({}, giveSlot, {
+    className:giveRow.className, subject:giveInfo.displaySubject, baseSubject:giveInfo.baseSubject, track:giveInfo.track
+  });
+
+  const candidate = v4153NormalizeSwap_({
+    id:normalizeText_(item.id) || ('swap_' + Utilities.getUuid()),
+    give:give,
+    receive:receiveRaw,
+    otherTeacher:item.otherTeacher || '', note:item.note || '',
+    receiveOrigin:receiveOrigin, sourceExtraId:sourceExtraId,
+    restoreExtraOnCancel:restoreExtraOnCancel, originExtra:originExtra,
+    createdAt:item.createdAt || ''
+  }, currentOthers.length);
+
+  if (receiveOrigin === 'new') {
+    const allowedClasses = Array.from(new Set(base.map(r => normalizeText_(r.className).replace(/\s+/g,'')))).filter(Boolean);
+    if (allowedClasses.indexOf(candidate.receive.className) < 0) throw new Error('Lớp ' + candidate.receive.className + ' chưa thuộc lịch dạy của giáo viên trong tuần này.');
+    const allowedSubjects = [];
+    base.forEach(r => { const b = v4135SubjectTrackInfo_(r.subject).baseSubject; if (b && allowedSubjects.findIndex(x => v4127SubjectKey_(x) === v4127SubjectKey_(b)) < 0) allowedSubjects.push(b); });
+    const dir = getTeacherDirectoryInfo_(teacherKey);
+    String((dir && dir.subject) || '').split(/[;,/]+/).map(normalizeText_).filter(Boolean).forEach(b => { if (allowedSubjects.findIndex(x => v4127SubjectKey_(x) === v4127SubjectKey_(b)) < 0) allowedSubjects.push(b); });
+    if (allowedSubjects.length && allowedSubjects.findIndex(x => v4127SubjectKey_(x) === v4127SubjectKey_(candidate.receive.baseSubject)) < 0) throw new Error('Môn ' + candidate.receive.baseSubject + ' chưa thuộc giáo viên trong tuần này.');
+  }
+
+  const finalSwaps = currentOthers.concat([candidate]);
+  let finalSchedule = v4153ApplySwaps_(base, finalSwaps, true);
+  finalSchedule = v4150ApplyExtraLessons_(finalSchedule, finalExtras, true);
+  const previewRows = v4150BuildPreviewFromSchedule_(finalSchedule, teacherKey, payload.starts || {}, payload.monday || '');
+  const receiveRow = previewRows.find(r => r.isSwap && r.swapId === candidate.id);
+  if (!receiveRow) throw new Error('Không tính được PPCT cho Tiết nhận.');
+
+  const affected = {};
+  affected[v4153PairKeyFromLesson_(give)] = true;
+  affected[v4152PreviewPairKey_(receiveRow)] = true;
+  const affectedRows = previewRows.filter(r => affected[v4152PreviewPairKey_(r)]);
+  const missing = affectedRows.filter(r => !normalizeText_(r.lesson) || r.lessonMissing);
+  if (missing.length) {
+    const r = missing[0];
+    throw new Error(r.lessonMissingReason || ('Chưa có tên bài PPCT cho ' + r.className + ' · ' + r.subject + ' · ' + r.ppct + '.'));
+  }
+  return {
+    teacherKey:teacherKey, tkbSheetName:tkbSheetName,
+    candidate:candidate, finalExtras:finalExtras, finalSwaps:finalSwaps,
+    givePreview:give,
+    receivePreview:Object.assign({}, candidate.receive, {
+      ppct:receiveRow.ppct, ppctNumber:receiveRow.ppctNumber, lesson:receiveRow.lesson || '', dateLabel:receiveRow.dateLabel || ''
+    }),
+    affectedPairKeys:Object.keys(affected)
+  };
+}
+
+function previewSwapLesson(payload, item) {
+  const p = v4153Candidate_(payload, item);
+  return {ok:true, item:Object.assign({}, p.candidate, {givePreview:p.givePreview, receivePreview:p.receivePreview, affectedPairKeys:p.affectedPairKeys})};
+}
+
+function getSwapLessonConfig(payload) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const swaps = v4153LoadSwaps_(teacherKey, tkbSheetName);
+  const extras = v4150LoadExtraLessons_(teacherKey, tkbSheetName);
+  const meta = v4150CandidateMeta_(teacherKey, tkbSheetName);
+  const preview = v4150BuildPreviewFromSchedule_(v4136ReadEffectiveSchedule_(teacherKey, tkbSheetName), teacherKey, payload.starts || {}, payload.monday || '');
+  const receiveById = {};
+  preview.filter(r => r.isSwap).forEach(r => receiveById[r.swapId] = r);
+  const items = swaps.map(sw => {
+    const r = receiveById[sw.id] || {};
+    return Object.assign({}, sw, {receivePreview:Object.assign({}, sw.receive, {ppct:r.ppct||'',ppctNumber:r.ppctNumber||null,lesson:r.lesson||'',dateLabel:r.dateLabel||''})});
+  });
+  return {
+    ok:true, teacher:TEACHER_MAP[teacherKey] || teacherKey, tkbSheet:tkbSheetName,
+    weekToken:extractWeekToken_(tkbSheetName),
+    classOptions:meta.classes || [], subjectOptions:meta.subjects || [],
+    giveOptions:v4153GiveOptions_(teacherKey, tkbSheetName, swaps),
+    extraOptions:extras.map(x => ({id:x.id,dayNum:x.dayNum,session:x.session,period:x.period,className:x.className,subject:x.subject,baseSubject:x.baseSubject,track:x.track,note:x.note||'',label:'Thứ '+x.dayNum+' · '+x.session+' · Tiết '+x.period+' · '+x.className+' · '+x.subject})),
+    items:items, count:items.length
+  };
+}
+
+function saveSwapLesson(payload, item) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý một thay đổi khác. Anh thử lưu Hoán đổi lại sau vài giây.');
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const swapKey = v4153SwapStorageKey_(teacherKey, tkbSheetName);
+    const extraKey = v4150ExtraStorageKey_(teacherKey, tkbSheetName);
+    const oldSwapRaw = props.getProperty(swapKey);
+    const oldExtraRaw = props.getProperty(extraKey);
+    const prepared = v4153Candidate_(payload, item);
+
+    if (prepared.finalSwaps.length) props.setProperty(swapKey, JSON.stringify(prepared.finalSwaps)); else props.deleteProperty(swapKey);
+    if (prepared.finalExtras.length) props.setProperty(extraKey, JSON.stringify(prepared.finalExtras)); else props.deleteProperty(extraKey);
+
+    let sync;
+    try {
+      sync = v4152SyncExtraToBaoGiang_(payload, prepared.affectedPairKeys, 'swap_save');
+    } catch (e) {
+      if (oldSwapRaw == null) props.deleteProperty(swapKey); else props.setProperty(swapKey, oldSwapRaw);
+      if (oldExtraRaw == null) props.deleteProperty(extraKey); else props.setProperty(extraKey, oldExtraRaw);
+      throw new Error('Không thể hoàn tất Hoán đổi nên app đã hoàn tác cả Tiết nhận và Tiết nhường. ' + (e && e.message ? e.message : String(e)));
+    }
+    const result = getSwapLessonConfig(payload);
+    result.sync = sync;
+    result.message = prepared.candidate.receiveOrigin === 'existing_extra'
+      ? 'Đã ghép Tiết phát sinh vào Hoán đổi, nhường tiết đã chọn và tự tính lại Báo giảng/PPCT.'
+      : 'Đã lưu Hoán đổi, cập nhật Lịch báo giảng và tính lại PPCT.';
+    return result;
+  } finally { lock.releaseLock(); }
+}
+
+function deleteSwapLesson(payload, id) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý một thay đổi khác. Anh thử Hủy hoán đổi lại sau vài giây.');
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const swapKey = v4153SwapStorageKey_(teacherKey, tkbSheetName);
+    const extraKey = v4150ExtraStorageKey_(teacherKey, tkbSheetName);
+    const oldSwapRaw = props.getProperty(swapKey);
+    const oldExtraRaw = props.getProperty(extraKey);
+    const before = v4153LoadSwaps_(teacherKey, tkbSheetName);
+    const targetId = normalizeText_(id);
+    const removed = before.find(x => x.id === targetId);
+    if (!removed) throw new Error('Không tìm thấy Hoán đổi cần hủy.');
+    const after = before.filter(x => x.id !== targetId);
+    let extras = v4150LoadExtraLessons_(teacherKey, tkbSheetName);
+    if (removed.restoreExtraOnCancel && removed.originExtra) {
+      const restored = v4150NormalizeExtra_(removed.originExtra, extras.length);
+      if (!extras.some(x => x.id === restored.id)) extras.push(restored);
+      v4150SortSchedule_(extras);
+    }
+    if (after.length) props.setProperty(swapKey, JSON.stringify(after)); else props.deleteProperty(swapKey);
+    if (extras.length) props.setProperty(extraKey, JSON.stringify(extras)); else props.deleteProperty(extraKey);
+
+    const affected = [v4153PairKeyFromLesson_(removed.give), v4153PairKeyFromLesson_(removed.receive)].filter(Boolean);
+    let sync;
+    try {
+      // Validate trạng thái khôi phục trước khi ghi Báo giảng.
+      v4136ReadEffectiveSchedule_(teacherKey, tkbSheetName);
+      sync = v4152SyncExtraToBaoGiang_(payload, Array.from(new Set(affected)), 'swap_delete');
+    } catch (e) {
+      if (oldSwapRaw == null) props.deleteProperty(swapKey); else props.setProperty(swapKey, oldSwapRaw);
+      if (oldExtraRaw == null) props.deleteProperty(extraKey); else props.setProperty(extraKey, oldExtraRaw);
+      throw new Error('Không thể Hủy hoán đổi nên app đã hoàn tác. ' + (e && e.message ? e.message : String(e)));
+    }
+    const result = getSwapLessonConfig(payload);
+    result.sync = sync;
+    result.restoredExtra = !!(removed.restoreExtraOnCancel && removed.originExtra);
+    result.message = result.restoredExtra
+      ? 'Đã hủy Hoán đổi; tiết nhường được phục hồi và Tiết phát sinh ban đầu cũng được khôi phục.'
+      : 'Đã hủy Hoán đổi; tiết nhường được phục hồi, tiết nhận được gỡ và PPCT đã tính lại.';
+    return result;
+  } finally { lock.releaseLock(); }
+}
+
+
 const VERCEL_API_ACTIONS = {
   'getInitialData': getInitialData,
   'getPpctSourceConfig': getPpctSourceConfig,
@@ -4860,6 +5590,10 @@ const VERCEL_API_ACTIONS = {
   'saveExtraLesson': saveExtraLesson,
   'deleteExtraLesson': deleteExtraLesson,
   'clearExtraLessons': clearExtraLessons,
+  'getSwapLessonConfig': getSwapLessonConfig,
+  'previewSwapLesson': previewSwapLesson,
+  'saveSwapLesson': saveSwapLesson,
+  'deleteSwapLesson': deleteSwapLesson,
   'v4137GetPpctSourceStatus': v4137GetPpctSourceStatus
 };
 function apiOutput_(payload) {
