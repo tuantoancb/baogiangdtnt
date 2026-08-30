@@ -1,6 +1,6 @@
-# BÁO GIẢNG V4.154 — CỔNG GIÁO VIÊN & KHO PPCT HOÀN THIỆN
+# BÁO GIẢNG V4.155 — NGÀY NGHỈ & LỊCH THỰC TẾ
 
-Xem `CHANGELOG_V4_154.md` và `KIEM_THU_V4_154.md` để biết các thay đổi đã chốt.
+Xem `CHANGELOG_V4_155.md` và `KIEM_THU_V4_155.md`. V4.155 kế thừa toàn bộ V4.154 và bổ sung Ngày nghỉ dùng chung, đồng thời chốt Lịch ngày/Cả tuần chỉ đọc từ Lịch báo giảng.
 
 # V4.153 — Hoán đổi tiết tự đồng bộ
 
@@ -145,3 +145,6 @@ Không cần thay `Index.html`, không cần thay `appsscript.json`, và không 
 - Giữ toàn bộ PPCT Parser V2 của V4.148.
 
 Chỉ cần cập nhật `apps-script/Code.gs` và tạo phiên bản triển khai mới trong deployment Apps Script hiện tại. Không cần thay Vercel/Index.html.
+
+## V4.155 — Ngày nghỉ
+V4.155 bổ sung quản lý ngày nghỉ dùng chung toàn trường. Ngày nghỉ không sửa TKB gốc; nó được áp lên lịch thực tế trước khi tính PPCT. Lịch ngày/Cả tuần chỉ đọc Lịch báo giảng. Khi một giáo viên mở/chọn tuần, app kiểm tra chữ ký ngày nghỉ và tự đồng bộ nếu có thay đổi.

@@ -1,4 +1,4 @@
-// V4.153 — Hoán đổi tiết 2 đầu (Tiết nhận + Tiết nhường), tự đồng bộ Lịch báo giảng + PPCT; giữ V4.152/V4.151.
+// V4.155 — Ngày nghỉ + Lịch ngày bám Lịch báo giảng; giữ Hoán đổi/Phát sinh/Kho PPCT.
 
 const TKB_SPREADSHEET_ID = '1i0-iNIQeETSy__VGcNUmsD0Rj23XV-GaMF4FkNwgu58';
 
@@ -3680,6 +3680,8 @@ function v4150HypotheticalPreview_(payload, rawItem) {
   const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
   const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
   const x = v4150NormalizeExtra_(rawItem || {}, 0);
+  const dayOff = (typeof v4155LoadDayOffs_ === 'function' ? v4155LoadDayOffs_() : []).find(h => v4155DayOffMatchesRecord_(h, x, tkbSheetName));
+  if (dayOff) throw new Error('Không thể thêm Tiết phát sinh vào '+v4155ScopeLabel_(dayOff).toLowerCase()+' đang nghỉ: '+dayOff.reason+'.');
   const meta = v4150CandidateMeta_(teacherKey, tkbSheetName);
   if (meta.classes.indexOf(x.className) < 0) throw new Error('Lớp ' + x.className + ' chưa thuộc lịch dạy của giáo viên trong tuần này.');
   if (meta.subjects.length && meta.subjects.findIndex(s => v4127SubjectKey_(s) === v4127SubjectKey_(x.baseSubject)) < 0) throw new Error('Môn ' + x.baseSubject + ' chưa thuộc giáo viên trong tuần này.');
@@ -5406,6 +5408,11 @@ function v4153Candidate_(payload, item) {
     createdAt:item.createdAt || ''
   }, currentOthers.length);
 
+  const giveDayOff = (typeof v4155LoadDayOffs_ === 'function' ? v4155LoadDayOffs_() : []).find(h => v4155DayOffMatchesRecord_(h, give, tkbSheetName));
+  if (giveDayOff) throw new Error('Tiết nhường đang thuộc ngày nghỉ: '+giveDayOff.reason+'.');
+  const receiveDayOff = (typeof v4155LoadDayOffs_ === 'function' ? v4155LoadDayOffs_() : []).find(h => v4155DayOffMatchesRecord_(h, candidate.receive, tkbSheetName));
+  if (receiveDayOff) throw new Error('Tiết nhận đang thuộc ngày nghỉ: '+receiveDayOff.reason+'.');
+
   if (receiveOrigin === 'new') {
     const allowedClasses = Array.from(new Set(base.map(r => normalizeText_(r.className).replace(/\s+/g,'')))).filter(Boolean);
     if (allowedClasses.indexOf(candidate.receive.className) < 0) throw new Error('Lớp ' + candidate.receive.className + ' chưa thuộc lịch dạy của giáo viên trong tuần này.');
@@ -5554,6 +5561,440 @@ function deleteSwapLesson(payload, id) {
 }
 
 
+// ============================================================================
+// V4.155 — NGÀY NGHỈ + LỊCH NGÀY BÁM 100% LỊCH BÁO GIẢNG
+// - Ngày nghỉ được lưu dùng chung toàn trường, không sửa TKB gốc.
+// - TKB vẫn là lịch dự kiến; Ngày nghỉ chỉ loại tiết khỏi lịch thực tế.
+// - PPCT/tiến độ được tính từ lịch thực tế sau khi loại ngày nghỉ.
+// - Lịch ngày/Cả tuần chỉ đọc Lịch báo giảng; không còn TKB dự phòng.
+// - Mỗi giáo viên tự đồng bộ ngày nghỉ của tuần khi mở/chọn TKB; tránh quét 33 GV
+//   trong một lần và tránh timeout Apps Script.
+// ============================================================================
+const V4155_DAY_OFF_PROPERTY = 'DAY_OFFS_V4155';
+const V4155_DAY_OFF_SYNC_PREFIX = 'DAYOFF_SYNC_V4155_';
+const V4155_DAY_OFF_NOTE_PREFIX = '💤 Nghỉ';
+
+function v4155DateYmd_(value) {
+  const s = normalizeText_(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) throw new Error('Ngày nghỉ không hợp lệ.');
+  const d = parseYmd_(s);
+  const out = Utilities.formatDate(d, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  if (out !== s) throw new Error('Ngày nghỉ không hợp lệ.');
+  return s;
+}
+
+function v4155NormalizeDayOff_(raw, idx) {
+  raw = raw || {};
+  const date = v4155DateYmd_(raw.date || raw.dateYmd || '');
+  let scope = normalizeText_(raw.scope || 'school').toLowerCase();
+  if (['school','morning','afternoon','class'].indexOf(scope) < 0) scope = 'school';
+  const className = scope === 'class' ? normalizeText_(raw.className).replace(/\s+/g, '') : '';
+  if (scope === 'class' && !v4146ClassGrade_(className)) throw new Error('Hãy chọn lớp áp dụng ngày nghỉ.');
+  const reason = normalizeText_(raw.reason) || 'Nghỉ theo kế hoạch nhà trường';
+  return {
+    id: normalizeText_(raw.id) || ('dayoff_' + Utilities.getUuid()),
+    date: date,
+    scope: scope,
+    className: className,
+    reason: reason,
+    createdAt: normalizeText_(raw.createdAt) || new Date().toISOString(),
+    updatedAt: normalizeText_(raw.updatedAt) || new Date().toISOString(),
+    order: Number(idx || 0)
+  };
+}
+
+function v4155LoadDayOffs_() {
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(V4155_DAY_OFF_PROPERTY) || '';
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr.map((x,i) => v4155NormalizeDayOff_(x,i)).sort((a,b) => a.date.localeCompare(b.date) || a.scope.localeCompare(b.scope) || a.className.localeCompare(b.className));
+  } catch (e) { return []; }
+}
+
+function v4155WriteDayOffs_(items) {
+  const clean = (items || []).map((x,i) => v4155NormalizeDayOff_(x,i)).sort((a,b) => a.date.localeCompare(b.date) || a.scope.localeCompare(b.scope) || a.className.localeCompare(b.className));
+  const props = PropertiesService.getScriptProperties();
+  if (clean.length) props.setProperty(V4155_DAY_OFF_PROPERTY, JSON.stringify(clean));
+  else props.deleteProperty(V4155_DAY_OFF_PROPERTY);
+  return clean;
+}
+
+function v4155ScopeLabel_(x) {
+  if (!x) return '';
+  if (x.scope === 'morning') return 'Buổi sáng';
+  if (x.scope === 'afternoon') return 'Buổi chiều';
+  if (x.scope === 'class') return 'Lớp ' + x.className;
+  return 'Cả trường';
+}
+
+function v4155DayNumForDate_(dateYmd, tkbSheetName) {
+  const token = extractWeekToken_(tkbSheetName);
+  const mondayYmd = token ? inferMondayFromWeekToken_(token) : '';
+  if (!mondayYmd) return null;
+  const monday = parseYmd_(mondayYmd);
+  const target = parseYmd_(dateYmd);
+  const diff = Math.round((dateOnly_(target).getTime() - dateOnly_(monday).getTime()) / 86400000);
+  const dayNum = diff + 2;
+  return dayNum >= 2 && dayNum <= 7 ? dayNum : null;
+}
+
+function v4155DayOffMatchesRecord_(holiday, rec, tkbSheetName) {
+  if (!holiday || !rec) return false;
+  const dayNum = v4155DayNumForDate_(holiday.date, tkbSheetName);
+  if (!dayNum || Number(rec.dayNum) !== dayNum) return false;
+  if (holiday.scope === 'morning') return rec.session === 'Sáng';
+  if (holiday.scope === 'afternoon') return rec.session === 'Chiều';
+  if (holiday.scope === 'class') return normalizeText_(rec.className).replace(/\s+/g,'') === holiday.className;
+  return true;
+}
+
+function v4155ScheduleBeforeDayOff_(teacherKey, tkbSheetName) {
+  const swapped = v4150BaseAdjustedSchedule_(teacherKey, tkbSheetName);
+  return v4150ApplyExtraLessons_(swapped, v4150LoadExtraLessons_(teacherKey, tkbSheetName), true);
+}
+
+function v4155FilterDayOff_(schedule, tkbSheetName) {
+  const holidays = v4155LoadDayOffs_();
+  if (!holidays.length) return (schedule || []).map(x => Object.assign({}, x));
+  return (schedule || []).filter(rec => !holidays.some(h => v4155DayOffMatchesRecord_(h, rec, tkbSheetName))).map(x => Object.assign({}, x));
+}
+
+// Ghi đè lịch thực tế: TKB -> Dạy bù -> Hoán đổi -> Phát sinh -> Ngày nghỉ.
+function v4136ReadEffectiveSchedule_(teacherKey, tkbSheetName) {
+  return v4155FilterDayOff_(v4155ScheduleBeforeDayOff_(teacherKey, tkbSheetName), tkbSheetName);
+}
+
+function v4155WeekTkbForDate_(targetDate) {
+  const target = dateOnly_(targetDate);
+  const rows = listTkbWeekSheets_().filter(x => {
+    const mondayYmd = inferMondayFromWeekToken_(x.token);
+    if (!mondayYmd) return false;
+    const monday = parseYmd_(mondayYmd), saturday = addDays_(monday, 5);
+    return target >= dateOnly_(monday) && target <= dateOnly_(saturday);
+  });
+  if (!rows.length) return '';
+  return (rows.find(x => !/\(GV\)/i.test(x.name)) || rows[0]).name;
+}
+
+function v4155ClassOptionsForTkb_(tkbSheetName) {
+  try {
+    const ss = SpreadsheetApp.openById(TKB_SPREADSHEET_ID);
+    const sh = ss.getSheetByName(getSelectedTkbSheetName_(tkbSheetName));
+    const vals = sh.getRange(1, 4, 1, Math.min(Math.max(sh.getLastColumn()-3,1),60)).getDisplayValues()[0];
+    return vals.map(x => normalizeText_(String(x||'').split('\n')[0]).replace(/\s+/g,''))
+      .filter(x => !!v4146ClassGrade_(x)).filter((x,i,a) => a.indexOf(x) === i).sort();
+  } catch (e) { return []; }
+}
+
+function v4155DayOffsInWeek_(tkbSheetName) {
+  const token = extractWeekToken_(tkbSheetName);
+  const mondayYmd = token ? inferMondayFromWeekToken_(token) : '';
+  if (!mondayYmd) return [];
+  const monday = parseYmd_(mondayYmd), saturday = addDays_(monday,5);
+  return v4155LoadDayOffs_().filter(h => {
+    const d = parseYmd_(h.date);
+    return dateOnly_(d) >= dateOnly_(monday) && dateOnly_(d) <= dateOnly_(saturday);
+  });
+}
+
+function v4155DayOffSignature_(teacherKey, tkbSheetName) {
+  const rows = v4155DayOffsInWeek_(tkbSheetName).map(h => [h.id,h.date,h.scope,h.className,h.reason,h.updatedAt].join('|'));
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, teacherKey+'||'+tkbSheetName+'||'+rows.join(';;'))).slice(0,32);
+}
+
+function v4155SyncKey_(teacherKey, tkbSheetName) {
+  const token = extractWeekToken_(tkbSheetName) || normalizeText_(tkbSheetName) || 'week';
+  return V4155_DAY_OFF_SYNC_PREFIX + teacherSlug_(teacherKey) + '_' + token.replace(/[^0-9a-z.-]/gi,'_');
+}
+
+function v4155AffectedPairKeys_(teacherKey, tkbSheetName, holidays) {
+  const before = v4155ScheduleBeforeDayOff_(teacherKey, tkbSheetName);
+  const affected = {};
+  (holidays || []).forEach(h => before.filter(r => v4155DayOffMatchesRecord_(h,r,tkbSheetName)).forEach(r => affected[v4152ExtraPairKey_(r)] = true));
+  return Object.keys(affected).filter(Boolean);
+}
+
+function v4155ClearDayOffNotesForTeacherWeek_(payload) {
+  const teacher = TEACHER_MAP[payload.teacherKey];
+  if (!teacher) return 0;
+  const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(getSelectedReportSheetName_(payload));
+  if (!sh) return 0;
+  const blockStartZero = findTeacherBlockStart_(sh, teacher);
+  const sections = findTeacherSectionRows_(sh, blockStartZero);
+  const noteCol = blockStartZero + 1 + 6;
+  let count = 0;
+  [sections.morning, sections.afternoon].forEach(titleRow => {
+    const firstDataRow = titleRow + 3;
+    const rg = sh.getRange(firstDataRow, noteCol, 30, 1);
+    const vals = rg.getDisplayValues();
+    vals.forEach((r,i) => { if (normalizeText_(r[0]).indexOf(V4155_DAY_OFF_NOTE_PREFIX) === 0) { rg.getCell(i+1,1).clearContent(); count++; } });
+  });
+  return count;
+}
+
+function v4155ApplyDayOffMarksToReport_(payload) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey;
+  const teacher = TEACHER_MAP[teacherKey];
+  if (!teacher) return {marked:0};
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const holidays = v4155DayOffsInWeek_(tkbSheetName);
+  const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(getSelectedReportSheetName_(payload));
+  if (!sh) return {marked:0};
+  const blockStartZero = findTeacherBlockStart_(sh, teacher);
+  const startCol1 = blockStartZero + 1;
+  const reportRows = v4152ReadReportRows_(sh, blockStartZero);
+  const slotMap = {};
+  reportRows.forEach(r => slotMap[r.session+'|'+r.dayNum+'|'+r.period] = r);
+  v4155ClearDayOffNotesForTeacherWeek_(payload);
+  if (!holidays.length) return {marked:0};
+
+  const before = v4155ScheduleBeforeDayOff_(teacherKey, tkbSheetName);
+  let marked = 0;
+  holidays.forEach(h => {
+    before.filter(r => v4155DayOffMatchesRecord_(h,r,tkbSheetName)).forEach(rec => {
+      const slot = slotMap[rec.session+'|'+rec.dayNum+'|'+rec.period];
+      if (!slot) return;
+      const dataRg = sh.getRange(slot.row, startCol1 + 2, 1, 4);
+      const current = dataRg.getDisplayValues()[0];
+      const currentClass = normalizeText_(current[1]).replace(/\s+/g,'');
+      if (!currentClass || currentClass === normalizeText_(rec.className).replace(/\s+/g,'')) dataRg.clearContent();
+      sh.getRange(slot.row, startCol1 + 6).setValue(V4155_DAY_OFF_NOTE_PREFIX + ' · ' + h.reason);
+      marked++;
+    });
+  });
+  return {marked:marked};
+}
+
+function v4155BuildSyncPayload_(teacherKey, tkbSheetName) {
+  const token = extractWeekToken_(tkbSheetName);
+  const report = token ? findReportSheetForToken_(token) : null;
+  if (!report) throw new Error('Chưa có sheet Báo giảng cùng tuần với TKB.');
+  const ordered = orderedWeekSheets_();
+  const idx = ordered.findIndex(x => x.name === report.name);
+  const week = idx >= 0 ? idx + 1 : 1;
+  const suggestions = getClassPpctSuggestions(teacherKey, report.name, tkbSheetName);
+  const starts = {};
+  (suggestions.classes || []).forEach(x => { starts[x.key] = Number(x.suggestedStart || 1); if (x.track === 'regular' && starts[x.className] == null) starts[x.className] = Number(x.suggestedStart || 1); });
+  return {teacherKey:teacherKey, tkbSheet:tkbSheetName, reportSheet:report.name, monday:report.monday || inferMondayFromWeekToken_(token), week:week, starts:starts};
+}
+
+function v4155StaleMarkedPairKeys_(teacherKey, tkbSheetName, syncPayload) {
+  try {
+    const teacher = TEACHER_MAP[teacherKey];
+    if (!teacher) return [];
+    const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+    const sh = ss.getSheetByName(getSelectedReportSheetName_(syncPayload));
+    if (!sh) return [];
+    const blockStartZero = findTeacherBlockStart_(sh, teacher);
+    const startCol1 = blockStartZero + 1;
+    const sections = findTeacherSectionRows_(sh, blockStartZero);
+    const markedSlots = {};
+    [['Sáng',sections.morning],['Chiều',sections.afternoon]].forEach(pair => {
+      const firstDataRow = pair[1] + 3;
+      const vals = sh.getRange(firstDataRow, startCol1, 30, 7).getDisplayValues();
+      let currentDay = null;
+      vals.forEach((row,i) => {
+        const dm = normalizeText_(row[0]).match(/^([2-7])/); if (dm) currentDay = Number(dm[1]);
+        const period = Number(normalizeText_(row[1]));
+        const note = normalizeText_(row[6]);
+        if (currentDay && period && note.indexOf(V4155_DAY_OFF_NOTE_PREFIX) === 0) markedSlots[pair[0]+'|'+currentDay+'|'+period] = true;
+      });
+    });
+    if (!Object.keys(markedSlots).length) return [];
+    const currentHolidays = v4155DayOffsInWeek_(tkbSheetName);
+    const before = v4155ScheduleBeforeDayOff_(teacherKey, tkbSheetName);
+    const affected = {};
+    before.forEach(rec => {
+      const slot = rec.session+'|'+rec.dayNum+'|'+rec.period;
+      if (!markedSlots[slot]) return;
+      const stillOff = currentHolidays.some(h => v4155DayOffMatchesRecord_(h,rec,tkbSheetName));
+      if (!stillOff) affected[v4152ExtraPairKey_(rec)] = true;
+    });
+    return Object.keys(affected).filter(Boolean);
+  } catch (e) { return []; }
+}
+
+function v4155EnsureDayOffSync(payload) {
+  payload = payload || {};
+  if (!payload.teacherKey) throw new Error('Thiếu giáo viên.');
+  const tkbSheetName = getSelectedTkbSheetName_(payload.tkbSheet);
+  const holidays = v4155DayOffsInWeek_(tkbSheetName);
+  const sig = v4155DayOffSignature_(payload.teacherKey, tkbSheetName);
+  const props = PropertiesService.getScriptProperties();
+  const key = v4155SyncKey_(payload.teacherKey, tkbSheetName);
+  if (props.getProperty(key) === sig) return {ok:true,changed:false,count:holidays.length,message:'Ngày nghỉ đã đồng bộ.'};
+
+  const syncPayload = v4155BuildSyncPayload_(payload.teacherKey, tkbSheetName);
+  const currentAffected = v4155AffectedPairKeys_(payload.teacherKey, tkbSheetName, holidays);
+  const staleAffected = v4155StaleMarkedPairKeys_(payload.teacherKey, tkbSheetName, syncPayload);
+  const affected = Array.from(new Set(currentAffected.concat(staleAffected)));
+  let sync = null, warning = '';
+  if (affected.length) {
+    try { sync = v4152SyncExtraToBaoGiang_(syncPayload, affected, 'day_off_sync'); }
+    catch (e) { warning = e && e.message ? e.message : String(e); }
+  }
+  try { v4155ApplyDayOffMarksToReport_(syncPayload); } catch (e) { if (!warning) warning = e && e.message ? e.message : String(e); }
+  if (!warning) props.setProperty(key, sig);
+  return {ok:!warning,changed:true,count:holidays.length,affectedPairs:affected.length,sync:sync,warning:warning,message:warning?('Ngày nghỉ đã lưu nhưng đồng bộ Báo giảng còn cảnh báo: '+warning):'Đã đồng bộ ngày nghỉ vào Lịch báo giảng và tính lại PPCT.'};
+}
+
+function getDayOffConfig(payload) {
+  payload = payload || {};
+  const tkbSheetName = normalizeText_(payload.tkbSheet);
+  const items = v4155LoadDayOffs_().map(x => Object.assign({},x,{scopeLabel:v4155ScopeLabel_(x)}));
+  const weekItems = tkbSheetName ? v4155DayOffsInWeek_(tkbSheetName).map(x => Object.assign({},x,{scopeLabel:v4155ScopeLabel_(x)})) : [];
+  return {ok:true,items:items,weekItems:weekItems,classOptions:tkbSheetName?v4155ClassOptionsForTkb_(tkbSheetName):[],count:items.length,weekCount:weekItems.length};
+}
+
+function saveDayOff(payload, item) {
+  payload = payload || {};
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý thay đổi khác. Anh thử lưu Ngày nghỉ lại sau vài giây.');
+  try {
+    const items = v4155LoadDayOffs_();
+    const clean = v4155NormalizeDayOff_(item, items.length);
+    const idx = items.findIndex(x => x.id === clean.id);
+    if (idx >= 0) items[idx] = clean; else items.push(clean);
+    // Không cho trùng cùng ngày + cùng phạm vi + cùng lớp.
+    const dup = items.filter(x => x.id !== clean.id && x.date === clean.date && x.scope === clean.scope && x.className === clean.className);
+    if (dup.length) throw new Error('Ngày nghỉ này đã được khai báo cho cùng phạm vi.');
+    v4155WriteDayOffs_(items);
+    let sync = null;
+    try { if (payload.teacherKey && payload.tkbSheet) sync = v4155EnsureDayOffSync(payload); } catch (e) { sync = {ok:false,warning:e&&e.message?e.message:String(e)}; }
+    const result = getDayOffConfig(payload);
+    result.saved = clean; result.sync = sync;
+    result.message = 'Đã lưu Ngày nghỉ dùng chung toàn trường. Lịch thực tế sẽ không tính PPCT cho các tiết thuộc phạm vi nghỉ.';
+    return result;
+  } finally { lock.releaseLock(); }
+}
+
+function deleteDayOff(payload, id) {
+  payload = payload || {};
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Hệ thống đang xử lý thay đổi khác. Anh thử xóa Ngày nghỉ lại sau vài giây.');
+  try {
+    const items = v4155LoadDayOffs_();
+    const removed = items.find(x => x.id === id);
+    if (!removed) throw new Error('Không tìm thấy Ngày nghỉ cần xóa.');
+    v4155WriteDayOffs_(items.filter(x => x.id !== id));
+    // Khi xóa, cặp lớp/môn bị ảnh hưởng phải được khôi phục và đánh lại PPCT.
+    let sync = null;
+    try {
+      if (payload.teacherKey && payload.tkbSheet) {
+        const syncPayload = v4155BuildSyncPayload_(payload.teacherKey, payload.tkbSheet);
+        const affected = v4155AffectedPairKeys_(payload.teacherKey, payload.tkbSheet, [removed]);
+        if (affected.length) sync = v4152SyncExtraToBaoGiang_(syncPayload, affected, 'day_off_delete');
+        v4155ApplyDayOffMarksToReport_(syncPayload);
+        PropertiesService.getScriptProperties().setProperty(v4155SyncKey_(payload.teacherKey,payload.tkbSheet), v4155DayOffSignature_(payload.teacherKey,payload.tkbSheet));
+      }
+    } catch (e) { sync = {ok:false,warning:e&&e.message?e.message:String(e)}; }
+    const result = getDayOffConfig(payload);
+    result.removed = removed; result.sync = sync;
+    result.message = 'Đã xóa Ngày nghỉ; tiết dạy và PPCT của giáo viên đang mở đã được khôi phục/tính lại.';
+    return result;
+  } finally { lock.releaseLock(); }
+}
+
+function v4155ApplicableDayOffsForTeacher_(teacherKey, targetDate, tkbSheetName) {
+  const ymd = Utilities.formatDate(targetDate,'Asia/Ho_Chi_Minh','yyyy-MM-dd');
+  const all = v4155LoadDayOffs_().filter(h => h.date === ymd);
+  if (!all.length) return [];
+  const sheetName = tkbSheetName || v4155WeekTkbForDate_(targetDate);
+  if (!sheetName) return all.filter(h => h.scope !== 'class');
+  const before = v4155ScheduleBeforeDayOff_(teacherKey, sheetName);
+  return all.filter(h => h.scope !== 'class' || before.some(r => v4155DayOffMatchesRecord_(h,r,sheetName)));
+}
+
+function v4155CleanReportSessions_(sessions) {
+  const out = {Sáng:[],Chiều:[]};
+  ['Sáng','Chiều'].forEach(k => {
+    out[k] = ((sessions && sessions[k]) || []).filter(r => {
+      const marker = normalizeText_(r && r.note).indexOf(V4155_DAY_OFF_NOTE_PREFIX) === 0;
+      const teaching = normalizeText_(r && r.className) || normalizeText_(r && r.subject) || normalizeText_(r && r.ppct) || normalizeText_(r && r.lesson);
+      return !(marker && !teaching);
+    });
+  });
+  return out;
+}
+
+// Lịch ngày: chỉ đọc Lịch báo giảng. Ngày nghỉ được gắn như metadata để giao diện hiển thị rõ.
+function getDayDashboard(payload, offsetDays) {
+  if (!payload || !payload.teacherKey) throw new Error('Thiếu giáo viên.');
+  const offset = Number(offsetDays || 0);
+  const targetDate = addDays_(new Date(), isFinite(offset) ? offset : 0);
+  const report = readBaoGiangDashboardForDate_(payload.teacherKey, targetDate);
+  report.sessions = v4155CleanReportSessions_(report.sessions);
+  const dayOffs = v4155ApplicableDayOffsForTeacher_(payload.teacherKey, targetDate, tkbSheetForDate_(targetDate,payload.tkbSheet));
+  const total = dashboardTotal_(report.sessions);
+  const fullSchool = dayOffs.some(h => h.scope === 'school');
+  return {
+    outsideWeek:false,
+    source:fullSchool && total===0 ? 'day_off' : (report.foundSheet ? (total>0?'bao_giang':'bao_giang_empty') : 'none'),
+    sourceLabel:fullSchool && total===0 ? 'Ngày nghỉ' : (report.foundSheet?'Lịch báo giảng':''),
+    sheetName:report.sheetName||'',
+    targetYmd:Utilities.formatDate(targetDate,'Asia/Ho_Chi_Minh','yyyy-MM-dd'),
+    sessions:report.sessions||{Sáng:[],Chiều:[]},
+    dayOffs:dayOffs.map(h=>Object.assign({},h,{scopeLabel:v4155ScopeLabel_(h)}))
+  };
+}
+
+function getTodayDashboard(payload) { return getDayDashboard(payload, 0); }
+function getTomorrowDashboard(payload) { return getDayDashboard(payload, 1); }
+
+function getWeekDashboard(payload) {
+  if (!payload || !payload.teacherKey) throw new Error('Thiếu giáo viên.');
+  let monday = parseYmd_(payload.monday);
+  if (!monday) { const now=new Date(), jsDay=now.getDay(), diff=jsDay===0?-6:1-jsDay; monday=addDays_(now,diff); }
+  const names=['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
+  const days=[];
+  for (let i=0;i<6;i++) {
+    const targetDate=addDays_(monday,i);
+    const report=readBaoGiangDashboardForDate_(payload.teacherKey,targetDate);
+    report.sessions=v4155CleanReportSessions_(report.sessions);
+    const dayOffs=v4155ApplicableDayOffsForTeacher_(payload.teacherKey,targetDate,tkbSheetForDate_(targetDate,payload.tkbSheet));
+    const total=dashboardTotal_(report.sessions), fullSchool=dayOffs.some(h=>h.scope==='school');
+    days.push({dayNum:i+2,label:names[i],targetYmd:Utilities.formatDate(targetDate,'Asia/Ho_Chi_Minh','yyyy-MM-dd'),
+      source:fullSchool&&total===0?'day_off':(report.foundSheet?(total>0?'bao_giang':'bao_giang_empty'):'none'),
+      sourceLabel:fullSchool&&total===0?'Ngày nghỉ':(report.foundSheet?'Lịch báo giảng':''),sheetName:report.sheetName||'',
+      sessions:report.sessions||{Sáng:[],Chiều:[]},dayOffs:dayOffs.map(h=>Object.assign({},h,{scopeLabel:v4155ScopeLabel_(h)}))});
+  }
+  return {mondayYmd:Utilities.formatDate(monday,'Asia/Ho_Chi_Minh','yyyy-MM-dd'),saturdayYmd:Utilities.formatDate(addDays_(monday,5),'Asia/Ho_Chi_Minh','yyyy-MM-dd'),hasExtraPlan:false,days:days};
+}
+
+// Ghi Báo giảng vẫn một nút/two-step ở UI: ghi Lịch báo giảng trước, sau đó mới tính Tiến độ.
+function ghiBaoGiangStep1(payload) {
+  const check = preflightBaoGiang(payload);
+  const undoToken = createUndoSnapshot_(payload, check);
+  const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(check.sheet);
+  if (!sh) throw new Error('Không tìm thấy sheet báo giảng: ' + check.sheet);
+  const blockStartZero = findTeacherBlockStart_(sh, check.teacher);
+  const metaResult = updateReportMetadata_(sh, blockStartZero, payload);
+  const writtenDetails = [];
+  check.targets.forEach(t => {
+    sh.getRange(t.range).setValues([[t.subject,t.className,t.ppct,t.lesson]]);
+    v4141FormatWrittenRow_(sh, blockStartZero, t.row);
+    writtenDetails.push({range:t.range,dayLabel:t.dayLabel,period:t.period,className:t.className,ppct:t.ppct,lesson:t.lesson});
+  });
+  v4155ApplyDayOffMarksToReport_(payload);
+  SpreadsheetApp.flush();
+  try { PropertiesService.getScriptProperties().setProperty(v4155SyncKey_(payload.teacherKey,payload.tkbSheet),v4155DayOffSignature_(payload.teacherKey,payload.tkbSheet)); } catch(e) {}
+  return {ok:true,undoToken:undoToken,teacher:check.teacher,written:writtenDetails.length,skipped:check.skipped,details:writtenDetails,sheet:check.sheet,reportUrl:check.reportUrl,weekInfo:metaResult};
+}
+
+function ghiBaoGiang(payload) {
+  const report = ghiBaoGiangStep1(payload);
+  const progress = capNhatTienDoStep2(payload);
+  report.progress = progress;
+  return report;
+}
+
+
 const VERCEL_API_ACTIONS = {
   'getInitialData': getInitialData,
   'getPpctSourceConfig': getPpctSourceConfig,
@@ -5594,6 +6035,10 @@ const VERCEL_API_ACTIONS = {
   'previewSwapLesson': previewSwapLesson,
   'saveSwapLesson': saveSwapLesson,
   'deleteSwapLesson': deleteSwapLesson,
+  'getDayOffConfig': getDayOffConfig,
+  'saveDayOff': saveDayOff,
+  'deleteDayOff': deleteDayOff,
+  'v4155EnsureDayOffSync': v4155EnsureDayOffSync,
   'v4137GetPpctSourceStatus': v4137GetPpctSourceStatus
 };
 function apiOutput_(payload) {
