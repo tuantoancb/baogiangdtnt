@@ -4878,7 +4878,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 <div id="step1Top" class="s1-top">
   <section class="s1-card s1-tkb">
     <div class="s1-title"><span class="s1-title-icon s1-title-cal">▦</span><span>THỜI KHÓA BIỂU</span></div>
-    <div class="s1-sub">Chọn phiên bản đang sử dụng</div>
+    <div class="s1-sub">Mặc định chọn tuần mới nhất · Có thể mở lại tuần cũ</div>
     <div class="s1-tkb-select">
       <span class="s1-cal">🗓️</span>
       <select id="tkbSheet" onchange="onTkbSheetChange()"></select>
@@ -5285,9 +5285,10 @@ google.script.run.withSuccessHandler(data=>{
   (data.weekSheets||[]).forEach((x,idx)=>{const o=document.createElement('option');o.value=x.name;o.textContent=x.label||x.name;o.dataset.monday=x.monday||'';o.dataset.token=x.token||'';ws.appendChild(o);});
   const ts=document.getElementById('tkbSheet');
   fillTkbOptionsGrouped(ts,data.tkbSheets||[]);
-  let savedTkb=''; try{savedTkb=localStorage.getItem('baoGiangLastTkb')||'';}catch(e){}
-  if(savedTkb && Array.from(ts.options).some(o=>o.value===savedTkb)) ts.value=savedTkb;
-  else if(data.tkbSheet) ts.value=data.tkbSheet;
+  // V4.156: mỗi lần mở app luôn chọn tuần TKB mới nhất.
+  // Nếu tuần mới nhất có nhiều phiên bản, ưu tiên bản backend đang dùng khi cùng tuần;
+  // nếu không thì ưu tiên bản TKB chính (không phải TKB(GV)).
+  v4156SelectLatestTkb(ts,data.tkbSheets||[],data.tkbSheet||'');
   document.getElementById('week').value=data.week||1;
   const teamSel=document.getElementById('team');
   if(teamSel && data.recognizedTeam && Array.from(teamSel.options).some(o=>o.value===data.recognizedTeam)) teamSel.value=data.recognizedTeam;
@@ -5329,6 +5330,39 @@ function v4101WeekToken(name){
   m=txt.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\.(\d{1,2})/);if(m)return Number(m[1])+'.'+Number(m[3])+'-'+Number(m[2])+'.'+Number(m[3]);return '';
 }
 function v4101CompactToken(token){const m=String(token||'').match(/(\d+)\.(\d+)-(\d+)\.(\d+)/);if(!m)return token||'';return Number(m[2])===Number(m[4])?(Number(m[1])+'–'+Number(m[3])+'.'+Number(m[4])):(Number(m[1])+'.'+Number(m[2])+'–'+Number(m[3])+'.'+Number(m[4]));}
+
+// V4.156 — chọn TKB tuần mới nhất theo ngày bắt đầu của tuần, không phụ thuộc thứ tự tab Sheet.
+function v4156AcademicWeekKey(token){
+  const m=String(token||'').match(/(\d{1,2})\.(\d{1,2})-(\d{1,2})\.(\d{1,2})/);
+  if(!m)return -1;
+  const day=Number(m[1]), month=Number(m[2]);
+  if(!day||!month)return -1;
+  // Năm học bắt đầu từ khoảng tháng 8: tháng 1..7 được xem là phần sau của năm học.
+  const academicMonth=month>=8?month:month+12;
+  return academicMonth*100+day;
+}
+function v4156SelectLatestTkb(selectEl,items,backendPreferred){
+  if(!selectEl||!selectEl.options||!selectEl.options.length)return '';
+  const options=Array.from(selectEl.options);
+  let latestKey=-1, latestToken='';
+  options.forEach(o=>{
+    const token=o.dataset.token||v4101WeekToken(o.value);
+    const key=v4156AcademicWeekKey(token);
+    if(key>latestKey){latestKey=key;latestToken=token;}
+  });
+  if(!latestToken){
+    if(backendPreferred&&options.some(o=>o.value===backendPreferred))selectEl.value=backendPreferred;
+    else selectEl.selectedIndex=0;
+    return selectEl.value;
+  }
+  const latestOptions=options.filter(o=>(o.dataset.token||v4101WeekToken(o.value))===latestToken);
+  const backendOpt=latestOptions.find(o=>o.value===backendPreferred);
+  const mainOpt=latestOptions.find(o=>/^\s*TKB\s+/i.test(o.value)&&!/TKB\s*\(GV\)/i.test(o.value));
+  const chosen=backendOpt||mainOpt||latestOptions[0];
+  if(chosen)selectEl.value=chosen.value;
+  selectEl.dataset.autoWeek='latest';
+  return selectEl.value;
+}
 function onTkbSheetChange(initial){
   const ts=document.getElementById('tkbSheet'), ws=document.getElementById('reportSheet'); if(!ts||!ws)return;
   const token=(ts.options[ts.selectedIndex]&&ts.options[ts.selectedIndex].dataset.token)||v4101WeekToken(ts.value);
@@ -5336,7 +5370,7 @@ function onTkbSheetChange(initial){
   const info=document.getElementById('v4101AutoReport'), txt=document.getElementById('v4101AutoReportText');
   if(idx>=0){ws.selectedIndex=idx;const opt=ws.options[idx];document.getElementById('sheetName').textContent=ws.value;document.getElementById('week').value=idx+1;if(opt.dataset.monday)document.getElementById('monday').value=opt.dataset.monday;if(txt)txt.textContent='Dùng “'+ts.value+'”  →  Báo giảng tuần '+v4101CompactToken(token);if(info){info.classList.remove('error');info.classList.add('ok');}updateDatePreview();loadClasses();}
   else {ws.value='';if(txt)txt.textContent='“'+ts.value+'” chưa có Báo giảng tuần '+v4101CompactToken(token);if(info){info.classList.add('error');info.classList.remove('ok');}setStatus('TKB đã chọn chưa có sheet Báo giảng cùng tuần.',false);}
-  ts.title='Nguồn TKB: '+ts.value; try{localStorage.setItem('baoGiangLastTkb',ts.value);}catch(e){}
+  ts.title='Nguồn TKB: '+ts.value;
   if(typeof v4155AfterWeekChange==='function') v4155AfterWeekChange();
 }
 

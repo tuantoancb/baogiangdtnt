@@ -1,3 +1,7 @@
+## V4.156 — Tự chọn TKB tuần mới nhất
+
+Khi mở app, hệ thống tự chọn TKB của tuần mới nhất; vẫn cho phép chọn lại tuần cũ. Backend giữ nguyên V4.155.
+
 # BÁO GIẢNG V4.155 — NGÀY NGHỈ & LỊCH THỰC TẾ
 
 Xem `CHANGELOG_V4_155.md` và `KIEM_THU_V4_155.md`. V4.155 kế thừa toàn bộ V4.154 và bổ sung Ngày nghỉ dùng chung, đồng thời chốt Lịch ngày/Cả tuần chỉ đọc từ Lịch báo giảng.
