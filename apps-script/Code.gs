@@ -1,4 +1,4 @@
-// V4.155 — Ngày nghỉ + Lịch ngày bám Lịch báo giảng; giữ Hoán đổi/Phát sinh/Kho PPCT.
+// V4.161 — Quản trị tài khoản giáo viên: theo dõi sử dụng + Hoạt động/Chỉ xem/Đã khóa; kế thừa V4.160 và V4.158.
 
 const TKB_SPREADSHEET_ID = '1i0-iNIQeETSy__VGcNUmsD0Rj23XV-GaMF4FkNwgu58';
 
@@ -27,6 +27,7 @@ const TEACHER_PROFILES = {
   'T.Tuấn': {fullName:'Nguyễn Thanh Tuấn', slug:'t-tuan'},
   'V.Diệp': {fullName:'Vi Thị Diệp', slug:'v-diep'},
   'Hường': {fullName:'Lâm Thị Thu Hường', slug:'huong'},
+  'Lan': {fullName:'Hoàng Thị Lan', slug:'lan'},
   'Phong': {fullName:'Nguyễn Thế Phong', slug:'phong'},
   'Hà Oanh': {fullName:'Hà Thị Thu Oanh', slug:'ha-oanh'},
   'L.Tuấn': {fullName:'Lưu Công Tuấn', slug:'l-tuan'},
@@ -45,6 +46,7 @@ const TEACHER_PROFILES = {
   'Bằng': {fullName:'Nông Thị Thu Bằng', slug:'bang'},
   'Thoa': {fullName:'Lê Kim Thoa', slug:'thoa'},
   'Ng.Liễu': {fullName:'Nguyễn Thị Liễu', slug:'ng-lieu'},
+  'Hoài': {fullName:'Nông Thị Thanh Hoài', slug:'hoai'},
   'L.Thủy': {fullName:'Lương Thị Thanh Thủy', slug:'l-thuy'},
   'T.Oanh': {fullName:'Trần Thị Kim Oanh', slug:'t-oanh'},
   'Hà': {fullName:'Hoàng Thị Ngọc Hà', slug:'ha'},
@@ -115,7 +117,8 @@ const TEACHER_DIRECTORY = {
   'Lâm Thị Thu Hường': {org:'KHTN', team:'KHTN', subject:'Toán'},
   'Trần Thị Kim Oanh': {org:'KHXH', team:'KHXH', subject:'Địa lí'},
   'Hoàng Thị Thanh Vân': {org:'KHXH', team:'KHXH', subject:'Tiếng Anh'},
-  'Nguyễn Thị Liễu': {org:'KHXH', team:'KHXH', subject:'Lịch sử'}
+  'Nguyễn Thị Liễu': {org:'KHXH', team:'KHXH', subject:'Lịch sử'},
+  'Nông Thị Thanh Hoài': {org:'KHXH', team:'KHXH', subject:'Lịch sử; GDĐP'}
 };
 
 function normalizeTeacherNameKey_(value){
@@ -1525,77 +1528,209 @@ function progressSheetNameForClass_(className) {
   throw new Error('Không xác định được khối của lớp: ' + className);
 }
 
+// ============================================================================
+// V4.158 — TIẾN ĐỘ THEO ĐÚNG MÔN / ĐÚNG LUỒNG
+// - Nguồn tiến độ: Lịch báo giảng đã ghi, không lấy trực tiếp từ TKB.
+// - Giá trị tiến độ = PPCT lớn nhất đã thực dạy trong tuần (không phải số tiết/tuần).
+// - Tự tìm cột theo tiêu đề Sheet Tiến độ, không ghi cố định vào cột Toán.
+// - Chính khóa và Chuyên đề ghi vào hai nhóm cột riêng.
+// ============================================================================
+
+function v4158ProgressHeaderSubject_(value) {
+  const raw = normalizeText_(value);
+  if (!raw) return '';
+  const k = keyText_(raw).replace(/[^a-z0-9]+/g, '');
+  const special = {
+    'van':'Ngữ văn',
+    'toan':'Toán',
+    'anh':'Tiếng Anh',
+    'su':'Lịch sử',
+    'gdtc':'GDTC',
+    'qpan':'GDQPAN',
+    'gdqpan':'GDQPAN',
+    'tnhn':'HĐTNHN',
+    'hdtn':'HĐTNHN',
+    'hdtnhn':'HĐTNHN',
+    'gddp':'GDĐP',
+    'dia':'Địa lí',
+    'diali':'Địa lí',
+    'ktpl':'GDKTPL',
+    'gdktpl':'GDKTPL',
+    'li':'Vật lí',
+    'ly':'Vật lí',
+    'vatli':'Vật lí',
+    'hoa':'Hóa học',
+    'hoahoc':'Hóa học',
+    'sinh':'Sinh học',
+    'sinhhoc':'Sinh học',
+    'tin':'Tin học',
+    'tinhoc':'Tin học',
+    'cn':'Công nghệ',
+    'congnghe':'Công nghệ',
+    'an':'Âm nhạc',
+    'amnhac':'Âm nhạc'
+  };
+  return special[k] || v4157CanonicalBaseSubject_(raw);
+}
+
+function v4158ProgressColumnMap_(sheet) {
+  const lastCol = Math.min(Math.max(sheet.getLastColumn(), 27), 60);
+  const rows = sheet.getRange(1, 1, 2, lastCol).getDisplayValues();
+  const groupRow = rows[0] || [];
+  const subjectRow = rows[1] || [];
+
+  let electiveStart = -1;
+  for (let c = 0; c < groupRow.length; c++) {
+    const k = keyText_(groupRow[c]).replace(/[^a-z0-9]+/g, '');
+    if (k.indexOf('chuyende') >= 0) { electiveStart = c + 1; break; } // 1-based
+  }
+
+  let electiveEnd = lastCol + 1;
+  if (electiveStart > 0) {
+    for (let c = electiveStart; c < groupRow.length; c++) {
+      const k = keyText_(groupRow[c]).replace(/[^a-z0-9]+/g, '');
+      if (k && k.indexOf('chuyende') < 0) { electiveEnd = c + 1; break; } // exclusive, 1-based
+    }
+  }
+
+  const regular = {};
+  const elective = {};
+  for (let c = 4; c <= lastCol; c++) { // D trở đi; A-C là Tuần/TT/Lớp
+    const base = v4158ProgressHeaderSubject_(subjectRow[c - 1]);
+    if (!base) continue;
+    const sk = v4127SubjectKey_(base);
+    if (!sk) continue;
+    if (electiveStart > 0 && c >= electiveStart && c < electiveEnd) {
+      if (elective[sk] == null) elective[sk] = c;
+    } else if (electiveStart < 0 || c < electiveStart) {
+      if (regular[sk] == null) regular[sk] = c;
+    }
+  }
+  return {regular:regular, elective:elective, electiveStart:electiveStart, electiveEnd:electiveEnd};
+}
+
+function v4158ProgressPairsFromRecords_(records) {
+  const pairs = {};
+  (records || []).forEach(r => {
+    const cls = normalizeText_(r && r.className).replace(/\s+/g, '');
+    if (!v4146ClassGrade_(cls)) return;
+
+    const info = v4135SubjectTrackInfo_((r && (r.baseSubject || r.subject)) || '');
+    const base = v4157CanonicalBaseSubject_(info.baseSubject || info.displaySubject || (r && r.subject) || '');
+    if (!base) return;
+
+    const ppctTrack = v4135TrackFromPpct_(r && r.ppct);
+    const track = ppctTrack === 'elective' ? 'elective' : ((r && r.track) || info.track || 'regular');
+    const n = Number(r && r.ppctNumber) > 0 ? Math.floor(Number(r.ppctNumber)) : v4135PpctNumber_(r && r.ppct);
+    if (!n) return; // Bỏ HSG/PĐ/SHL... không thuộc tiến độ PPCT chính
+
+    const key = cls.toLowerCase() + '|' + v4127SubjectKey_(base) + '|' + track;
+    if (!pairs[key] || n > pairs[key].ppct) {
+      pairs[key] = {
+        key:key,
+        className:cls,
+        baseSubject:base,
+        subjectKey:v4127SubjectKey_(base),
+        track:track,
+        ppct:n
+      };
+    }
+  });
+  return Object.keys(pairs).map(k => pairs[k]);
+}
+
+function v4158ProgressRowMap_(sheet, week) {
+  const lastRow = Math.min(Math.max(sheet.getLastRow(), 3), 1000);
+  const vals = sheet.getRange(1, 1, lastRow, 3).getDisplayValues();
+  const map = {};
+  let currentWeek = null;
+  for (let r = 2; r < vals.length; r++) {
+    const wc = normalizeText_(vals[r][0]);
+    if (wc) {
+      const mw = wc.match(/Tuần\s*(\d+)/i);
+      if (mw) currentWeek = Number(mw[1]);
+    }
+    const cls = normalizeText_(vals[r][2]).replace(/\s+/g, '').toLowerCase();
+    if (currentWeek === Number(week) && cls) map[cls] = r + 1;
+  }
+  return map;
+}
+
+function v4158ReadTeacherProgressRecordsFromReport_(payload) {
+  payload = payload || {};
+  const teacherKey = payload.teacherKey;
+  const fullName = TEACHER_MAP[teacherKey];
+  if (!fullName) throw new Error('Giáo viên không hợp lệ để đọc tiến độ từ Lịch báo giảng.');
+
+  const reportSheetName = getSelectedReportSheetName_(payload);
+  const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(reportSheetName);
+  if (!sh) throw new Error('Không tìm thấy Lịch báo giảng: ' + reportSheetName);
+
+  const blockStartZero = findTeacherBlockStart_(sh, fullName);
+  const rows = v4152ReadReportRows_(sh, blockStartZero);
+  return rows.filter(r =>
+    v4146ClassGrade_(r.className) &&
+    normalizeText_(r.subject) &&
+    v4135PpctNumber_(r.ppct)
+  );
+}
+
+
 function updateProgressReport_(payload, records) {
   const startedAt = Date.now();
-  const week = Number(payload.week || 1);
+  const week = Number(payload && payload.week || 1);
   if (!Number.isFinite(week) || week < 1) throw new Error('Tuần không hợp lệ để cập nhật tiến độ.');
 
-  // Đếm số tiết theo lớp trong tuần.
-  const counts = {};
-  (records || []).forEach(r => {
-    const cls = String(r.className || '').trim();
-    if (cls) counts[cls] = (counts[cls] || 0) + 1;
-  });
-
-  const classes = Object.keys(counts).sort();
-  if (!classes.length) return [];
+  const pairs = v4158ProgressPairsFromRecords_(records);
+  if (!pairs.length) return [];
 
   const ss = SpreadsheetApp.openById(TIEN_DO_SPREADSHEET_ID);
-  const details = [];
-
-  // V4.79: gom theo sheet khối. Mỗi sheet chỉ đọc A:E đúng MỘT LẦN.
-  // Bản cũ đọc lại toàn bộ sheet cho từng lớp và gọi SpreadsheetApp.flush(),
-  // có thể rất chậm khi file Tiến độ có nhiều công thức.
   const groups = {};
-  classes.forEach(cls => {
-    const sheetName = progressSheetNameForClass_(cls);
-    (groups[sheetName] || (groups[sheetName] = [])).push(cls);
+  pairs.forEach(p => {
+    const sheetName = progressSheetNameForClass_(p.className);
+    (groups[sheetName] || (groups[sheetName] = [])).push(p);
   });
 
+  const details = [];
   Object.keys(groups).forEach(sheetName => {
     const sh = ss.getSheetByName(sheetName);
     if (!sh) throw new Error('Không tìm thấy sheet tiến độ: ' + sheetName);
 
-    const lastRow = Math.min(Math.max(sh.getLastRow(), 3), 300);
-    const vals = sh.getRange(1, 1, lastRow, 5).getDisplayValues();
+    const rowMap = v4158ProgressRowMap_(sh, week);
+    const colMap = v4158ProgressColumnMap_(sh);
 
-    // Tạo bản đồ "tuần|lớp" -> dòng chỉ bằng một lượt quét.
-    const rowMap = {};
-    let currentWeek = null;
-    for (let r = 2; r < vals.length; r++) {
-      const weekCell = normalizeText_(vals[r][0]);
-      if (weekCell) {
-        const mw = weekCell.match(/Tuần\s*(\d+)/i);
-        if (mw) currentWeek = Number(mw[1]);
-      }
-      const classCell = normalizeText_(vals[r][2]);
-      if (currentWeek && classCell) {
-        rowMap[currentWeek + '|' + classCell.toLowerCase()] = r + 1;
-      }
-    }
-
-    groups[sheetName].forEach(cls => {
-      const targetRow = rowMap[week + '|' + cls.toLowerCase()];
+    groups[sheetName].forEach(p => {
+      const targetRow = rowMap[p.className.toLowerCase()];
       if (!targetRow) {
-        throw new Error('Không tìm thấy dòng Tuần ' + week + ' - ' + cls + ' trong ' + sheetName);
+        throw new Error('Không tìm thấy dòng Tuần ' + week + ' - ' + p.className + ' trong ' + sheetName);
       }
 
-      const range = sh.getRange(targetRow, 5);
-      range.setValue(counts[cls]);
+      const map = p.track === 'elective' ? colMap.elective : colMap.regular;
+      const targetCol = map[p.subjectKey];
+      if (!targetCol) {
+        throw new Error(
+          'Không tìm thấy cột ' + p.baseSubject +
+          (p.track === 'elective' ? ' (Chuyên đề)' : '') +
+          ' trong sheet ' + sheetName + '.'
+        );
+      }
+
+      const range = sh.getRange(targetRow, targetCol);
+      range.setValue(p.ppct);
       details.push({
-        sheet: sheetName,
-        className: cls,
-        week: week,
-        count: counts[cls],
-        range: range.getA1Notation()
+        sheet:sheetName,
+        className:p.className,
+        subject:p.baseSubject,
+        track:p.track,
+        week:week,
+        ppct:p.ppct,
+        range:range.getA1Notation()
       });
     });
   });
 
-  // Không gọi SpreadsheetApp.flush() tại đây.
-  // Apps Script tự commit khi hàm kết thúc; tránh buộc file nặng tính toán lại
-  // trước khi trả kết quả về giao diện.
-  console.log('updateProgressReport_ completed in ' + (Date.now() - startedAt) + ' ms; classes=' + details.length);
+  console.log('V4.158 updateProgressReport_ completed in ' + (Date.now() - startedAt) + ' ms; pairs=' + details.length);
   return details;
 }
 
@@ -1668,14 +1803,38 @@ function checkExistingWrite(payload){
  return {ok:true,hasExisting:count>0,count:count,ranges:ranges};
 }
 function createUndoSnapshot_(payload,check){
- const token=Utilities.getUuid(),snap={reportSheet:check.sheet,report:[],progress:[]};
- const ss=SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID),sh=ss.getSheetByName(check.sheet);
- check.targets.forEach(t=>snap.report.push({range:t.range,values:sh.getRange(t.range).getValues()}));
- const records=buildPreview_(payload.teacherKey,payload.starts||{},payload.monday||'',payload.tkbSheet),counts={};
- records.forEach(r=>counts[r.className]=(counts[r.className]||0)+1);
- const pss=SpreadsheetApp.openById(TIEN_DO_SPREADSHEET_ID),week=Number(payload.week||1);
- Object.keys(counts).forEach(cls=>{const sn=progressSheetNameForClass_(cls),psh=pss.getSheetByName(sn);if(!psh)return;const lr=Math.min(psh.getLastRow(),300),vals=psh.getRange(1,1,lr,5).getDisplayValues();let cw=null,tr=-1;for(let r=2;r<vals.length;r++){const wc=normalizeText_(vals[r][0]);if(wc){const mw=wc.match(/Tuần\s*(\d+)/i);if(mw)cw=Number(mw[1])}if(cw===week&&normalizeText_(vals[r][2]).toLowerCase()===cls.toLowerCase()){tr=r+1;break}}if(tr>0){const rg=psh.getRange(tr,5);snap.progress.push({sheet:sn,range:rg.getA1Notation(),values:rg.getValues()})}});
- CacheService.getScriptCache().put(V420_UNDO_PREFIX+token,JSON.stringify(snap),21600);return token;
+  const token=Utilities.getUuid(),snap={reportSheet:check.sheet,report:[],progress:[]};
+  const ss=SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID),sh=ss.getSheetByName(check.sheet);
+  check.targets.forEach(t=>snap.report.push({range:t.range,values:sh.getRange(t.range).getValues()}));
+
+  // V4.158: snapshot đúng ô tiến độ theo Lớp + Môn + loại tiết, không còn cố định cột E/Toán.
+  try {
+    const records=buildPreview_(payload.teacherKey,payload.starts||{},payload.monday||'',payload.tkbSheet);
+    const pairs=v4158ProgressPairsFromRecords_(records);
+    const pss=SpreadsheetApp.openById(TIEN_DO_SPREADSHEET_ID),week=Number(payload.week||1);
+    const cache={};
+    pairs.forEach(p=>{
+      const sn=progressSheetNameForClass_(p.className);
+      if(!cache[sn]){
+        const psh=pss.getSheetByName(sn);
+        if(!psh)return;
+        cache[sn]={psh:psh,rows:v4158ProgressRowMap_(psh,week),cols:v4158ProgressColumnMap_(psh)};
+      }
+      const x=cache[sn];
+      if(!x)return;
+      const row=x.rows[p.className.toLowerCase()];
+      const col=(p.track==='elective'?x.cols.elective:x.cols.regular)[p.subjectKey];
+      if(row&&col){
+        const rg=x.psh.getRange(row,col);
+        snap.progress.push({sheet:sn,range:rg.getA1Notation(),values:rg.getValues()});
+      }
+    });
+  } catch(e) {
+    console.warn('V4.158 không tạo được snapshot Tiến độ: '+(e&&e.message?e.message:String(e)));
+  }
+
+  CacheService.getScriptCache().put(V420_UNDO_PREFIX+token,JSON.stringify(snap),21600);
+  return token;
 }
 function undoLastWrite(token){
  const cache=CacheService.getScriptCache(),raw=cache.get(V420_UNDO_PREFIX+token);if(!raw)throw new Error('Bản hoàn tác đã hết hạn hoặc không tồn tại.');
@@ -1734,20 +1893,24 @@ function ghiBaoGiangStep1(payload) {
 
 function capNhatTienDoStep2(payload) {
   try {
-    const records = buildPreview_(payload.teacherKey, payload.starts || {}, payload.monday || '', payload.tkbSheet);
+    // V4.158: sau khi Lịch báo giảng đã ghi xong, đọc ngược chính Lịch báo giảng
+    // rồi mới tính tiến độ. Không lấy TKB/preview làm nguồn tiến độ nữa.
+    const records = v4158ReadTeacherProgressRecordsFromReport_(payload);
     const progressDetails = updateProgressReport_(payload, records);
     return {
-      ok: true,
-      error: '',
-      details: progressDetails,
-      spreadsheetId: TIEN_DO_SPREADSHEET_ID
+      ok:true,
+      error:'',
+      source:'Lịch báo giảng',
+      details:progressDetails,
+      spreadsheetId:TIEN_DO_SPREADSHEET_ID
     };
   } catch (e) {
     return {
-      ok: false,
-      error: e && e.message ? e.message : String(e),
-      details: [],
-      spreadsheetId: TIEN_DO_SPREADSHEET_ID
+      ok:false,
+      error:e && e.message ? e.message : String(e),
+      source:'Lịch báo giảng',
+      details:[],
+      spreadsheetId:TIEN_DO_SPREADSHEET_ID
     };
   }
 }
@@ -1817,47 +1980,37 @@ function getPrintableBaoGiang(payload) {
 function kiemTraTienDoDaCapNhat(payload) {
   try {
     const week = Number(payload && payload.week || 1);
-    const records = buildPreview_(payload.teacherKey, payload.starts || {}, payload.monday || '', payload.tkbSheet);
-    const counts = {};
-    (records || []).forEach(r => {
-      const cls = String(r.className || '').trim();
-      if (cls) counts[cls] = (counts[cls] || 0) + 1;
-    });
-    const classes = Object.keys(counts);
-    if (!classes.length) return {ok:true, done:true, classes:0};
+    const records = v4158ReadTeacherProgressRecordsFromReport_(payload);
+    const pairs = v4158ProgressPairsFromRecords_(records);
+    if (!pairs.length) return {ok:true, done:true, pairs:0, source:'Lịch báo giảng'};
 
     const ss = SpreadsheetApp.openById(TIEN_DO_SPREADSHEET_ID);
-    const groups = {};
-    classes.forEach(cls => {
-      const sn = progressSheetNameForClass_(cls);
-      (groups[sn] || (groups[sn] = [])).push(cls);
-    });
-
     let matched = 0;
-    for (const sheetName in groups) {
-      const sh = ss.getSheetByName(sheetName);
-      if (!sh) return {ok:false, done:false, classes:matched, error:'Không tìm thấy '+sheetName};
-      const lastRow = Math.min(Math.max(sh.getLastRow(),3),300);
-      const vals = sh.getRange(1,1,lastRow,5).getDisplayValues();
-      const rowMap = {};
-      let currentWeek = null;
-      for (let r=2;r<vals.length;r++) {
-        const wc = normalizeText_(vals[r][0]);
-        if (wc) { const m=wc.match(/Tuần\s*(\d+)/i); if(m) currentWeek=Number(m[1]); }
-        const cc = normalizeText_(vals[r][2]);
-        if (currentWeek && cc) rowMap[currentWeek+'|'+cc.toLowerCase()] = r;
+    const cache = {};
+
+    for (const p of pairs) {
+      const sheetName = progressSheetNameForClass_(p.className);
+      if (!cache[sheetName]) {
+        const sh = ss.getSheetByName(sheetName);
+        if (!sh) return {ok:false, done:false, pairs:matched, error:'Không tìm thấy '+sheetName};
+        cache[sheetName] = {
+          sh:sh,
+          rows:v4158ProgressRowMap_(sh, week),
+          cols:v4158ProgressColumnMap_(sh)
+        };
       }
-      for (const cls of groups[sheetName]) {
-        const idx = rowMap[week+'|'+cls.toLowerCase()];
-        if (idx == null) return {ok:true, done:false, classes:matched};
-        const actual = Number(String(vals[idx][4]).replace(/[^0-9.-]/g,''));
-        if (actual !== Number(counts[cls])) return {ok:true, done:false, classes:matched};
-        matched++;
-      }
+      const x = cache[sheetName];
+      const row = x.rows[p.className.toLowerCase()];
+      const col = (p.track === 'elective' ? x.cols.elective : x.cols.regular)[p.subjectKey];
+      if (!row || !col) return {ok:true, done:false, pairs:matched};
+
+      const actual = Number(x.sh.getRange(row, col).getValue());
+      if (actual !== Number(p.ppct)) return {ok:true, done:false, pairs:matched};
+      matched++;
     }
-    return {ok:true, done:matched===classes.length, classes:matched};
+    return {ok:true, done:matched===pairs.length, pairs:matched, source:'Lịch báo giảng'};
   } catch(e) {
-    return {ok:false, done:false, classes:0, error:e && e.message ? e.message : String(e)};
+    return {ok:false, done:false, pairs:0, error:e && e.message ? e.message : String(e)};
   }
 }
 
@@ -2779,6 +2932,49 @@ function readTkbDashboardForDate_(teacherKey, targetDate, tkbSheetName, starts) 
 //   "Phân phối chương trình" và "Chuyên đề lựa chọn".
 // ============================================================================
 
+// V4.157 — CHUẨN HÓA TÊN MÔN TOÀN HỆ THỐNG
+// Dùng chung khi đọc TKB, Lịch báo giảng cũ, tính PPCT, Tiến độ, Tiết phát sinh và Hoán đổi.
+// Không sửa dữ liệu lịch sử trong Sheet; chỉ chuẩn hóa khi đọc/xử lý và khi ghi dữ liệu mới.
+function v4157CanonicalBaseSubject_(subject) {
+  const raw = normalizeText_(subject);
+  if (!raw) return '';
+  const k = keyText_(raw).replace(/[^a-z0-9]+/g, '');
+  const aliases = {
+    // Ngữ văn
+    'van':'Ngữ văn', 'nguvan':'Ngữ văn',
+    // Lịch sử
+    'su':'Lịch sử', 'lichsu':'Lịch sử',
+    // Toán
+    'toan':'Toán', 'toanhoc':'Toán',
+    // Tiếng Anh: Anh / T.A / T.Anh / T. Anh
+    'anh':'Tiếng Anh', 'ta':'Tiếng Anh', 'tanh':'Tiếng Anh', 'tienganh':'Tiếng Anh',
+    // Giáo dục thể chất
+    'td':'GDTC', 'theduc':'GDTC', 'gdtc':'GDTC', 'giaoducthechat':'GDTC',
+    // Giáo dục QP-AN
+    'qpan':'GDQPAN', 'gdqpan':'GDQPAN', 'quocphong':'GDQPAN',
+    'giaoducquocphong':'GDQPAN', 'giaoducquocphonganninh':'GDQPAN', 'giaoducquocphongvaanninh':'GDQPAN',
+    // Địa lí
+    'dia':'Địa lí', 'diali':'Địa lí', 'dialy':'Địa lí',
+    // Giáo dục kinh tế và pháp luật (tên nội bộ giữ GDKTPL để khớp Kho PPCT)
+    'ktpl':'GDKTPL', 'gdktpl':'GDKTPL', 'giaoduckinhtephapluat':'GDKTPL', 'giaoduckinhtevaphapluat':'GDKTPL',
+    // Vật lí
+    'ly':'Vật lí', 'li':'Vật lí', 'vatli':'Vật lí', 'vatly':'Vật lí',
+    // Hóa học
+    'hoa':'Hóa học', 'hoahoc':'Hóa học',
+    // Sinh học
+    'sinh':'Sinh học', 'sinhhoc':'Sinh học',
+    // Công nghệ
+    'cn':'Công nghệ', 'cnghe':'Công nghệ', 'congnghe':'Công nghệ',
+    // Tin học
+    'tin':'Tin học', 'tinhoc':'Tin học',
+    // HĐTNHN
+    'hdtn':'HĐTNHN', 'tnhn':'HĐTNHN', 'hdtnhn':'HĐTNHN', 'hoatdongtrainghiemhuongnghiep':'HĐTNHN',
+    // GDĐP, kể cả cách ghi kèm khối
+    'gddp':'GDĐP', 'gddp10':'GDĐP', 'gddp11':'GDĐP', 'gddp12':'GDĐP', 'giaoducdiaphuong':'GDĐP'
+  };
+  return aliases[k] || raw;
+}
+
 function v4135SubjectTrackInfo_(subject) {
   const raw = normalizeText_(subject);
   let base = raw;
@@ -2788,13 +2984,15 @@ function v4135SubjectTrackInfo_(subject) {
     track = 'elective';
     base = normalizeText_(base.replace(/\s+(?:CĐ|CD|CHUYÊN\s*ĐỀ|CHUYEN\s*DE)\s*$/i, ''));
   }
-  if (!base) base = raw || 'Chưa xác định môn';
+  base = v4157CanonicalBaseSubject_(base);
+  if (!base) base = v4157CanonicalBaseSubject_(raw) || raw || 'Chưa xác định môn';
+  const displayBase = base === 'GDKTPL' ? 'GDKT&PL' : base;
   return {
     raw: raw,
     baseSubject: base,
     track: track,
     isElective: track === 'elective',
-    displaySubject: track === 'elective' ? (base + ' CĐ') : base,
+    displaySubject: track === 'elective' ? (displayBase + ' CĐ') : displayBase,
     prefix: track === 'elective' ? 'CĐ' : ''
   };
 }
@@ -4604,18 +4802,18 @@ const V4151_PPCT_ALIASES = {
   'van':'Ngữ văn','nguvan':'Ngữ văn',
   'su':'Lịch sử','lichsu':'Lịch sử',
   'toan':'Toán','toanhoc':'Toán',
-  'anh':'Tiếng Anh','tienganh':'Tiếng Anh',
-  'td':'GDTC','gdtc':'GDTC','giaoducthechat':'GDTC',
-  'qpan':'GDQPAN','gdqpan':'GDQPAN','giaoducquocphongvaanninh':'GDQPAN',
+  'anh':'Tiếng Anh','ta':'Tiếng Anh','tanh':'Tiếng Anh','tienganh':'Tiếng Anh',
+  'td':'GDTC','theduc':'GDTC','gdtc':'GDTC','giaoducthechat':'GDTC',
+  'qpan':'GDQPAN','gdqpan':'GDQPAN','quocphong':'GDQPAN','giaoducquocphong':'GDQPAN','giaoducquocphonganninh':'GDQPAN','giaoducquocphongvaanninh':'GDQPAN',
   'dia':'Địa lí','diali':'Địa lí','dialy':'Địa lí',
-  'gdktpl':'GDKTPL','giaoduckinhtevaphapluat':'GDKTPL',
+  'ktpl':'GDKTPL','gdktpl':'GDKTPL','giaoduckinhtephapluat':'GDKTPL','giaoduckinhtevaphapluat':'GDKTPL',
   'ly':'Vật lí','vatli':'Vật lí','vatly':'Vật lí',
   'hoa':'Hóa học','hoahoc':'Hóa học',
   'sinh':'Sinh học','sinhhoc':'Sinh học',
-  'cnghe':'Công nghệ','congnghe':'Công nghệ',
+  'cn':'Công nghệ','cnghe':'Công nghệ','congnghe':'Công nghệ',
   'tin':'Tin học','tinhoc':'Tin học',
   'hdtn':'HĐTNHN','hdtnhn':'HĐTNHN','hoatdongtrainghiemhuongnghiep':'HĐTNHN',
-  'gddp':'GDĐP','giaoducdiaphuong':'GDĐP'
+  'gddp':'GDĐP','gddp10':'GDĐP','gddp11':'GDĐP','gddp12':'GDĐP','giaoducdiaphuong':'GDĐP'
 };
 
 function v4151PlainSubjectKey_(subject) {
@@ -5995,6 +6193,294 @@ function ghiBaoGiang(payload) {
 }
 
 
+// V4.158 — Dùng khi cần tính lại riêng tiến độ của một giáo viên/tuần từ Lịch báo giảng.
+// Không xóa ô của môn khác; chỉ ghi lại đúng các Lớp + Môn mà giáo viên có PPCT hợp lệ.
+function v4158RebuildTeacherProgressFromReport(payload) {
+  payload = payload || {};
+  if (!payload.teacherKey) throw new Error('Thiếu giáo viên.');
+  const records = v4158ReadTeacherProgressRecordsFromReport_(payload);
+  const details = updateProgressReport_(payload, records);
+  return {ok:true, source:'Lịch báo giảng', written:details.length, details:details};
+}
+
+
+function v4158LatestReportSheet_() {
+  const weeks = listWeekSheets_().filter(x => x && x.name && x.monday);
+  if (!weeks.length) throw new Error('Không tìm thấy sheet Lịch báo giảng theo tuần.');
+  weeks.sort((a,b) => {
+    const da = parseYmd_(a.monday), db = parseYmd_(b.monday);
+    return (da ? da.getTime() : 0) - (db ? db.getTime() : 0);
+  });
+  return weeks[weeks.length - 1];
+}
+
+function v4158WeekNumberFromReportSheet_(sheet) {
+  const lastCol = Math.min(Math.max(sheet.getLastColumn(), 20), 400);
+  const vals = sheet.getRange(1,1,1,lastCol).getDisplayValues()[0] || [];
+  for (let i=0;i<vals.length;i++) {
+    const m = normalizeText_(vals[i]).match(/Tuần\s*học\s*thứ\s*:?\s*(\d+)/i);
+    if (m) return Number(m[1]);
+  }
+  throw new Error('Không xác định được số tuần học trong sheet ' + sheet.getName() + '.');
+}
+
+function v4158ReadAllProgressRecordsFromReportSheet_(sheet) {
+  const out = [];
+  const seenTeacher = {};
+  Object.keys(TEACHER_PROFILES).forEach(k => {
+    const fullName = TEACHER_PROFILES[k] && TEACHER_PROFILES[k].fullName;
+    if (!fullName || seenTeacher[normalizeTeacherNameKey_(fullName)]) return;
+    seenTeacher[normalizeTeacherNameKey_(fullName)] = true;
+    try {
+      const blockStartZero = findTeacherBlockStart_(sheet, fullName);
+      v4152ReadReportRows_(sheet, blockStartZero).forEach(r => {
+        if (v4146ClassGrade_(r.className) && normalizeText_(r.subject) && v4135PpctNumber_(r.ppct)) out.push(r);
+      });
+    } catch(e) {
+      // Một số giáo viên có thể chưa có khối trong mẫu cũ; bỏ qua an toàn.
+    }
+  });
+  return out;
+}
+
+function v4158ClearCoreProgressWeek_(week) {
+  const ss = SpreadsheetApp.openById(TIEN_DO_SPREADSHEET_ID);
+  const cleared = [];
+  ['Lop 10','Lop 11','Lop 12'].forEach(sheetName => {
+    const sh = ss.getSheetByName(sheetName);
+    if (!sh) return;
+    const rowMap = v4158ProgressRowMap_(sh, week);
+    Object.keys(rowMap).forEach(cls => {
+      const row = rowMap[cls];
+      // D:AA = tiến độ chính khóa/lựa chọn/chuyên đề; không đụng các cột phụ đạo phía sau.
+      sh.getRange(row, 4, 1, 24).clearContent();
+      cleared.push(sheetName + '!' + row);
+    });
+  });
+  return cleared;
+}
+
+// Tính lại TOÀN BỘ tiến độ của một tuần từ Lịch báo giảng.
+// clearBefore=true sẽ dọn các giá trị sai cột do phiên bản cũ rồi dựng lại D:AA từ Báo giảng.
+function v4158RebuildWeekProgressFromReports(payload) {
+  payload = payload || {};
+  const baoSs = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  let reportSheetName = normalizeText_(payload.reportSheet);
+  let week = Number(payload.week || 0);
+
+  if (!reportSheetName) {
+    const latest = v4158LatestReportSheet_();
+    reportSheetName = latest.name;
+  }
+  const sh = baoSs.getSheetByName(reportSheetName);
+  if (!sh) throw new Error('Không tìm thấy Lịch báo giảng: ' + reportSheetName);
+  if (!week) week = v4158WeekNumberFromReportSheet_(sh);
+
+  const records = v4158ReadAllProgressRecordsFromReportSheet_(sh);
+  const cleared = payload.clearBefore === true ? v4158ClearCoreProgressWeek_(week) : [];
+  const details = updateProgressReport_({week:week}, records);
+  return {
+    ok:true,
+    source:'Lịch báo giảng',
+    reportSheet:reportSheetName,
+    week:week,
+    clearBefore:payload.clearBefore === true,
+    clearedRows:cleared.length,
+    written:details.length,
+    details:details
+  };
+}
+
+// Hàm quản trị chạy trực tiếp trong Apps Script khi cần dọn tuần mới nhất.
+// Chỉ cần chọn hàm này rồi bấm Run; không cần truyền tham số.
+function V4158_TINH_LAI_TIEN_DO_TUAN_MOI_NHAT() {
+  return v4158RebuildWeekProgressFromReports({clearBefore:true});
+}
+
+
+
+// ===== V4.161: QUẢN TRỊ TÀI KHOẢN GIÁO VIÊN =====
+const V4161_ACCESS_SHEET = 'QuanLyGiaoVien';
+const V4161_ADMIN_HASH_PROP = 'V4161_ADMIN_PASSWORD_HASH';
+const V4161_ADMIN_EPOCH_PROP = 'V4161_ADMIN_EPOCH';
+const V4161_ADMIN_CACHE_PREFIX = 'V4161_ADMIN_SESSION_';
+const V4161_ADMIN_SESSION_SECONDS = 21600; // 6 giờ
+const V4161_ACCESS_LABELS = {active:'Hoạt động', readonly:'Chỉ xem', locked:'Đã khóa'};
+const V4161_WRITE_ACTIONS = {
+  savePpctSourceConfig:1, applyPpctRebalance:1, undoPpctRebalance:1,
+  writeWeeklyPlan:1, ghiBaoGiang:1, undoLastWrite:1, ghiBaoGiangStep1:1, capNhatTienDoStep2:1,
+  savePpctSubjectSourceConfig:1, saveMakeupScheduleConfig:1, clearMakeupScheduleConfig:1,
+  saveExtraLesson:1, deleteExtraLesson:1, clearExtraLessons:1,
+  saveSwapLesson:1, deleteSwapLesson:1, saveDayOff:1, deleteDayOff:1, v4155EnsureDayOffSync:1,
+  v4158RebuildTeacherProgressFromReport:1, v4158RebuildWeekProgressFromReports:1
+};
+
+function v4161StatusCode_(value) {
+  const t = keyText_(value || '');
+  if (t === 'readonly' || t === 'chi xem' || t === 'chỉ xem') return 'readonly';
+  if (t === 'locked' || t === 'da khoa' || t === 'đã khóa' || t === 'khoa' || t === 'khóa') return 'locked';
+  return 'active';
+}
+function v4161StatusLabel_(code) { return V4161_ACCESS_LABELS[v4161StatusCode_(code)] || V4161_ACCESS_LABELS.active; }
+function v4161TeacherMeta_(teacherKey) {
+  const key = resolveTeacherKey_(teacherKey);
+  const p = TEACHER_PROFILES[key] || {};
+  const d = getTeacherDirectoryInfo_(key) || {};
+  return {key:key, fullName:p.fullName || TEACHER_MAP[key] || key, slug:p.slug || teacherSlug_(key), subject:d.subject || '', team:d.team || d.org || '', role:d.role || ''};
+}
+function v4161EnsureAccessSheet_() {
+  const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
+  let sh = ss.getSheetByName(V4161_ACCESS_SHEET);
+  const headers = ['Mã GV','Họ tên','Môn','Tổ','Trạng thái','Lần đầu truy cập','Lần cuối truy cập','Lần cuối ghi báo giảng','Số lượt dùng','Ghi chú','Cập nhật lúc','Slug'];
+  if (!sh) {
+    sh = ss.insertSheet(V4161_ACCESS_SHEET);
+    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    sh.setFrozenRows(1);
+    sh.getRange(1,1,1,headers.length).setFontWeight('bold').setBackground('#155fa0').setFontColor('#ffffff');
+    sh.setColumnWidths(1,headers.length,130);
+    sh.setColumnWidth(2,210); sh.setColumnWidth(3,170); sh.setColumnWidth(10,240);
+    const rule = SpreadsheetApp.newDataValidation().requireValueInList(['Hoạt động','Chỉ xem','Đã khóa'], true).setAllowInvalid(false).build();
+    sh.getRange(2,5,Math.max(1,sh.getMaxRows()-1),1).setDataValidation(rule);
+  } else {
+    const current = sh.getRange(1,1,1,headers.length).getDisplayValues()[0];
+    if (current.join('|') !== headers.join('|')) sh.getRange(1,1,1,headers.length).setValues([headers]);
+  }
+  const last = Math.max(sh.getLastRow(),1);
+  const vals = last > 1 ? sh.getRange(2,1,last-1,12).getValues() : [];
+  const rowByKey = {};
+  vals.forEach((r,i) => { const k = normalizeText_(r[0]); if (k) rowByKey[k] = i + 2; });
+  const missing = [];
+  Object.keys(TEACHER_PROFILES).forEach(k => {
+    if (rowByKey[k]) return;
+    const m = v4161TeacherMeta_(k);
+    missing.push([m.key,m.fullName,m.subject,m.team,V4161_ACCESS_LABELS.active,'','','',0,'',new Date(),m.slug]);
+  });
+  if (missing.length) sh.getRange(sh.getLastRow()+1,1,missing.length,12).setValues(missing);
+  sh.getRange(2,6,Math.max(1,sh.getLastRow()-1),3).setNumberFormat('dd/MM/yyyy HH:mm');
+  sh.getRange(2,11,Math.max(1,sh.getLastRow()-1),1).setNumberFormat('dd/MM/yyyy HH:mm');
+  return sh;
+}
+function v4161FindTeacherRow_(sh, teacherKey) {
+  const key = resolveTeacherKey_(teacherKey);
+  const last = sh.getLastRow();
+  if (last < 2) throw new Error('Không có dữ liệu quản lý giáo viên.');
+  const keys = sh.getRange(2,1,last-1,1).getDisplayValues();
+  for (let i=0;i<keys.length;i++) if (normalizeText_(keys[i][0]) === key) return i + 2;
+  throw new Error('Không tìm thấy giáo viên trong quản lý: ' + key);
+}
+function v4161ReadTeacherAccess_(teacherKey) {
+  const sh = v4161EnsureAccessSheet_();
+  const row = v4161FindTeacherRow_(sh, teacherKey);
+  const r = sh.getRange(row,1,1,12).getValues()[0];
+  const m = v4161TeacherMeta_(r[0]);
+  const mode = v4161StatusCode_(r[4]);
+  return {row:row,key:m.key,fullName:m.fullName,slug:m.slug,subject:m.subject,team:m.team,mode:mode,status:v4161StatusLabel_(mode),firstAccess:r[5]||'',lastAccess:r[6]||'',lastWrite:r[7]||'',useCount:Number(r[8]||0),note:normalizeText_(r[9]),updatedAt:r[10]||''};
+}
+function v4161PublicAccess_(access) {
+  return {mode:access.mode,status:access.status,canWrite:access.mode==='active',locked:access.mode==='locked',readonly:access.mode==='readonly'};
+}
+function v4161TouchTeacher_(teacherKey, kind, action) {
+  const lock = LockService.getScriptLock();
+  try { lock.tryLock(5000); } catch(e) {}
+  try {
+    const sh = v4161EnsureAccessSheet_();
+    const row = v4161FindTeacherRow_(sh, teacherKey);
+    const now = new Date();
+    const first = sh.getRange(row,6).getValue();
+    const last = sh.getRange(row,7).getValue();
+    let count = Number(sh.getRange(row,9).getValue() || 0);
+    if (kind === 'access') {
+      if (!first) sh.getRange(row,6).setValue(now);
+      let newSession = !last;
+      if (last instanceof Date && !isNaN(last.getTime())) newSession = (now.getTime() - last.getTime()) > 30*60*1000;
+      if (newSession) count += 1;
+      sh.getRange(row,7).setValue(now);
+      sh.getRange(row,9).setValue(count);
+    }
+    if (kind === 'write') sh.getRange(row,8).setValue(now);
+    sh.getRange(row,11).setValue(now);
+    return v4161ReadTeacherAccess_(teacherKey);
+  } finally { try { lock.releaseLock(); } catch(e) {} }
+}
+function v4161ExtractTeacherKey_(teacherRef, action, args) {
+  const direct = normalizeText_(teacherRef);
+  if (direct) { try { return resolveTeacherKey_(direct); } catch(e) {} }
+  if (action === 'getInitialData' && args && args.length) { try { return resolveTeacherKey_(args[0]); } catch(e) {} }
+  for (let i=0;i<(args||[]).length;i++) {
+    const a = args[i];
+    if (a && typeof a === 'object' && !Array.isArray(a) && a.teacherKey) { try { return resolveTeacherKey_(a.teacherKey); } catch(e) {} }
+  }
+  if (args && args.length && typeof args[0] === 'string' && TEACHER_PROFILES[args[0]]) return args[0];
+  return '';
+}
+function v4161AuthorizeTeacherAction_(teacherKey, action) {
+  if (!teacherKey) return null;
+  let access;
+  if (action === 'getInitialData') access = v4161TouchTeacher_(teacherKey,'access',action);
+  else access = v4161ReadTeacherAccess_(teacherKey);
+  if (access.mode === 'locked') throw new Error('[ACCOUNT_LOCKED] Tài khoản ' + access.fullName + ' hiện đang bị khóa. Vui lòng liên hệ quản trị.');
+  if (access.mode === 'readonly' && V4161_WRITE_ACTIONS[action]) throw new Error('[READ_ONLY] Tài khoản ' + access.fullName + ' đang ở chế độ Chỉ xem, không được ghi hoặc sửa dữ liệu.');
+  return access;
+}
+function v4161Digest_(text) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text||''), Utilities.Charset.UTF_8).map(b => ('0'+((b+256)%256).toString(16)).slice(-2)).join('');
+}
+function v4161RequireAdmin_(token) {
+  const t = normalizeText_(token);
+  if (!t) throw new Error('Phiên quản trị chưa đăng nhập.');
+  const epoch = PropertiesService.getScriptProperties().getProperty(V4161_ADMIN_EPOCH_PROP) || '';
+  const cached = CacheService.getScriptCache().get(V4161_ADMIN_CACHE_PREFIX + t) || '';
+  if (!epoch || cached !== epoch) throw new Error('Phiên quản trị đã hết hạn. Hãy đăng nhập lại.');
+  return true;
+}
+function adminLogin(password) {
+  const props = PropertiesService.getScriptProperties();
+  const expected = props.getProperty(V4161_ADMIN_HASH_PROP) || '';
+  if (!expected) throw new Error('Chưa tạo mật khẩu quản trị. Trong Apps Script, chạy hàm V4161_TAO_MAT_KHAU_ADMIN một lần.');
+  if (v4161Digest_(password) !== expected) throw new Error('Mật khẩu quản trị không đúng.');
+  let epoch = props.getProperty(V4161_ADMIN_EPOCH_PROP) || '';
+  if (!epoch) { epoch = Utilities.getUuid(); props.setProperty(V4161_ADMIN_EPOCH_PROP,epoch); }
+  const token = Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().replace(/-/g,'');
+  CacheService.getScriptCache().put(V4161_ADMIN_CACHE_PREFIX + token, epoch, V4161_ADMIN_SESSION_SECONDS);
+  return {ok:true,token:token,expiresIn:V4161_ADMIN_SESSION_SECONDS};
+}
+function adminLogout(token) { try { CacheService.getScriptCache().remove(V4161_ADMIN_CACHE_PREFIX + normalizeText_(token)); } catch(e) {} return {ok:true}; }
+function adminGetDashboard(token) {
+  v4161RequireAdmin_(token);
+  const sh = v4161EnsureAccessSheet_();
+  const last = sh.getLastRow();
+  const vals = last>1 ? sh.getRange(2,1,last-1,12).getValues() : [];
+  const teachers = vals.filter(r=>normalizeText_(r[0])).map(r=>{
+    const m=v4161TeacherMeta_(r[0]), mode=v4161StatusCode_(r[4]);
+    return {key:m.key,fullName:m.fullName,slug:m.slug,subject:m.subject,team:m.team,mode:mode,status:v4161StatusLabel_(mode),firstAccess:r[5]||'',lastAccess:r[6]||'',lastWrite:r[7]||'',useCount:Number(r[8]||0),note:normalizeText_(r[9]),updatedAt:r[10]||''};
+  });
+  const stats={total:teachers.length,active:0,readonly:0,locked:0,used:0,neverUsed:0};
+  teachers.forEach(t=>{stats[t.mode]=(stats[t.mode]||0)+1; if(t.firstAccess)stats.used++; else stats.neverUsed++;});
+  return {ok:true,stats:stats,teachers:teachers,sheetName:V4161_ACCESS_SHEET};
+}
+function adminSetTeacherStatus(token, teacherKey, mode, note) {
+  v4161RequireAdmin_(token);
+  const normalized = v4161StatusCode_(mode);
+  const sh = v4161EnsureAccessSheet_();
+  const row = v4161FindTeacherRow_(sh, teacherKey);
+  sh.getRange(row,5).setValue(v4161StatusLabel_(normalized));
+  if (note !== undefined) sh.getRange(row,10).setValue(String(note||'').trim());
+  sh.getRange(row,11).setValue(new Date());
+  return {ok:true,teacher:v4161ReadTeacherAccess_(teacherKey)};
+}
+// Chạy trực tiếp một lần trong Apps Script. Mật khẩu được ghi vào Nhật ký thực thi, không đưa vào frontend/GitHub.
+function V4161_TAO_MAT_KHAU_ADMIN() {
+  const pwd = 'QLGV-' + Utilities.getUuid().replace(/-/g,'').slice(0,12);
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty(V4161_ADMIN_HASH_PROP, v4161Digest_(pwd));
+  props.setProperty(V4161_ADMIN_EPOCH_PROP, Utilities.getUuid());
+  v4161EnsureAccessSheet_();
+  Logger.log('MẬT KHẨU QUẢN TRỊ V4.161: ' + pwd);
+  console.log('MẬT KHẨU QUẢN TRỊ V4.161: ' + pwd);
+  return {ok:true,message:'Đã tạo mật khẩu. Xem Nhật ký thực thi (Execution log).'};
+}
+
+
 const VERCEL_API_ACTIONS = {
   'getInitialData': getInitialData,
   'getPpctSourceConfig': getPpctSourceConfig,
@@ -6039,7 +6525,13 @@ const VERCEL_API_ACTIONS = {
   'saveDayOff': saveDayOff,
   'deleteDayOff': deleteDayOff,
   'v4155EnsureDayOffSync': v4155EnsureDayOffSync,
-  'v4137GetPpctSourceStatus': v4137GetPpctSourceStatus
+  'v4158RebuildTeacherProgressFromReport': v4158RebuildTeacherProgressFromReport,
+  'v4158RebuildWeekProgressFromReports': v4158RebuildWeekProgressFromReports,
+  'v4137GetPpctSourceStatus': v4137GetPpctSourceStatus,
+  'adminLogin': adminLogin,
+  'adminLogout': adminLogout,
+  'adminGetDashboard': adminGetDashboard,
+  'adminSetTeacherStatus': adminSetTeacherStatus
 };
 function apiOutput_(payload) {
   return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
@@ -6054,7 +6546,16 @@ function doPost(e) {
     const fn=VERCEL_API_ACTIONS[action];
     if(!fn) throw new Error('Chức năng API không hợp lệ: '+action);
     const args=Array.isArray(body.args)?body.args:[];
-    return apiOutput_({ok:true,result:fn.apply(null,args)});
+    const isAdminAction=/^admin(?:Login|Logout|GetDashboard|SetTeacherStatus)$/.test(action);
+    let teacherKey='', access=null;
+    if(!isAdminAction){
+      teacherKey=v4161ExtractTeacherKey_(body.teacherRef||'',action,args);
+      access=v4161AuthorizeTeacherAction_(teacherKey,action);
+    }
+    let result=fn.apply(null,args);
+    if(action==='getInitialData' && result && access) result.access=v4161PublicAccess_(access);
+    if(teacherKey && V4161_WRITE_ACTIONS[action]) v4161TouchTeacher_(teacherKey,'write',action);
+    return apiOutput_({ok:true,result:result});
   }catch(err){
     return apiOutput_({ok:false,error:{message:String(err&&err.message?err.message:err),stack:String(err&&err.stack?err.stack:'')}});
   }
@@ -6063,3 +6564,6 @@ function setVercelApiToken(token) {
   PropertiesService.getScriptProperties().setProperty('VERCEL_API_TOKEN',String(token||'').trim());
   return {ok:true,configured:!!String(token||'').trim()};
 }
+
+
+// V4.157: Chuẩn hóa alias tên môn toàn hệ thống để nối đúng PPCT giữa các tuần lịch sử.

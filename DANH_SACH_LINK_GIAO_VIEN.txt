@@ -1,4 +1,4 @@
-DANH SÁCH ĐƯỜNG DẪN GIÁO VIÊN — V4.154
+DANH SÁCH ĐƯỜNG DẪN GIÁO VIÊN — V4.160
 
 Ghép tên miền Vercel với đường dẫn:
 
@@ -8,6 +8,7 @@ Hà Thị Thu Oanh | Toán | KHTN | Phó Hiệu trưởng | /gv/ha-oanh
 Nguyễn Thanh Tuấn | Toán | KHTN | /gv/t-tuan
 Vi Thị Diệp | Toán | KHTN | /gv/v-diep
 Lâm Thị Thu Hường | Toán | KHTN | /gv/huong
+Hoàng Thị Lan | Toán | KHTN | /gv/lan
 Lưu Công Tuấn | Vật lí | KHTN | /gv/l-tuan
 Nông Thị Bích Ngọc | Vật lí | KHTN | /gv/n-ngoc
 Trương Thị Mỹ Ngọc | Vật lí | KHTN | /gv/t-ngoc
@@ -25,6 +26,7 @@ Lý Thu Hiền | Ngữ văn | KHXH | /gv/hien
 Nông Thị Thu Bằng | Ngữ văn | KHXH | /gv/bang
 Lê Kim Thoa | Lịch sử | KHXH | /gv/thoa
 Nguyễn Thị Liễu | Lịch sử | KHXH | /gv/ng-lieu
+Nông Thị Thanh Hoài | Lịch sử · GDĐP | KHXH | /gv/hoai
 Lương Thị Thanh Thủy | Địa lí | KHXH | /gv/l-thuy
 Trần Thị Kim Oanh | Địa lí | KHXH | /gv/t-oanh
 Hoàng Thị Ngọc Hà | GDKTPL | KHXH | /gv/ha

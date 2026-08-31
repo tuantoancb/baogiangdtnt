@@ -5259,6 +5259,27 @@ function toggleProgressDetails(){
 let initData = null;
 let lastPreview = null;
 
+let V4161_ACCESS_MODE='active';
+function v4161DisableWriteUi(){
+  const re=/(write|save|delete|clear|apply|undo|ghi|capnhat|rebuild)/i;
+  document.querySelectorAll('button').forEach(b=>{const oc=b.getAttribute('onclick')||'';if(b.id==='writeReportBtn'||re.test(oc)){b.disabled=true;b.title='Tài khoản đang ở chế độ Chỉ xem';}});
+}
+function v4161ApplyAccessMode(access){
+  if(!access)return;V4161_ACCESS_MODE=access.mode||'active';
+  if(V4161_ACCESS_MODE==='readonly'){
+    document.body.classList.add('v4161-readonly');
+    let bar=document.getElementById('v4161AccessBanner');if(!bar){bar=document.createElement('div');bar.id='v4161AccessBanner';bar.className='v4161-access-banner';document.body.appendChild(bar);}bar.textContent='👁 Chế độ CHỈ XEM · Anh/chị có thể xem dữ liệu nhưng không thể ghi hoặc sửa.';
+    setTimeout(v4161DisableWriteUi,100);
+  }
+}
+function v4161HandleInitError(e){
+  const msg=String(e&&e.message?e.message:e||'');
+  if(msg.indexOf('[ACCOUNT_LOCKED]')<0)return;
+  const old=document.getElementById('v4161LockOverlay');if(old)old.remove();
+  const wrap=document.createElement('div');wrap.id='v4161LockOverlay';wrap.className='v4161-lock-overlay';wrap.innerHTML='<div class="v4161-lock-card"><b>🔒 Tài khoản đã bị khóa</b><p>'+msg.replace('[ACCOUNT_LOCKED]','')+'</p><a href="/">← Về Cổng giáo viên</a></div>';document.body.appendChild(wrap);
+}
+
+
 function setStatus(msg, ok=true){
   const el=document.getElementById('status');
   el.className='status '+(ok?'ok':'err');
@@ -5270,6 +5291,7 @@ const requestedTeacherRef=(()=>{try{const q=new URLSearchParams(window.location.
 
 google.script.run.withSuccessHandler(data=>{
   initData=data;
+  v4161ApplyAccessMode(data.access);
   const sel=document.getElementById('teacher');
   data.teachers.forEach(t=>{
     const o=document.createElement('option');
@@ -5294,7 +5316,7 @@ google.script.run.withSuccessHandler(data=>{
     teamSel.title='Tự nhận diện: '+data.teacherDirectoryInfo.name+' · '+data.teacherDirectoryInfo.team+' · '+(data.teacherDirectoryInfo.subject||'');
   }
   onTkbSheetChange(true);
-}).withFailureHandler(e=>setStatus(e.message,false)).getInitialData(requestedTeacherRef);
+}).withFailureHandler(e=>{v4161HandleInitError(e);setStatus(e.message,false)}).getInitialData(requestedTeacherRef);
 
 
 

@@ -4,6 +4,16 @@
     if (err && typeof err === 'object' && err.message) return err;
     return { message: String(err || 'Không kết nối được máy chủ.') };
   }
+
+  function currentTeacherRef() {
+    try {
+      var q = new URLSearchParams(window.location.search).get('gv') || '';
+      if (q) return q;
+      var m = String(window.location.pathname || '').match(/\/gv\/([^/?#]+)/i);
+      return m ? decodeURIComponent(m[1]) : '';
+    } catch (_e) { return ''; }
+  }
+
   function makeRunner(successHandler, failureHandler) {
     return new Proxy({}, {
       get: function (_target, prop) {
@@ -15,7 +25,7 @@
           fetch('/api/gas', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ action: String(prop), args: args }),
+            body: JSON.stringify({ action: String(prop), args: args, teacherRef: currentTeacherRef() }),
             cache: 'no-store'
           }).then(async function (res) {
             var data;

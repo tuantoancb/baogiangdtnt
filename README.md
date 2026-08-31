@@ -1,3 +1,26 @@
+## V4.161 — Quản trị tài khoản giáo viên
+
+- `/admin`: bảng quản trị sử dụng và phân quyền giáo viên.
+- Backend: Hoạt động / Chỉ xem / Đã khóa.
+- Sheet theo dõi tự động: `QuanLyGiaoVien`.
+- Sau khi cập nhật Apps Script, chạy **`V4161_TAO_MAT_KHAU_ADMIN`** một lần rồi xem Execution log để lấy mật khẩu.
+- Đổi trạng thái trên `/admin` có hiệu lực ngay cho các API gọi qua cổng Vercel.
+
+## V4.160 — Thêm Nông Thị Thanh Hoài & chuẩn hóa môn dạy
+
+- Bổ sung **Nông Thị Thanh Hoài · Lịch sử + GDĐP · KHXH** vào Cổng giáo viên.
+- Mã giáo viên theo TKB: `Hoài`; đường dẫn cá nhân: `/gv/hoai`.
+- Xác nhận **Hoàng Thị Lan · Toán · KHTN** (`Lan`, `/gv/lan`).
+- Cổng giáo viên hỗ trợ hiển thị/lọc giáo viên dạy nhiều môn; cô Hoài xuất hiện ở cả nhóm **Lịch sử** và **GDĐP** nhưng chỉ tính là một giáo viên trong tổng số.
+- Kế thừa toàn bộ V4.158/V4.159: chuẩn hóa tên môn, tiến độ đúng cột, TKB tuần mới nhất.
+
+## V4.159 — Thêm giáo viên Hoàng Thị Lan
+
+- Bổ sung **Hoàng Thị Lan · Toán · KHTN** vào Cổng giáo viên.
+- Mã giáo viên: `Lan`; đường dẫn cá nhân: `/gv/lan`.
+- Backend nhận đúng `Lan` thay vì rơi về giáo viên mặc định.
+- Kế thừa V4.158: chuẩn hóa tên môn và ghi Tiến độ đúng cột môn.
+
 ## V4.156 — Tự chọn TKB tuần mới nhất
 
 Khi mở app, hệ thống tự chọn TKB của tuần mới nhất; vẫn cho phép chọn lại tuần cũ. Backend giữ nguyên V4.155.

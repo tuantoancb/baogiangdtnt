@@ -3,6 +3,7 @@ export type Teacher={
   slug:string;
   fullName:string;
   subject:string;
+  subjects?:string[];
   team:'KHTN'|'KHXH';
   role?:'Hiệu trưởng'|'Phó Hiệu trưởng';
   detail?:string;
@@ -15,6 +16,7 @@ export const teachers:Teacher[]=[
 {key:'T.Tuấn',slug:'t-tuan',fullName:'Nguyễn Thanh Tuấn',subject:'Toán',team:'KHTN'},
 {key:'V.Diệp',slug:'v-diep',fullName:'Vi Thị Diệp',subject:'Toán',team:'KHTN'},
 {key:'Hường',slug:'huong',fullName:'Lâm Thị Thu Hường',subject:'Toán',team:'KHTN'},
+{key:'Lan',slug:'lan',fullName:'Hoàng Thị Lan',subject:'Toán',team:'KHTN'},
 {key:'L.Tuấn',slug:'l-tuan',fullName:'Lưu Công Tuấn',subject:'Vật lí',team:'KHTN'},
 {key:'N.Ngọc',slug:'n-ngoc',fullName:'Nông Thị Bích Ngọc',subject:'Vật lí',team:'KHTN'},
 {key:'T.Ngọc',slug:'t-ngoc',fullName:'Trương Thị Mỹ Ngọc',subject:'Vật lí',team:'KHTN'},
@@ -32,6 +34,7 @@ export const teachers:Teacher[]=[
 {key:'Bằng',slug:'bang',fullName:'Nông Thị Thu Bằng',subject:'Ngữ văn',team:'KHXH'},
 {key:'Thoa',slug:'thoa',fullName:'Lê Kim Thoa',subject:'Lịch sử',team:'KHXH'},
 {key:'Ng.Liễu',slug:'ng-lieu',fullName:'Nguyễn Thị Liễu',subject:'Lịch sử',team:'KHXH'},
+{key:'Hoài',slug:'hoai',fullName:'Nông Thị Thanh Hoài',subject:'Lịch sử',subjects:['Lịch sử','GDĐP'],team:'KHXH',detail:'Lịch sử · GDĐP'},
 {key:'L.Thủy',slug:'l-thuy',fullName:'Lương Thị Thanh Thủy',subject:'Địa lí',team:'KHXH'},
 {key:'T.Oanh',slug:'t-oanh',fullName:'Trần Thị Kim Oanh',subject:'Địa lí',team:'KHXH'},
 {key:'Hà',slug:'ha',fullName:'Hoàng Thị Ngọc Hà',subject:'GDKTPL',team:'KHXH'},
