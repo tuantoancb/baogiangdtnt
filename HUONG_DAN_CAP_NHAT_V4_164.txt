@@ -1,0 +1,18 @@
+V4.164 - CHỐT CỔNG GIÁO VIÊN
+
+1. FRONTEND (GitHub/Vercel)
+- Up toàn bộ nội dung thư mục này lên repository hiện tại.
+- Vercel tự deploy nếu repository đã liên kết.
+
+2. BACKEND (Apps Script)
+- Nếu anh đang dùng Code.gs V4.163 rồi: KHÔNG BẮT BUỘC thay lại Code.gs vì V4.164 chỉ đổi Cổng giáo viên.
+- Nếu muốn đồng bộ trọn bộ: dùng file apps-script/Code.gs hoặc Code_V4_164.gs trong gói này.
+- Nếu thay Code.gs: Triển khai > Quản lý hoạt động triển khai > Chỉnh sửa deployment hiện tại > Phiên bản mới > Triển khai.
+
+GIAO DIỆN V4.164
+- Không còn khối tìm kiếm/bộ lọc.
+- Ban Giám hiệu thu gọn ở trên.
+- Lê Thị Lan Phương, Nguyễn Thế Phong, Hà Thị Thu Oanh chỉ hiện ở Ban Giám hiệu, không lặp trong tổ.
+- KHTN và KHXH chia 2 cột.
+- Giáo viên cùng môn xếp dọc.
+- Mobile tự chuyển hai tổ thành các khối xếp dọc.
