@@ -1,0 +1,9 @@
+V4.165 chỉ thay giao diện Cổng giáo viên (frontend).
+
+Cách cập nhật:
+1. Giải nén gói V4.165.
+2. Đưa toàn bộ source lên repository GitHub đang liên kết Vercel, hoặc thay trực tiếp các file app/page.tsx và app/styles.css.
+3. Commit/push để Vercel tự deploy.
+4. KHÔNG cần triển khai lại Apps Script nếu đang dùng Code.gs V4.164 hiện tại.
+
+Trang giáo viên /gv/<slug>, /admin và API giữ nguyên.
