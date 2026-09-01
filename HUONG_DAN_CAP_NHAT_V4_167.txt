@@ -1,0 +1,8 @@
+V4.167 chỉ thay giao diện Cổng giáo viên.
+
+Cập nhật:
+1. Đưa source trong ZIP này lên GitHub đang nối với Vercel.
+2. Chờ Vercel deploy.
+3. Không cần thay Code.gs nếu backend V4.163/V4.166 hiện tại đang chạy ổn.
+
+Giao diện mới: 35 giáo viên → BGH + KHTN + KHXH, không nhóm theo môn.
