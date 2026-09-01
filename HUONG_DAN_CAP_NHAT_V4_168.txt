@@ -1,0 +1,26 @@
+BÁO GIẢNG V4.168 — LIÊN THÔNG 3 APP
+
+Mục tiêu:
+- Báo giảng -> Thời khóa biểu -> Minh chứng giáo án dùng chung một danh tính giáo viên.
+- Slug hiện có là teacherId chung, ví dụ Nguyễn Thanh Tuấn = t-tuan.
+
+CẬP NHẬT VERCEL
+1. Dùng toàn bộ thư mục V4.168 này thay cho project V4.167 trên GitHub/Vercel.
+2. Không đổi biến môi trường hiện tại.
+3. Không đổi URL Apps Script /exec.
+4. Deploy lại project baogiangdtnt.
+
+APPS SCRIPT
+- V4.168 không thay đổi logic backend Báo giảng/PPCT/Tiến độ.
+- Không bắt buộc cập nhật Code.gs nếu backend V4.167 hiện tại đang hoạt động tốt.
+- File apps-script/Index.html đã được đồng bộ nút liên thông để dùng khi cần.
+
+KIỂM TRA SAU DEPLOY
+- Mở /gv/t-tuan.
+- Bấm Thời khóa biểu: URL mới phải có teacherId=t-tuan.
+- Bấm Giáo án: mở minhchunggiaoan.vercel.app và có teacherId=t-tuan.
+- Bấm Nộp giáo án: mở nopgiaoan.vercel.app và có teacherId=t-tuan.
+- Ghi Báo giảng thử một tuần như cũ để xác nhận nghiệp vụ không thay đổi.
+
+BƯỚC TIẾP THEO
+- Sửa thoikhoabieuntt và minhchunggiaoan để đọc teacherId/gv và tự lọc đúng giáo viên ngay khi mở.

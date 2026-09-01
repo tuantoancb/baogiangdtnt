@@ -4841,14 +4841,15 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.155</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.168</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
+<button onclick="openLinkedTeacherApp('timetable')" title="Mở Thời khóa biểu đúng giáo viên hiện tại"><i>▦</i>Thời khóa biểu</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
 <button onclick="openReport()"><i>▤</i>Báo giảng</button>
 <button onclick="document.querySelector('.v458-ppct')?.setAttribute('open','');document.querySelector('.v458-ppct')?.scrollIntoView({behavior:'smooth'})"><i>▥</i>PPCT</button>
 <button onclick="openProgressReport()"><i>▥</i>Tiến độ</button>
-<button onclick="window.open('https://nopgiaoan.vercel.app/','_blank','noopener,noreferrer')"><i>▧</i>Giáo án</button>
+<button onclick="openLinkedTeacherApp('evidence')" title="Mở Minh chứng giáo án đúng giáo viên hiện tại"><i>▧</i>Giáo án</button>
 <button onclick="document.querySelector('.v458-tools')?.scrollIntoView({behavior:'smooth'})"><i>⌘</i>Công cụ</button>
 </nav>
 <div class="v494-side-school"><b>THPT Thông Nông</b><span>Năm học 2026–2027</span></div>
@@ -4856,9 +4857,11 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 <div class="v494-mobile-head"><button onclick="v494ToggleDrawer()" type="button">☰</button><b>Lịch báo giảng</b><span>♢</span></div>
 <div class="v494-drawer" id="v494Drawer">
 <button onclick="v494ToggleDrawer();window.scrollTo({top:0,behavior:'smooth'})">⌂ Tổng quan</button>
+<button onclick="v494ToggleDrawer();openLinkedTeacherApp('timetable')">▦ Thời khóa biểu</button>
 <button onclick="v494ToggleDrawer();document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth'})">▣ Lịch dạy</button>
 <button onclick="v494ToggleDrawer();openReport()">▤ Báo giảng</button>
 <button onclick="v494ToggleDrawer();openProgressReport()">▥ Tiến độ</button>
+<button onclick="v494ToggleDrawer();openLinkedTeacherApp('evidence')">▧ Giáo án</button>
 <button onclick="v494ToggleDrawer();document.querySelector('.v458-tools')?.scrollIntoView({behavior:'smooth'})">⌘ Công cụ</button>
 </div>
 <div class="wrap">
@@ -4899,7 +4902,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
     <div class="s1-actions">
       <button class="s1-action s1-green" id="writeReportBtn" onclick="writeSheet()" type="button"><i>✎</i><b>GHI BÁO GIẢNG</b><small>Ghi lịch thực tế rồi tự tính tiến độ</small></button>
       <button class="s1-action s1-purple" onclick="openWeeklyPlanModal()" type="button"><i>▦</i><b>GHI LỊCH TUẦN</b><small>Ghi lịch công tác trong tuần</small></button>
-      <button class="s1-action s1-orange" onclick="window.open('https://nopgiaoan.vercel.app/','_blank','noopener,noreferrer')" type="button"><i>▰</i><b>NỘP GIÁO ÁN</b><small>Nộp giáo án điện tử</small></button>
+      <button class="s1-action s1-orange" onclick="openLinkedTeacherApp('submit')" type="button"><i>▰</i><b>NỘP GIÁO ÁN</b><small>Nộp giáo án điện tử</small></button>
     </div>
     <div class="v4128-progress-host" id="v4128ProgressHost" aria-live="polite"></div>
   </section>
@@ -5010,7 +5013,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 <div aria-label="Thao tác nhanh trên điện thoại" class="v452-mobile-dock">
 <button class="primary" onclick="writeSheet()" type="button">✓ Ghi báo giảng</button>
 <button class="soft" onclick="openWeeklyPlanModal()" type="button">🗓 Lịch tuần</button>
-<button class="soft" onclick="window.open('https://nopgiaoan.vercel.app/','_blank','noopener,noreferrer')" type="button">📋 Nộp giáo án</button>
+<button class="soft" onclick="openLinkedTeacherApp('submit')" type="button">📋 Nộp giáo án</button>
 </div>
 <div class="v462-export-backdrop" id="exportBaoGiangModal">
 <div class="v462-export-modal">
@@ -5289,6 +5292,44 @@ function setStatus(msg, ok=true){
 function loading(msg){ setStatus(msg,true); }
 
 const requestedTeacherRef=(()=>{try{const q=new URLSearchParams(window.location.search).get('gv')||'';if(q)return q;const m=String(window.location.pathname||'').match(/\/gv\/([^/?#]+)/i);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}})();
+
+
+/* V4.168 — Cầu nối danh tính giáo viên giữa Báo giảng / TKB / Giáo án. */
+const V4168_LINKED_APPS={
+  timetable:'https://thoikhoabieuntt.vercel.app/',
+  evidence:'https://minhchunggiaoan.vercel.app/',
+  submit:'https://nopgiaoan.vercel.app/'
+};
+function v4168CurrentTeacherIdentity(){
+  const sel=document.getElementById('teacher');
+  const teacherKey=(sel&&sel.value)||(initData&&initData.activeTeacherKey)||'';
+  const list=(initData&&initData.teachers)||[];
+  const active=list.find(t=>t.key===teacherKey)||list[0]||{};
+  const teacherId=(initData&&initData.activeTeacherSlug)||active.slug||requestedTeacherRef||'';
+  return {
+    teacherId:String(teacherId||'').trim(),
+    teacherKey:String(teacherKey||active.key||'').trim(),
+    teacherName:String(active.fullName||'').trim()
+  };
+}
+function v4168BuildLinkedUrl(baseUrl){
+  const who=v4168CurrentTeacherIdentity();
+  const url=new URL(baseUrl,window.location.href);
+  if(who.teacherId){
+    url.searchParams.set('teacherId',who.teacherId);
+    url.searchParams.set('gv',who.teacherId); // tương thích các app đang dùng slug gv
+  }
+  if(who.teacherKey) url.searchParams.set('teacherKey',who.teacherKey);
+  if(who.teacherName) url.searchParams.set('teacherName',who.teacherName);
+  url.searchParams.set('source','baogiang');
+  return url.toString();
+}
+function openLinkedTeacherApp(appKey){
+  const base=V4168_LINKED_APPS[appKey];
+  if(!base){setStatus('Chưa cấu hình ứng dụng liên thông.',false);return;}
+  const url=v4168BuildLinkedUrl(base);
+  window.open(url,'_blank','noopener,noreferrer');
+}
 
 google.script.run.withSuccessHandler(data=>{
   initData=data;
