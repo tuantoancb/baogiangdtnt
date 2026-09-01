@@ -1,0 +1,12 @@
+V4.166 chỉ thay giao diện Cổng giáo viên.
+
+Cập nhật:
+1) Giải nén ZIP.
+2) Đẩy source lên GitHub/Vercel như bản hiện tại.
+3) Không cần triển khai lại Apps Script nếu Code.gs hiện tại đang chạy ổn.
+
+Kiểm tra sau deploy:
+- Trang chủ có ô “Tìm giáo viên, môn học...”
+- Tìm “Hiền”, “Hoài”, “Toán”, “GDĐP” lọc đúng.
+- Bấm “Mở app” mở đúng /gv/<slug>.
+- Mobile: menu trái thu vào nút ☰, KHTN/KHXH thành một cột.
