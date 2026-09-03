@@ -9,7 +9,10 @@ export const PORTAL_LINKS={
 };
 
 export function teacherFeatureHref(feature:'timetable'|'report'|'grades',teacher:Teacher){
-  if(feature==='timetable') return `${PORTAL_LINKS.timetable}/gv/${teacher.slug}`;
+  if(feature==='timetable') {
+    const params=new URLSearchParams({teacher:teacher.key,slug:teacher.slug,name:teacher.fullName});
+    return `${PORTAL_LINKS.timetable}/?${params.toString()}`;
+  }
   if(feature==='report') return `${PORTAL_LINKS.report}/gv/${teacher.slug}`;
   // V4.169: Nhập điểm hiện dùng URL gốc do chưa có quy ước route cá nhân theo giáo viên.
   return PORTAL_LINKS.grades;

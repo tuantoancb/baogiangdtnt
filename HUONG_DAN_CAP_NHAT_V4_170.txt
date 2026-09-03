@@ -1,0 +1,13 @@
+V4.170 chỉ thay đổi frontend Cổng GIÁO VIÊN NTT.
+
+CẬP NHẬT:
+1. Giải nén ZIP V4.170.
+2. Copy đè source frontend vào repository GitHub hiện tại.
+3. Commit / Push để Vercel tự deploy.
+4. Không cần tạo project Vercel mới.
+5. Không bắt buộc thay Code.gs nếu backend hiện tại đang chạy ổn.
+
+Liên kết chức năng giữ nguyên từ V4.169:
+- Thời khóa biểu: https://thoikhoabieuntt.vercel.app/gv/{slug}
+- Báo giảng: https://baogiangdtnt.vercel.app/gv/{slug}
+- Nhập điểm: https://nhapdiemntt.vercel.app/

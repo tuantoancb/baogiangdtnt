@@ -1,0 +1,5 @@
+V4.172 chỉ thay giao diện frontend.
+1. Giải nén ZIP.
+2. Copy đè source vào repo hiện tại.
+3. Commit/push GitHub để Vercel tự deploy.
+4. Không cần thay Code.gs nếu backend hiện tại đang chạy ổn.
