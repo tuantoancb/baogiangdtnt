@@ -1,0 +1,6 @@
+V4.169 – KẾT NỐI NHẬP ĐIỂM NTT
+
+1. Cập nhật toàn bộ source frontend lên GitHub/Vercel.
+2. Không cần triển khai lại Apps Script nếu backend hiện tại đang hoạt động ổn.
+3. Sau khi chọn giáo viên, bấm Nhập điểm sẽ mở: https://nhapdiemntt.vercel.app/
+4. Khi hệ thống Nhập điểm có URL riêng theo giáo viên, chỉ cần cập nhật quy tắc liên kết, không cần thiết kế lại giao diện.

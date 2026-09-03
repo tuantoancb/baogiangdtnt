@@ -1,7 +1,3 @@
-# V4.168 — Liên thông Báo giảng · Thời khóa biểu · Giáo án
-
-Báo giảng dùng slug giáo viên làm `teacherId` chung và truyền danh tính sang hai app còn lại. Xem `CHANGELOG_V4_168.md`. Logic nghiệp vụ hiện có được giữ nguyên.
-
 ## V4.161 — Quản trị tài khoản giáo viên
 
 - `/admin`: bảng quản trị sử dụng và phân quyền giáo viên.
