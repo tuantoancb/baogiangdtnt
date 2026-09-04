@@ -7,27 +7,28 @@ import {teacherFeatureHref} from '../lib/portal-links';
 
 const viCollator=new Intl.Collator('vi',{sensitivity:'base'});
 
-function PeopleIcon(){return <svg viewBox="0 0 24 24" aria-hidden><circle cx="9" cy="8" r="4"/><path d="M2.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6M16 5.5a3 3 0 0 1 0 5.8M16.5 14c2.8.3 4.5 2.2 5 5"/></svg>}
 function UserIcon(){return <svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6.5 8-6.5s7.2 2.2 8 6.5"/></svg>}
 function CalendarIcon(){return <svg viewBox="0 0 24 24" aria-hidden><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 14h2M14 14h2M8 18h2"/></svg>}
 function ClipboardIcon(){return <svg viewBox="0 0 24 24" aria-hidden><path d="M9 5h6M9 3h6a2 2 0 0 1 2 2v1h2v15H5V6h2V5a2 2 0 0 1 2-2Z"/><path d="M9 11h6M9 15h6"/></svg>}
 function GradeIcon(){return <svg viewBox="0 0 24 24" aria-hidden><path d="M7 4h10v3h3v14H4V7h3V4Z"/><path d="M8 12h8M8 16h5"/></svg>}
-function NoteArt(){return <svg viewBox="0 0 180 110" aria-hidden><path d="M54 91c18-2 32-15 36-34 5 17 18 29 37 33"/><path d="M70 82c-18-18-17-45-8-62 14 14 18 34 9 53M115 76c5-24 21-40 39-48 2 23-10 43-31 52"/><rect x="89" y="15" width="60" height="72" rx="10" transform="rotate(5 119 51)"/><path d="M101 35h34M100 48h34M99 61h25"/><path d="m130 78 32-36 9 8-34 34-10 3Z"/></svg>}
+function InfoIcon(){return <svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7.2h.01"/></svg>}
+function ShieldIcon(){return <svg viewBox="0 0 24 24" aria-hidden><path d="M12 3 4.5 6v5.2c0 4.7 2.8 8.2 7.5 9.8 4.7-1.6 7.5-5.1 7.5-9.8V6L12 3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>}
 
-function FeatureCard({kind,title,description,teacher}:{kind:'timetable'|'report'|'grades';title:string;description:string;teacher:Teacher|null}){
+function FeatureCard({kind,title,description,cta,teacher}:{kind:'timetable'|'report'|'grades';title:string;description:string;cta:string;teacher:Teacher|null}){
   const href=teacher?teacherFeatureHref(kind,teacher):'#';
   const disabled=!teacher;
   const icon=kind==='timetable'?<CalendarIcon/>:kind==='report'?<ClipboardIcon/>:<GradeIcon/>;
   return <Link
     href={disabled?'#':href}
     onClick={e=>{if(disabled)e.preventDefault();}}
-    className={`v4170Feature ${kind} ${disabled?'disabled':''}`}
+    className={`v4173Feature ${kind} ${disabled?'disabled':''}`}
     aria-disabled={disabled}
   >
-    <span className="v4170FeatureIcon">{icon}</span>
+    <span className="v4173FeatureIcon">{icon}</span>
     <h2>{title}</h2>
+    <span className="v4173Rule"/>
     <p>{description}</p>
-    <span className="v4170FeatureGo">→</span>
+    <span className="v4173FeatureCta"><b>→</b>{cta}</span>
   </Link>;
 }
 
@@ -51,39 +52,49 @@ export default function HomePage(){
     }catch{}
   };
 
-  return <main className="v4170Page">
-    <div className="v4170Shell">
-      <section className="v4170Hero">
-        <span className="v4170HeroIcon"><PeopleIcon/></span>
-        <div className="v4170HeroCopy">
-          <h1>GIÁO VIÊN NTT</h1>
-          <p>Chào mừng thầy cô! Chọn giáo viên và mở nhanh công cụ cần sử dụng.</p>
+  return <main className="v4173Page">
+    <header className="v4173Topbar">
+      <div className="v4173TopInner">
+        <div className="v4173Brand">
+          <img src="/logo-dtnt.png" alt="Logo DTNT Cao Bằng"/>
+          <div><b>GIÁO VIÊN NTT</b><span>DTNT tỉnh Cao Bằng</span></div>
         </div>
-        <span className="v4170HeroArt"><NoteArt/></span>
-      </section>
+        <div className="v4173TopTools">
+          <span className="v4173Online"><i/>Đang hoạt động</span>
+          <Link className="v4173Admin" href="/admin">⚙ Quản trị hệ thống</Link>
+        </div>
+      </div>
+    </header>
 
-      <section className="v4170Picker" aria-label="Chọn giáo viên">
-        <label htmlFor="teacher-select">CHỌN GIÁO VIÊN</label>
-        <div className="v4170SelectWrap">
-          <span className="v4170SelectIcon"><UserIcon/></span>
-          <select id="teacher-select" value={selectedSlug} onChange={e=>onSelect(e.target.value)}>
+    <div className="v4173Shell">
+      <section className="v4173Welcome">
+        <h1>Xin chào! Chọn giáo viên để bắt đầu làm việc</h1>
+        <span className="v4173WelcomeRule"/>
+        <div className="v4173CompactPicker">
+          <span className="v4173PickerIcon"><UserIcon/></span>
+          <select aria-label="Chọn giáo viên" value={selectedSlug} onChange={e=>onSelect(e.target.value)}>
             <option value="">-- Chọn giáo viên --</option>
             {sorted.map(t=><option key={t.slug} value={t.slug}>{t.fullName}{t.subject?` · ${t.subject}`:''}</option>)}
           </select>
-          <span className="v4170Chevron">⌄</span>
+          <span className="v4173Chevron">⌄</span>
         </div>
-        {selected&&<div className="v4170SelectedLine"><span>Đã chọn</span><b>{selected.fullName}</b><small>{selected.role?`${selected.role} · `:''}{selected.subject}</small></div>}
+        <div className="v4173Remember"><InfoIcon/><span>{selected?`Đã chọn ${selected.fullName}. Hệ thống sẽ ghi nhớ cho lần sau.`:'Hệ thống sẽ ghi nhớ giáo viên bạn đã chọn cho lần sau.'}</span></div>
       </section>
 
-      <section className="v4170Features">
-        <FeatureCard kind="timetable" title="THỜI KHÓA BIỂU CÁ NHÂN" description="Xem thời khóa biểu và lịch dạy của cá nhân." teacher={selected}/>
-        <FeatureCard kind="report" title="BÁO GIẢNG" description="Tạo và quản lý báo giảng điện tử." teacher={selected}/>
-        <FeatureCard kind="grades" title="NHẬP ĐIỂM" description="Mở khu vực nhập và quản lý điểm." teacher={selected}/>
+      <section className="v4173Features">
+        <FeatureCard kind="timetable" title="THỜI KHÓA BIỂU CÁ NHÂN" description="Xem thời khóa biểu và lịch dạy của cá nhân." cta="XEM NGAY" teacher={selected}/>
+        <FeatureCard kind="report" title="BÁO GIẢNG" description="Tạo và quản lý báo giảng điện tử." cta="MỞ BÁO GIẢNG" teacher={selected}/>
+        <FeatureCard kind="grades" title="NHẬP ĐIỂM" description="Mở khu vực nhập và quản lý điểm." cta="NHẬP ĐIỂM" teacher={selected}/>
       </section>
 
-      <div className="v4170Hint">ⓘ {selected?`Đang thao tác với ${selected.fullName}. Chọn chức năng để tiếp tục.`:'Hãy chọn giáo viên trước khi mở các chức năng.'}</div>
-
-      <footer className="v4170Footer">© 2026 GIÁO VIÊN NTT · DTNT tỉnh Cao Bằng <span>♥</span></footer>
+      <div className="v4173Hint"><InfoIcon/><span>{selected?`Đang thao tác với ${selected.fullName}. Chọn một chức năng để tiếp tục.`:'Hãy chọn giáo viên trước khi mở các chức năng.'}</span></div>
     </div>
+
+    <footer className="v4173Footer">
+      <div className="v4173FooterInner">
+        <div className="v4173System"><span><ShieldIcon/></span><div><b>HỆ THỐNG GIÁO VIÊN NTT</b><small>Đơn giản · Nhanh chóng · Hiệu quả</small></div></div>
+        <div>© 2026 Giáo viên NTT · DTNT tỉnh Cao Bằng <span className="v4173Heart">♥</span></div>
+      </div>
+    </footer>
   </main>;
 }

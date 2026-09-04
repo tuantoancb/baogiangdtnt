@@ -1,0 +1,13 @@
+V4.173 - GIÁO VIÊN NTT - GIAO DIỆN XANH CÓ LỰC
+
+1. Giải nén ZIP.
+2. Chép đè toàn bộ frontend vào repository hiện tại của baogiangdtnt.vercel.app.
+3. Commit/Push lên GitHub, Vercel tự deploy.
+4. Không cần triển khai lại Apps Script nếu backend V4.172/V4.171 đang chạy ổn.
+
+Điểm chính:
+- Ô chọn giáo viên compact, cân giữa.
+- Hệ thống nhớ giáo viên đã chọn.
+- TKB dùng URL gốc + query teacher/slug/name, tránh lỗi 404 /gv/...
+- Báo giảng đi đúng /gv/{slug}.
+- Nhập điểm mở https://nhapdiemntt.vercel.app/.
