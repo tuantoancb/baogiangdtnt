@@ -1,3 +1,7 @@
 import type { NextConfig } from 'next';
-const nextConfig: NextConfig = { async rewrites() { return [{ source: '/gv/:slug', destination: '/app.html' }]; } };
+const nextConfig: NextConfig = {
+  async rewrites() {
+    return [{ source: '/gv/:slug', destination: '/app.html?gv=:slug' }];
+  }
+};
 export default nextConfig;

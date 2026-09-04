@@ -18,8 +18,10 @@ function FeatureCard({kind,title,description,cta,teacher}:{kind:'timetable'|'rep
   const href=teacher?teacherFeatureHref(kind,teacher):'#';
   const disabled=!teacher;
   const icon=kind==='timetable'?<CalendarIcon/>:kind==='report'?<ClipboardIcon/>:<GradeIcon/>;
-  return <Link
+  return <a
     href={disabled?'#':href}
+    target={disabled?undefined:'_blank'}
+    rel={disabled?undefined:'noopener noreferrer'}
     onClick={e=>{if(disabled)e.preventDefault();}}
     className={`v4173Feature ${kind} ${disabled?'disabled':''}`}
     aria-disabled={disabled}
@@ -29,7 +31,7 @@ function FeatureCard({kind,title,description,cta,teacher}:{kind:'timetable'|'rep
     <span className="v4173Rule"/>
     <p>{description}</p>
     <span className="v4173FeatureCta"><b>→</b>{cta}</span>
-  </Link>;
+  </a>;
 }
 
 export default function HomePage(){

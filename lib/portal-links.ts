@@ -13,7 +13,12 @@ export function teacherFeatureHref(feature:'timetable'|'report'|'grades',teacher
     const params=new URLSearchParams({teacher:teacher.key,slug:teacher.slug,name:teacher.fullName});
     return `${PORTAL_LINKS.timetable}/?${params.toString()}`;
   }
-  if(feature==='report') return `${PORTAL_LINKS.report}/gv/${teacher.slug}`;
-  // V4.169: Nhập điểm hiện dùng URL gốc do chưa có quy ước route cá nhân theo giáo viên.
-  return PORTAL_LINKS.grades;
+  if(feature==='report') {
+    // V4.174: mở trực tiếp app Báo giảng tĩnh và truyền slug bằng ?gv= để tránh 404 /gv/:slug.
+    const params=new URLSearchParams({gv:teacher.slug});
+    return `${PORTAL_LINKS.report}/app.html?${params.toString()}`;
+  }
+  // V4.174: truyền thông tin giáo viên cho app Nhập điểm; app đích có thể dùng hoặc bỏ qua tham số.
+  const params=new URLSearchParams({teacher:teacher.key,slug:teacher.slug,name:teacher.fullName});
+  return `${PORTAL_LINKS.grades}/?${params.toString()}`;
 }
