@@ -1,4 +1,1 @@
-{
-  "cleanUrls": true,
-  "trailingSlash": false
-}
+{"cleanUrls":true,"rewrites":[{"source":"/gv/:slug","destination":"/index.html"}]}
