@@ -8,17 +8,20 @@ export const PORTAL_LINKS={
   grades:trimBase(process.env.NEXT_PUBLIC_NHAPDIEM_BASE_URL,'https://nhapdiemntt.vercel.app')
 };
 
+function teacherParams(teacher:Teacher){
+  // V4.176: chuẩn hóa cùng một bộ tham số cho TKB / Báo giảng / Nhập điểm.
+  // App đích chỉ cần đọc một trong các khóa này là tự nhận đúng giáo viên.
+  return new URLSearchParams({
+    gv:teacher.slug,
+    teacher:teacher.key,
+    slug:teacher.slug,
+    name:teacher.fullName
+  });
+}
+
 export function teacherFeatureHref(feature:'timetable'|'report'|'grades',teacher:Teacher){
-  if(feature==='timetable') {
-    const params=new URLSearchParams({teacher:teacher.key,slug:teacher.slug,name:teacher.fullName});
-    return `${PORTAL_LINKS.timetable}/?${params.toString()}`;
-  }
-  if(feature==='report') {
-    // V4.174: mở trực tiếp app Báo giảng tĩnh và truyền slug bằng ?gv= để tránh 404 /gv/:slug.
-    const params=new URLSearchParams({gv:teacher.slug});
-    return `${PORTAL_LINKS.report}/app.html?${params.toString()}`;
-  }
-  // V4.174: truyền thông tin giáo viên cho app Nhập điểm; app đích có thể dùng hoặc bỏ qua tham số.
-  const params=new URLSearchParams({teacher:teacher.key,slug:teacher.slug,name:teacher.fullName});
-  return `${PORTAL_LINKS.grades}/?${params.toString()}`;
+  const params=teacherParams(teacher);
+  if(feature==='timetable') return `${PORTAL_LINKS.timetable}/gv/${encodeURIComponent(teacher.slug)}`;
+  if(feature==='report') return `${PORTAL_LINKS.report}/gv/${encodeURIComponent(teacher.slug)}`;
+  return `${PORTAL_LINKS.grades}/gv/${encodeURIComponent(teacher.slug)}`;
 }

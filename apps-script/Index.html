@@ -5287,7 +5287,7 @@ function setStatus(msg, ok=true){
 }
 function loading(msg){ setStatus(msg,true); }
 
-const requestedTeacherRef=(()=>{try{const q=new URLSearchParams(window.location.search).get('gv')||'';if(q)return q;const m=String(window.location.pathname||'').match(/\/gv\/([^/?#]+)/i);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}})();
+const requestedTeacherRef=(()=>{try{const p=new URLSearchParams(window.location.search);const q=p.get('teacher')||p.get('gv')||p.get('slug')||p.get('name')||'';if(q)return q;const m=String(window.location.pathname||'').match(/\/gv\/([^/?#]+)/i);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}})();
 
 google.script.run.withSuccessHandler(data=>{
   initData=data;
