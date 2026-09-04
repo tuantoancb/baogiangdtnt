@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b50da" />
+  <title>Cổng giáo viên NTT</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero" aria-labelledby="portalTitle">
+      <div class="hero-orb orb-a"></div>
+      <div class="hero-orb orb-b"></div>
+      <div class="hero-dots" aria-hidden="true"></div>
+
+      <div class="hero-main">
+        <div class="teacher-mark" aria-hidden="true">
+          <svg viewBox="0 0 80 80" role="img">
+            <circle cx="40" cy="28" r="13" fill="none" stroke="currentColor" stroke-width="4"/>
+            <path d="M18 65c2-15 10-23 22-23s20 8 22 23" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <path d="M32 45l8 9 8-9M40 54v11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <rect x="57" y="48" width="13" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="3"/>
+          </svg>
+        </div>
+        <div class="hero-copy">
+          <h1 id="portalTitle">CỔNG GIÁO VIÊN NTT</h1>
+          <p>Chọn giáo viên và mở nhanh công cụ cá nhân</p>
+          <div class="hero-badge"><span class="ext-icon">↗</span> Mở công cụ ở tab mới <i></i> Không cần quay lại cổng</div>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 360 190">
+          <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M76 141c27-18 52-24 83-10l28 13 35-13c22-8 40-7 58 0v-79c-20-8-42-8-66 0l-27 10-26-10c-30-11-58-7-85 11v78z"/>
+            <path d="M187 63v80M96 78c18-8 38-9 58-3M96 96c18-8 38-9 58-3M96 114c18-8 38-9 58-3M219 75c17-6 32-7 46-2M219 94c17-6 32-7 46-2M219 113c17-6 32-7 46-2"/>
+            <rect x="278" y="26" width="49" height="64" rx="7"/>
+            <path d="M291 44h22M291 57h22M291 70h14"/>
+            <path d="M305 130l31-50 12 8-30 51-15 6 2-15zM335 80l11 7"/>
+            <path d="M49 70c-12 8-18 19-17 34 13-3 22-11 27-24M47 129c-12-1-23 4-32 13 12 8 25 9 38 2"/>
+          </g>
+        </svg>
+      </div>
+    </header>
+
+    <section class="teacher-panel" aria-labelledby="teacherLabel">
+      <label id="teacherLabel" for="teacherSelect">CHỌN GIÁO VIÊN</label>
+      <div class="select-wrap">
+        <span class="select-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.5-5 3.4-8 8-8s7.5 3 8 8"/></svg>
+        </span>
+        <select id="teacherSelect" aria-label="Chọn giáo viên"></select>
+        <span class="select-chevron" aria-hidden="true">⌄</span>
+      </div>
+      <div class="teacher-meta">
+        <span class="meta-chip selected-chip"><span class="mini-user">♙</span> Đang chọn: <strong id="selectedTeacher">Nguyễn Thanh Tuấn · Toán</strong></span>
+        <span class="meta-chip tab-chip"><span>↗</span> Mở công cụ ở tab mới</span>
+      </div>
+    </section>
+
+    <section class="modules" aria-label="Công cụ giáo viên">
+      <a id="tkbCard" class="module-card card-blue" href="#" target="_blank" rel="noopener noreferrer" aria-label="Mở Thời khóa biểu cá nhân ở tab mới">
+        <span class="top-rule"></span>
+        <span class="newtab-tag">↗&nbsp; Mở tab mới</span>
+        <span class="module-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="40" rx="8"/><path d="M10 26h44M21 9v11M43 9v11"/><circle cx="23" cy="36" r="2"/><circle cx="32" cy="36" r="2"/><circle cx="41" cy="36" r="2"/><circle cx="23" cy="45" r="2"/><circle cx="32" cy="45" r="2"/><circle cx="41" cy="45" r="2"/></svg>
+        </span>
+        <span class="module-title">THỜI KHÓA BIỂU CÁ NHÂN</span>
+        <span class="module-desc">Xem thời khóa biểu và lịch dạy của cá nhân.</span>
+        <span class="module-cta">Mở TKB <b>↗</b></span>
+        <span class="watermark wm-calendar" aria-hidden="true">▦</span>
+      </a>
+
+      <a id="reportCard" class="module-card card-teal" href="#" target="_blank" rel="noopener noreferrer" aria-label="Mở Báo giảng ở tab mới">
+        <span class="top-rule"></span>
+        <span class="newtab-tag">↗&nbsp; Mở tab mới</span>
+        <span class="module-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><rect x="15" y="13" width="34" height="43" rx="5"/><path d="M25 13v-4h14v4M23 27h18M23 36h18M23 45h13"/></svg>
+        </span>
+        <span class="module-title">BÁO GIẢNG</span>
+        <span class="module-desc">Tạo và quản lý báo giảng điện tử.</span>
+        <span class="module-cta">Mở Báo giảng <b>↗</b></span>
+        <span class="watermark wm-report" aria-hidden="true">▤</span>
+      </a>
+
+      <a id="scoreCard" class="module-card card-purple" href="#" target="_blank" rel="noopener noreferrer" aria-label="Mở Nhập điểm ở tab mới">
+        <span class="top-rule"></span>
+        <span class="newtab-tag">↗&nbsp; Mở tab mới</span>
+        <span class="module-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><path d="M18 10h26l8 8v36H18z"/><path d="M44 10v10h8M25 30h18M25 39h11M44 42l2.2 4.5 4.8.7-3.5 3.4.8 4.8-4.3-2.3-4.3 2.3.8-4.8-3.5-3.4 4.8-.7z"/></svg>
+        </span>
+        <span class="module-title">NHẬP ĐIỂM</span>
+        <span class="module-desc">Mở khu vực nhập và quản lý điểm.</span>
+        <span class="module-cta">Mở Nhập điểm <b>↗</b></span>
+        <span class="watermark wm-score" aria-hidden="true">☆</span>
+      </a>
+    </section>
+
+    <footer class="status-bar">
+      <span class="info-dot">i</span>
+      <span id="statusText">Đang thao tác với Nguyễn Thanh Tuấn. Chọn chức năng để tiếp tục.</span>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
