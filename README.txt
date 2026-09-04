@@ -1,7 +1,11 @@
-CỔNG GIÁO VIÊN NTT V4.177
-- Upload toàn bộ thư mục lên Vercel.
+CỔNG GIÁO VIÊN NTT V4.178 – SỬA LINK CÁ NHÂN
+
+Quan trọng:
+- File ZIP này chứa index.html + vercel.json ngay ở thư mục gốc, có thể giải nén rồi kéo thẳng lên Vercel.
+- Cổng chính: /gv/{slug}
 - TKB: https://thoikhoabieuntt.vercel.app/gv/{slug}
-- Báo giảng: https://baogiangdtnt.vercel.app/gv/{slug}
+- Báo giảng V4.176 hiện nhận giáo viên bằng ?gv={slug}, nên link đúng là https://baogiangdtnt.vercel.app/?gv={slug}
 - Nộp giáo án: https://nopgiaoan.vercel.app/?gv={slug}
-- Nhập điểm: cấu hình domain một lần trong giao diện, sau đó tự mở /gv/{slug}.
-- Cổng chính cũng hỗ trợ /gv/{slug}, ví dụ /gv/dung.
+- Nhập điểm: cấu hình domain một lần; mặc định nối /gv/{slug}.
+
+Khi app Báo giảng được bổ sung rewrite /gv/:slug -> /?gv=:slug thì có thể đổi ROUTE.bg từ query sang path trong index.html.
