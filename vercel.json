@@ -1,1 +1,5 @@
-{"cleanUrls":true,"rewrites":[{"source":"/gv/:slug","destination":"/index.html"},{"source":"/:path*","destination":"/index.html"}]}
+{
+  "rewrites": [
+    { "source": "/gv/:slug", "destination": "/app.html?gv=:slug" }
+  ]
+}
