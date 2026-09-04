@@ -84,7 +84,7 @@ export default function HomePage(){
       </section>
 
       <section className="v4173Features">
-        <FeatureCard kind="timetable" title="THỜI KHÓA BIỂU CÁ NHÂN" description="Xem thời khóa biểu và lịch dạy của cá nhân." cta="XEM NGAY" teacher={selected}/>
+        <FeatureCard kind="timetable" title="THỜI KHÓA BIỂU" description="Xem thời khóa biểu của giáo viên." cta="MỞ TKB" teacher={selected}/>
         <FeatureCard kind="report" title="BÁO GIẢNG" description="Tạo và quản lý báo giảng điện tử." cta="MỞ BÁO GIẢNG" teacher={selected}/>
         <FeatureCard kind="grades" title="NHẬP ĐIỂM" description="Mở khu vực nhập và quản lý điểm." cta="NHẬP ĐIỂM" teacher={selected}/>
       </section>

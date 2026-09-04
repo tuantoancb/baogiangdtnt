@@ -175,3 +175,6 @@ Chỉ cần cập nhật `apps-script/Code.gs` và tạo phiên bản triển kh
 
 ## V4.155 — Ngày nghỉ
 V4.155 bổ sung quản lý ngày nghỉ dùng chung toàn trường. Ngày nghỉ không sửa TKB gốc; nó được áp lên lịch thực tế trước khi tính PPCT. Lịch ngày/Cả tuần chỉ đọc Lịch báo giảng. Khi một giáo viên mở/chọn tuần, app kiểm tra chữ ký ngày nghỉ và tự đồng bộ nếu có thay đổi.
+
+# V4.175
+Giao diện compact, khoảng trống hai bên, nhãn Thời khóa biểu, giữ mở tab mới + fix 404.

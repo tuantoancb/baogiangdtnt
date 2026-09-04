@@ -107,3 +107,31 @@
 @media(max-width:1000px){.v4173TopInner,.v4173Shell,.v4173FooterInner{width:calc(100% - 32px)}.v4173Brand b{font-size:30px}.v4173Brand span{font-size:15px}.v4173Brand img{width:65px;height:65px}.v4173TopInner{min-height:108px}.v4173Features{gap:18px}.v4173Feature{min-height:360px;padding:28px 20px}.v4173FeatureIcon{width:96px;height:96px}.v4173FeatureIcon svg{width:47px;height:47px}.v4173Feature h2{font-size:22px}.v4173Feature p{font-size:14px}}
 @media(max-width:760px){.v4173TopInner{min-height:84px}.v4173Brand{gap:11px}.v4173Brand img{width:52px;height:52px;border-radius:13px}.v4173Brand b{font-size:22px}.v4173Brand span{font-size:12px;margin-top:4px}.v4173Online{display:none}.v4173Admin{height:42px;padding:0 12px;font-size:0}.v4173Admin:first-letter{font-size:17px}.v4173Shell{padding-top:24px}.v4173Welcome h1{font-size:23px}.v4173CompactPicker{width:min(460px,100%);height:56px}.v4173Features{grid-template-columns:1fr;gap:14px;margin-top:24px}.v4173Feature{min-height:176px;display:grid;grid-template-columns:72px 1fr 120px;grid-template-rows:auto auto auto;column-gap:15px;text-align:left;align-items:center;padding:20px 18px}.v4173Feature:before{width:6px;height:auto;top:0;bottom:0;right:auto}.v4173FeatureIcon{width:68px;height:68px;margin:0;grid-row:1/4}.v4173FeatureIcon svg{width:34px;height:34px}.v4173Feature h2{font-size:18px;align-self:end}.v4173Rule{width:34px;height:3px;margin:7px 0 0}.v4173Feature p{font-size:12px;margin:7px 0 0;align-self:start}.v4173FeatureCta{grid-column:3;grid-row:1/4;width:112px;height:45px;margin:0;font-size:12px}.v4173FeatureCta b{font-size:20px}.v4173Hint{margin-top:18px}.v4173FooterInner{min-height:74px}.v4173System small{display:none}}
 @media(max-width:520px){.v4173TopInner,.v4173Shell,.v4173FooterInner{width:calc(100% - 22px)}.v4173Brand b{font-size:19px}.v4173Brand span{font-size:10px}.v4173Brand img{width:46px;height:46px}.v4173Admin{display:none}.v4173Welcome h1{font-size:20px}.v4173WelcomeRule{margin:12px auto 16px}.v4173CompactPicker{height:52px}.v4173PickerIcon{width:47px}.v4173CompactPicker select{font-size:14px}.v4173Remember{font-size:11px;line-height:1.4}.v4173Feature{grid-template-columns:58px 1fr 48px;min-height:150px;padding:16px 13px;column-gap:10px}.v4173FeatureIcon{width:55px;height:55px}.v4173FeatureIcon svg{width:28px;height:28px}.v4173Feature h2{font-size:16px}.v4173Feature p{font-size:11px}.v4173FeatureCta{width:44px;height:44px;border-radius:50%;font-size:0}.v4173FeatureCta b{font-size:22px}.v4173Hint{font-size:11px;padding:0 14px;min-height:58px}.v4173FooterInner{justify-content:center;text-align:center}.v4173System{display:none}}
+
+/* ===== V4.175: GIAO DIỆN COMPACT - KHOẢNG TRỐNG 2 BÊN ===== */
+@media(min-width:1100px){
+  .v4173TopInner,.v4173Shell,.v4173FooterInner{width:min(980px,calc(100% - 160px));}
+  .v4173TopInner{min-height:104px;}
+  .v4173Brand img{width:62px;height:62px;border-radius:15px;}
+  .v4173Brand b{font-size:31px;}
+  .v4173Brand span{font-size:15px;margin-top:5px;}
+  .v4173Online,.v4173Admin{height:42px;padding:0 15px;font-size:13px;}
+  .v4173Shell{padding:26px 0 22px;}
+  .v4173Welcome h1{font-size:24px;}
+  .v4173WelcomeRule{margin:12px auto 16px;}
+  .v4173CompactPicker{width:min(420px,100%);height:52px;}
+  .v4173PickerIcon{width:50px;}
+  .v4173CompactPicker select{font-size:15px;}
+  .v4173Remember{font-size:12px;margin-top:9px;}
+  .v4173Features{gap:18px;margin-top:22px;}
+  .v4173Feature{min-height:300px;padding:24px 20px 22px;border-radius:20px;}
+  .v4173FeatureIcon{width:86px;height:86px;margin:0 0 18px;}
+  .v4173FeatureIcon svg{width:42px;height:42px;}
+  .v4173Feature h2{font-size:21px;}
+  .v4173Rule{width:38px;height:3px;margin-top:11px;}
+  .v4173Feature p{font-size:13px;line-height:1.45;margin-top:12px;min-height:38px;}
+  .v4173FeatureCta{width:min(210px,100%);height:45px;font-size:13px;}
+  .v4173Hint{margin-top:20px;min-height:54px;font-size:12px;padding:0 17px;}
+  .v4173FooterInner{min-height:68px;font-size:12px;}
+  .v4173System>span{width:36px;height:36px;}
+}
