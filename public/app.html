@@ -4849,7 +4849,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.179</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.180</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -4897,7 +4897,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
     </div>
     <div class="v4179-pd-card" id="v4179PdCard">
       <div class="v4179-pd-copy"><b>PĐ → Chính khóa · <span class="v4179-pd-state off" id="v4179PdState">Đang tắt</span></b><small id="v4179PdHelp">Tắt: tiết PĐ được bỏ qua và không chiếm CT.</small></div>
-      <label class="v4179-switch" title="Mỗi giáo viên tự bật/tắt PĐ → Chính khóa"><input id="v4179PdToggle" type="checkbox" onchange="v4179SavePdToggle(this.checked)"><span></span></label>
+      <label class="v4179-switch" title="Mỗi giáo viên tự bật/tắt PĐ → Chính khóa"><input id="v4179PdToggle" type="checkbox" autocomplete="off" onchange="v4179SavePdToggle(this.checked)"><span></span></label>
     </div>
 
   </section>
@@ -7078,9 +7078,20 @@ function v4179RenderPdToggle(res){
   help.textContent=on?'Bật: tiết PĐ dùng PPCT chính khóa và lấy CT tiếp theo.':'Tắt: tiết PĐ được bỏ qua và không chiếm CT.';
 }
 function v4179LoadPdToggle(){
-  const sel=document.getElementById('teacher');const key=sel&&sel.value;if(!key)return;
-  const input=document.getElementById('v4179PdToggle');if(input)input.disabled=true;
-  google.script.run.withSuccessHandler(v4179RenderPdToggle).withFailureHandler(function(e){if(input)input.disabled=false;console.warn('Không tải được trạng thái PĐ',e);}).getPdRegularToggle(key);
+  const sel=document.getElementById('teacher');const key=sel&&sel.value;
+  const input=document.getElementById('v4179PdToggle');
+  // V4.180: không để trình duyệt khôi phục trạng thái checkbox cũ trước khi đọc backend.
+  if(input){input.checked=false;input.disabled=true;}
+  const state=document.getElementById('v4179PdState'),help=document.getElementById('v4179PdHelp');
+  if(state){state.textContent='Đang tải...';state.className='v4179-pd-state off';}
+  if(help)help.textContent='Đang đọc tùy chọn riêng của giáo viên...';
+  if(!key){setTimeout(v4179LoadPdToggle,180);return;}
+  google.script.run.withSuccessHandler(v4179RenderPdToggle).withFailureHandler(function(e){
+    if(input){input.checked=false;input.disabled=false;}
+    if(state){state.textContent='Đang tắt';state.className='v4179-pd-state off';}
+    if(help)help.textContent='Chưa đọc được cấu hình; tạm coi là Tắt để an toàn.';
+    console.warn('Không tải được trạng thái PĐ',e);
+  }).getPdRegularToggle(key);
 }
 function v4179SavePdToggle(enabled){
   const sel=document.getElementById('teacher');const key=sel&&sel.value;if(!key)return;
@@ -7092,6 +7103,8 @@ function v4179SavePdToggle(enabled){
     if(typeof loadClasses==='function')loadClasses();
   }).withFailureHandler(function(e){if(input)input.disabled=false;v4179LoadPdToggle();if(typeof setStatus==='function')setStatus((e&&e.message)||String(e),false);}).setPdRegularToggle(key,!!enabled);
 }
+
+window.addEventListener('pageshow',function(){setTimeout(v4179LoadPdToggle,80);});
 </script>
 </body>
 </html>
