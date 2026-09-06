@@ -911,44 +911,12 @@ function previewBaoGiang(payload) {
   return { teacherKey, fullName: TEACHER_MAP[teacherKey], records, classes };
 }
 
-// V4.183: tự nhận cột bắt đầu khối của từng giáo viên từ chính hàng tiêu đề bảng.
-// Không hard-code FU hay bất kỳ cột nào: cô Lan có thể là FU, giáo viên khác sẽ tự dò cột riêng.
+// V4.180: dò khối giáo viên chịu được khác biệt dấu, khoảng trắng, viết tắt và vị trí hàng tiêu đề.
 function v4180TeacherNameKey_(value) {
   return teacherSlug_(normalizeText_(value)).replace(/-/g,'');
 }
-function v4183HeaderKey_(value) {
-  return normalizeText_(value).toLowerCase()
-    .replace(/[()]/g,' ')
-    .replace(/\s+/g,' ')
-    .trim();
-}
-function v4183FindTeacherHeaderStart_(sheet, teacherHitCol1, teacherHitRow1) {
-  const lastCol = Math.max(1, sheet.getLastColumn());
-  const lastRow = Math.max(1, sheet.getLastRow());
-  const rowFrom = Math.max(1, teacherHitRow1);
-  const rowTo = Math.min(lastRow, teacherHitRow1 + 12);
-  const colFrom = Math.max(1, teacherHitCol1 - 8);
-  const colTo = Math.min(lastCol, teacherHitCol1 + 10);
-  const vals = sheet.getRange(rowFrom, colFrom, rowTo-rowFrom+1, colTo-colFrom+1).getDisplayValues();
-
-  // Ưu tiên nhận đúng hàng tiêu đề chuẩn: Ngày, thứ | Tiết (TKB) | Môn | Lớp | Tiết (PPCT) | Tên bài...
-  for (let r=0; r<vals.length; r++) {
-    for (let c=0; c<vals[r].length; c++) {
-      const k=v4183HeaderKey_(vals[r][c]);
-      if (k.indexOf('ngày')<0 || k.indexOf('thứ')<0) continue;
-      const absCol=colFrom+c;
-      const remain=Math.min(7,lastCol-absCol+1);
-      const hdr=sheet.getRange(rowFrom+r,absCol,1,remain).getDisplayValues()[0].map(v4183HeaderKey_);
-      const joined=hdr.join(' | ');
-      const score=(joined.indexOf('tiết')>=0?1:0)+(joined.indexOf('tkb')>=0?1:0)+(joined.indexOf('môn')>=0?1:0)+(joined.indexOf('lớp')>=0?1:0)+(joined.indexOf('ppct')>=0?1:0)+(joined.indexOf('tên bài')>=0?1:0);
-      if(score>=4) return absCol; // 1-based cột "Ngày, thứ"
-    }
-  }
-  return null;
-}
 function findTeacherBlockStart_(sheet, fullName) {
-  const maxCol = Math.max(1, sheet.getLastColumn());
-  const maxRow = Math.max(1, sheet.getLastRow());
+  const maxCol = sheet.getLastColumn();
   const targetFull = v4180TeacherNameKey_(fullName);
   const teacherKey = resolveTeacherKey_(fullName);
   const profile = TEACHER_PROFILES[teacherKey] || {};
@@ -957,34 +925,27 @@ function findTeacherBlockStart_(sheet, fullName) {
     const k=v4180TeacherNameKey_(v); if(k) candidates[k]=true;
   });
 
-  // Quét rộng hơn vì một số mẫu đặt Họ tên ở hàng 2-6.
-  const scanRows = Math.min(8, maxRow);
+  // Các mẫu Báo giảng cũ/mới có thể đặt tên GV ở hàng 1, 2, 3 hoặc 4.
+  const scanRows = Math.min(4, Math.max(1, sheet.getLastRow()));
   const grid = sheet.getRange(1, 1, scanRows, maxCol).getDisplayValues();
-  const exactHits=[];
-  const looseHits=[];
+  let looseHits=[];
   for (let r=0; r<grid.length; r++) {
     for (let i=0; i<grid[r].length; i++) {
       const raw=normalizeText_(grid[r][i]);
       if(!raw) continue;
       const cellKey=v4180TeacherNameKey_(raw);
-      if(candidates[cellKey] || (targetFull && cellKey===targetFull)) exactHits.push({row:r+1,col:i+1,raw:raw});
-      else if(targetFull && cellKey && (cellKey.endsWith(targetFull) || targetFull.endsWith(cellKey))) looseHits.push({row:r+1,col:i+1,raw:raw});
+      if(candidates[cellKey] || (targetFull && cellKey===targetFull)) {
+        if(i<1) throw new Error('Cấu trúc khối giáo viên không hợp lệ.');
+        return i-1;
+      }
+      // Fallback an toàn: cho phép ô chứa thêm tiền tố như "GV: Hoàng Thị Lan".
+      if(targetFull && cellKey && (cellKey.endsWith(targetFull) || targetFull.endsWith(cellKey))) {
+        looseHits.push({col:i, raw:raw});
+      }
     }
   }
-  const hits=exactHits.length?exactHits:looseHits;
-  if(!hits.length) throw new Error('Không tìm thấy khối báo giảng của giáo viên: ' + fullName + '. Hãy kiểm tra tên giáo viên trong phần đầu sheet Báo giảng.');
-
-  // Từ vị trí tên GV, tìm chính xác cột "Ngày, thứ" của bảng phía dưới.
-  // Đây là nguồn chuẩn để xác định startCol; không còn lấy "cột tên - 1" như trước.
-  for(let h=0; h<hits.length; h++){
-    const headerCol1=v4183FindTeacherHeaderStart_(sheet,hits[h].col,hits[h].row);
-    if(headerCol1) return headerCol1-1; // API cũ dùng zero-based
-  }
-
-  // Fallback tương thích mẫu rất cũ: chỉ dùng khi không tìm thấy hàng tiêu đề.
-  // Giữ giới hạn an toàn, không hard-code cột cụ thể.
-  if(hits.length===1 && hits[0].col>1) return hits[0].col-2;
-  throw new Error('Đã tìm thấy giáo viên ' + fullName + ' nhưng chưa xác định được cột “Ngày, thứ” của khối báo giảng.');
+  if(looseHits.length===1 && looseHits[0].col>0) return looseHits[0].col-1;
+  throw new Error('Không tìm thấy khối báo giảng của giáo viên: ' + fullName + '. Hãy kiểm tra tên giáo viên trong 4 hàng đầu của sheet Báo giảng.');
 }
 
 function buildTargetRowMap_(sheet, blockStartZero) {
