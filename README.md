@@ -1,3 +1,7 @@
+# V4.179 – PĐ → Chính khóa theo từng giáo viên
+
+Mỗi giáo viên tự bật/tắt PĐ → Chính khóa. Bản này đã tích hợp trực tiếp, không dùng PATCH rời.
+
 ## V4.161 — Quản trị tài khoản giáo viên
 
 - `/admin`: bảng quản trị sử dụng và phân quyền giáo viên.

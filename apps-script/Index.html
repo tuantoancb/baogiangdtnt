@@ -4837,10 +4837,18 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 @media(max-width:700px){.v4155-dayoff-grid{grid-template-columns:1fr}.v4155-dayoff-modal{padding:15px;border-radius:16px}.v4155-dayoff-item{grid-template-columns:76px 1fr}.v4155-dayoff-item-actions{grid-column:2;justify-content:flex-end}.v4104-today-head-actions{flex-wrap:wrap}.v4155-dayoff-toggle span{display:none}}
 </style>
 
+
+<style id="v4179-pd-toggle-style">
+.v4179-pd-card{margin-top:9px;padding:9px 11px;border:1px solid #d5e6f8;border-radius:11px;background:linear-gradient(135deg,#f8fbff,#f3f8ff);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v4179-pd-copy{min-width:0;display:flex;flex-direction:column;gap:2px}.v4179-pd-copy b{font-size:11.5px;color:#174a80}.v4179-pd-copy small{font-size:9.8px;line-height:1.28;color:#6b7e92}
+.v4179-switch{position:relative;width:48px;height:27px;flex:0 0 48px}.v4179-switch input{position:absolute;opacity:0;pointer-events:none}.v4179-switch span{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;cursor:pointer;transition:.18s}.v4179-switch span:after{content:"";position:absolute;width:21px;height:21px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(15,23,42,.24);transition:.18s}.v4179-switch input:checked+span{background:#16a06a}.v4179-switch input:checked+span:after{transform:translateX(21px)}.v4179-switch input:disabled+span{opacity:.55;cursor:not-allowed}
+.v4179-pd-state{display:inline-flex;align-items:center;gap:5px;font-weight:850}.v4179-pd-state.on{color:#087a50}.v4179-pd-state.off{color:#64748b}
+@media(max-width:900px){.v4179-pd-card{padding:8px 9px}.v4179-pd-copy b{font-size:11px}.v4179-pd-copy small{font-size:9.3px}.v4179-switch{width:44px;height:25px;flex-basis:44px}.v4179-switch span:after{width:19px;height:19px}.v4179-switch input:checked+span:after{transform:translateX(19px)}}
+</style>
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.155</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.179</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -4886,6 +4894,11 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
       <span class="s1-check">✓</span>
       <div><small>ĐÃ LIÊN KẾT</small><strong id="v4101AutoReportText">Đang xác định tuần…</strong></div>
     </div>
+    <div class="v4179-pd-card" id="v4179PdCard">
+      <div class="v4179-pd-copy"><b>PĐ → Chính khóa · <span class="v4179-pd-state off" id="v4179PdState">Đang tắt</span></b><small id="v4179PdHelp">Tắt: tiết PĐ được bỏ qua và không chiếm CT.</small></div>
+      <label class="v4179-switch" title="Mỗi giáo viên tự bật/tắt PĐ → Chính khóa"><input id="v4179PdToggle" type="checkbox" onchange="v4179SavePdToggle(this.checked)"><span></span></label>
+    </div>
+
   </section>
   <section class="s1-card s1-actions-card">
     <div class="s1-section-head">
@@ -5229,7 +5242,7 @@ if(!(window.google&&window.google.script&&window.google.script.run)){
       saveExtraLesson:(payload,item)=>({ok:true,classOptions:['11A3','11A4','12A2','12A4'],subjectOptions:['Toán'],items:[Object.assign({id:'extra_demo',ppct:5,lesson:'Bài 3. Hàm số bậc hai'},item)],count:1}),
       deleteExtraLesson:()=>({ok:true,classOptions:['11A3','11A4','12A2','12A4'],subjectOptions:['Toán'],items:[],count:0})
     };
-    ['getInitialData','getClassPpctSuggestions','previewBaoGiang','getTkbClassCheck','checkExistingWrite','ghiBaoGiangStep1','capNhatTienDoStep2','undoLastWrite','getPpctSourceConfig','savePpctSourceConfig','getPpctSourceConfigs','savePpctSubjectSourceConfig','getPpctAuthorizationInfo','previewPpctRebalance','applyPpctRebalance','undoPpctRebalance','previewWeeklyPlan','writeWeeklyPlan','getMakeupScheduleConfig','saveMakeupScheduleConfig','clearMakeupScheduleConfig','getExtraLessonConfig','previewExtraLesson','saveExtraLesson','deleteExtraLesson'].forEach(name=>{
+    ['getInitialData','getPdRegularToggle','setPdRegularToggle','getClassPpctSuggestions','previewBaoGiang','getTkbClassCheck','checkExistingWrite','ghiBaoGiangStep1','capNhatTienDoStep2','undoLastWrite','getPpctSourceConfig','savePpctSourceConfig','getPpctSourceConfigs','savePpctSubjectSourceConfig','getPpctAuthorizationInfo','previewPpctRebalance','applyPpctRebalance','undoPpctRebalance','previewWeeklyPlan','writeWeeklyPlan','getMakeupScheduleConfig','saveMakeupScheduleConfig','clearMakeupScheduleConfig','getExtraLessonConfig','previewExtraLesson','saveExtraLesson','deleteExtraLesson'].forEach(name=>{
       runner[name]=function(...args){
         const ok=success,fail=failure;success=function(){};failure=function(){};
         setTimeout(()=>{try{ok(samples[name](...args))}catch(err){fail(err)}},180);
@@ -5315,6 +5328,7 @@ google.script.run.withSuccessHandler(data=>{
   if(data.teacherDirectoryInfo && data.teacherDirectoryInfo.team){
     teamSel.title='Tự nhận diện: '+data.teacherDirectoryInfo.name+' · '+data.teacherDirectoryInfo.team+' · '+(data.teacherDirectoryInfo.subject||'');
   }
+  v4179LoadPdToggle();
   onTkbSheetChange(true);
 }).withFailureHandler(e=>{v4161HandleInitError(e);setStatus(e.message,false)}).getInitialData(requestedTeacherRef);
 
@@ -7014,6 +7028,35 @@ function v4122ApplySourceBadge(source,label){const badgeEl=document.getElementBy
 function v470RenderTodayQuick(res){const info=v470CurrentDayInfo(v5116DayOffset),sumEl=document.getElementById('v470TodaySummary'),listEl=document.getElementById('v470TodayList');if(!sumEl||!listEl)return;const sessions=(res&&res.sessions)||{Sáng:[],Chiều:[]},total=(sessions['Sáng']||[]).length+(sessions['Chiều']||[]).length,offs=(res&&res.dayOffs)||[],source=(res&&res.source)||'',sourceLabel=(res&&res.sourceLabel)||'';sumEl.textContent=info.label+' · '+v470FmtDate(info.date)+' · '+total+' tiết'+(sourceLabel?' · '+sourceLabel:'');v4122ApplySourceBadge(source,sourceLabel);const noteEl=document.getElementById('v470TodayNote');if(noteEl)noteEl.textContent=(!total&&!offs.length&&source!=='bao_giang')?'Chưa có Lịch báo giảng cho ngày này.':'';v488TodayData={sessions:sessions};v488TodaySession='';v488RenderSession();if(offs.length){listEl.insertAdjacentHTML('afterbegin',v4155DayOffBannerHtml(offs));}}
 function v4122RenderWeekChoice(){const days=(v4122WeekData&&v4122WeekData.days)||[],sumEl=document.getElementById('v470TodaySummary'),listEl=document.getElementById('v470TodayList'),tabs=document.getElementById('v488SessionTabs'),noteEl=document.getElementById('v470TodayNote');if(!sumEl||!listEl)return;if(!days.length){if(tabs)tabs.style.display='none';sumEl.textContent='Chưa có dữ liệu tuần.';listEl.innerHTML='<div class="v470-today-empty">Chưa lấy được Lịch báo giảng của tuần này.</div>';v4122ApplySourceBadge('','');return;}if(v4122WeekChoice===-1){if(tabs)tabs.style.display='none';const total=days.reduce((n,d)=>n+v4122TotalSessions(d.sessions),0),from=days[0]&&v4122ShortDate(days[0].targetYmd),to=days[5]&&v4122ShortDate(days[5].targetYmd),offCount=days.filter(d=>(d.dayOffs||[]).length).length;sumEl.textContent='Tuần '+(from||'')+' → '+(to||'')+' · '+total+' tiết · Lịch báo giảng'+(offCount?' · '+offCount+' ngày có nghỉ':'');v4122ApplySourceBadge('bao_giang','Lịch báo giảng');if(noteEl)noteEl.textContent='Lịch tuần chỉ lấy từ Lịch báo giảng đã lưu; TKB không còn được dùng làm nguồn dự phòng.';listEl.innerHTML='';days.forEach(d=>{const group=document.createElement('div');group.className='v4122-week-group'+((d.dayOffs||[]).length?' dayoff':'');const rows=[...((d.sessions&&d.sessions['Sáng'])||[]),...((d.sessions&&d.sessions['Chiều'])||[])];group.innerHTML='<div class="v4122-week-dayhead"><span><b>'+d.label+'</b><small>'+v4122ShortDate(d.targetYmd)+'</small></span><em>'+rows.length+' tiết</em></div>';if((d.dayOffs||[]).length)group.insertAdjacentHTML('beforeend',v4155DayOffBannerHtml(d.dayOffs));if(!rows.length&&!(d.dayOffs||[]).length){const empty=document.createElement('div');empty.className='v4122-week-empty';empty.textContent='Chưa có Lịch báo giảng';group.appendChild(empty)}else rows.forEach(r=>group.appendChild(v4122MakeLessonRow(r)));listEl.appendChild(group)});return;}const d=days[v4122WeekChoice]||days[0],total=v4122TotalSessions(d.sessions);sumEl.textContent=d.label+' · '+v4122ShortDate(d.targetYmd)+'/'+String(v4122DateFromYmd(d.targetYmd).getFullYear())+' · '+total+' tiết'+(d.sourceLabel?' · '+d.sourceLabel:'');v4122ApplySourceBadge(d.source,d.sourceLabel);if(noteEl)noteEl.textContent=(!total&&!(d.dayOffs||[]).length)?'Chưa có Lịch báo giảng cho ngày này.':'';v488TodayData={sessions:d.sessions||{Sáng:[],Chiều:[]}};v488TodaySession='';v488RenderSession();if((d.dayOffs||[]).length)listEl.insertAdjacentHTML('afterbegin',v4155DayOffBannerHtml(d.dayOffs));}
 
+</script>
+
+<script id="v4179-pd-toggle-script">
+function v4179RenderPdToggle(res){
+  const input=document.getElementById('v4179PdToggle');
+  const state=document.getElementById('v4179PdState');
+  const help=document.getElementById('v4179PdHelp');
+  if(!input||!state||!help)return;
+  const on=!!(res&&res.enabled);
+  input.checked=on;
+  input.disabled=(typeof V4161_ACCESS_MODE!=='undefined'&&V4161_ACCESS_MODE==='readonly');
+  state.textContent=on?'Đang bật':'Đang tắt';state.className='v4179-pd-state '+(on?'on':'off');
+  help.textContent=on?'Bật: tiết PĐ dùng PPCT chính khóa và lấy CT tiếp theo.':'Tắt: tiết PĐ được bỏ qua và không chiếm CT.';
+}
+function v4179LoadPdToggle(){
+  const sel=document.getElementById('teacher');const key=sel&&sel.value;if(!key)return;
+  const input=document.getElementById('v4179PdToggle');if(input)input.disabled=true;
+  google.script.run.withSuccessHandler(v4179RenderPdToggle).withFailureHandler(function(e){if(input)input.disabled=false;console.warn('Không tải được trạng thái PĐ',e);}).getPdRegularToggle(key);
+}
+function v4179SavePdToggle(enabled){
+  const sel=document.getElementById('teacher');const key=sel&&sel.value;if(!key)return;
+  const input=document.getElementById('v4179PdToggle');if(input)input.disabled=true;
+  if(typeof loading==='function')loading(enabled?'Đang bật PĐ → Chính khóa...':'Đang tắt PĐ → Chính khóa...');
+  google.script.run.withSuccessHandler(function(res){
+    v4179RenderPdToggle(res);
+    if(typeof setStatus==='function')setStatus(res.description||'Đã lưu tùy chọn PĐ.',true);
+    if(typeof loadClasses==='function')loadClasses();
+  }).withFailureHandler(function(e){if(input)input.disabled=false;v4179LoadPdToggle();if(typeof setStatus==='function')setStatus((e&&e.message)||String(e),false);}).setPdRegularToggle(key,!!enabled);
+}
 </script>
 </body>
 </html>

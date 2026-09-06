@@ -1,0 +1,10 @@
+V4.179 - PĐ → CHÍNH KHÓA THEO TỪNG GIÁO VIÊN
+
+1. VERCEL: tải toàn bộ thư mục dự án lên/deploy như bản hiện tại.
+2. APPS SCRIPT: thay Code.gs bằng apps-script/Code.gs. Nếu đang dùng giao diện Apps Script trực tiếp, thay luôn Index.html bằng apps-script/Index.html.
+3. Deploy lại Apps Script Web App sau khi cập nhật Code.gs.
+4. Mỗi giáo viên mở link cá nhân và tự bật/tắt công tắc PĐ → Chính khóa ở khối THỜI KHÓA BIỂU.
+
+Mặc định: TẮT.
+BẬT: PĐ lấy CT tiếp theo của chính khóa.
+TẮT: PĐ bỏ qua, không chiếm CT.
