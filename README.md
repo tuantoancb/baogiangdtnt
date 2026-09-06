@@ -182,3 +182,10 @@ V4.155 bổ sung quản lý ngày nghỉ dùng chung toàn trường. Ngày ngh�
 
 # V4.175
 Giao diện compact, khoảng trống hai bên, nhãn Thời khóa biểu, giữ mở tab mới + fix 404.
+
+## Cập nhật V4.186 — logic PĐ đã chốt
+- Tắt **PĐ → Chính khóa**: PĐ vẫn lên báo giảng bình thường, PPCT PĐ chạy riêng `PĐ1, PĐ2, ...`.
+- Bật **PĐ → Chính khóa**: PĐ được chuyển sang chính khóa và lấy CT chính khóa tiếp theo.
+- CĐ không đổi.
+
+Khi cập nhật: thay `apps-script/Code.gs`, triển khai Apps Script phiên bản mới; đồng thời cập nhật Vercel bằng toàn bộ bộ mã này để câu chữ công tắc khớp với backend.

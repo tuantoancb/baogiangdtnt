@@ -4896,7 +4896,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
       <div><small>ĐÃ LIÊN KẾT</small><strong id="v4101AutoReportText">Đang xác định tuần…</strong></div>
     </div>
     <div class="v4179-pd-card" id="v4179PdCard">
-      <div class="v4179-pd-copy"><b>PĐ → Chính khóa · <span class="v4179-pd-state off" id="v4179PdState">Đang tắt</span></b><small id="v4179PdHelp">Tắt: tiết PĐ được bỏ qua và không chiếm CT.</small></div>
+      <div class="v4179-pd-copy"><b>PĐ → Chính khóa · <span class="v4179-pd-state off" id="v4179PdState">Đang tắt</span></b><small id="v4179PdHelp">Tắt: tiết PĐ vẫn lên bình thường theo luồng PĐ riêng.</small></div>
       <label class="v4179-switch" title="Mỗi giáo viên tự bật/tắt PĐ → Chính khóa"><input id="v4179PdToggle" type="checkbox" autocomplete="off" onchange="v4179SavePdToggle(this.checked)"><span></span></label>
     </div>
 
@@ -7075,7 +7075,7 @@ function v4179RenderPdToggle(res){
   input.checked=on;
   input.disabled=(typeof V4161_ACCESS_MODE!=='undefined'&&V4161_ACCESS_MODE==='readonly');
   state.textContent=on?'Đang bật':'Đang tắt';state.className='v4179-pd-state '+(on?'on':'off');
-  help.textContent=on?'Bật: tiết PĐ dùng PPCT chính khóa và lấy CT tiếp theo.':'Tắt: tiết PĐ được bỏ qua và không chiếm CT.';
+  help.textContent=on?'Bật: tiết PĐ dùng PPCT chính khóa và lấy CT tiếp theo.':'Tắt: tiết PĐ vẫn lên bình thường theo luồng PĐ riêng.';
 }
 function v4179LoadPdToggle(){
   const sel=document.getElementById('teacher');const key=sel&&sel.value;
