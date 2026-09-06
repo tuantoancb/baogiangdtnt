@@ -1,0 +1,64 @@
+<!-- V4.179: thẻ công tắc PĐ → Chính khóa theo giáo viên -->
+<div id="pdToggleCard" class="pd-toggle-card" hidden>
+  <div class="pd-toggle-copy">
+    <div class="pd-toggle-title">PĐ → Chính khóa</div>
+    <div id="pdToggleHint" class="pd-toggle-hint">Đang tải trạng thái…</div>
+  </div>
+  <label class="pd-switch" aria-label="Bật hoặc tắt PĐ thành chính khóa">
+    <input id="pdToggleInput" type="checkbox">
+    <span class="pd-slider"></span>
+  </label>
+</div>
+<style>
+.pd-toggle-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 16px;border:1px solid #dbe8f7;border-radius:14px;background:#f7fbff;box-shadow:0 4px 14px rgba(24,91,160,.06);margin:10px 0}.pd-toggle-copy{min-width:0}.pd-toggle-title{font-weight:800;color:#164f8f;font-size:14px}.pd-toggle-hint{margin-top:3px;color:#62758a;font-size:12px;line-height:1.4}.pd-switch{position:relative;width:48px;height:27px;flex:0 0 auto}.pd-switch input{opacity:0;width:0;height:0}.pd-slider{position:absolute;inset:0;background:#b8c5d2;border-radius:999px;cursor:pointer;transition:.2s}.pd-slider:before{content:"";position:absolute;width:21px;height:21px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.18);transition:.2s}.pd-switch input:checked+.pd-slider{background:#2f80ed}.pd-switch input:checked+.pd-slider:before{transform:translateX(21px)}
+</style>
+<script>
+(function(){
+  const card=document.getElementById('pdToggleCard');
+  const input=document.getElementById('pdToggleInput');
+  const hint=document.getElementById('pdToggleHint');
+  let teacherRef='';
+  function currentTeacher(){
+    return window.activeTeacherKey || window.teacherKey ||
+      (window.APP_STATE && (APP_STATE.activeTeacherKey||APP_STATE.teacherKey)) ||
+      new URLSearchParams(location.search).get('teacher') ||
+      new URLSearchParams(location.search).get('gv') || '';
+  }
+  function render(cfg){
+    if(!cfg)return;
+    input.checked=!!cfg.enabled;
+    hint.textContent=input.checked ? cfg.enabledText : cfg.disabledText;
+    card.hidden=false;
+  }
+  function gasCall(name,args,ok,fail){
+    if(window.google && google.script && google.script.run){
+      let r=google.script.run.withSuccessHandler(ok).withFailureHandler(fail||console.error);
+      r[name].apply(r,args||[]); return true;
+    }
+    return false;
+  }
+  window.initPdToggle=function(ref){
+    teacherRef=ref||currentTeacher();
+    if(!teacherRef){ card.hidden=true; return; }
+    if(!gasCall('getPdAsRegularConfig',[teacherRef],render,function(e){console.error(e);})){
+      // Frontend Vercel có thể gọi API hiện có rồi truyền kết quả vào window.applyPdToggleConfig(cfg).
+      card.hidden=false;
+      hint.textContent='Sẵn sàng kết nối API PĐ của giáo viên.';
+    }
+  };
+  window.applyPdToggleConfig=render;
+  input.addEventListener('change',function(){
+    const desired=!!input.checked;
+    hint.textContent='Đang lưu…';
+    if(!gasCall('savePdAsRegularConfig',[teacherRef||currentTeacher(),desired],render,function(e){
+      input.checked=!desired; hint.textContent='Không lưu được trạng thái PĐ.'; console.error(e);
+    })){
+      // Hook cho Vercel: app chính bắt sự kiện này và gọi action savePdAsRegularConfig.
+      window.dispatchEvent(new CustomEvent('baogiang:pd-toggle',{detail:{teacherRef:teacherRef||currentTeacher(),enabled:desired}}));
+      hint.textContent=desired?'Bật: tiết PĐ được tính như chính khóa và lấy CT kế tiếp.':'Tắt: tiết PĐ tạm bỏ qua, không chiếm CT chính khóa.';
+    }
+  });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>window.initPdToggle());
+  else window.initPdToggle();
+})();
+</script>
