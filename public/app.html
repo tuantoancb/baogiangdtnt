@@ -7088,8 +7088,8 @@ function v4179LoadPdToggle(){
   if(!key){setTimeout(v4179LoadPdToggle,180);return;}
   google.script.run.withSuccessHandler(v4179RenderPdToggle).withFailureHandler(function(e){
     if(input){input.checked=false;input.disabled=false;}
-    if(state){state.textContent='Đang tắt';state.className='v4179-pd-state off';}
-    if(help)help.textContent='Chưa đọc được cấu hình; tạm coi là Tắt để an toàn.';
+    if(state){state.textContent='Chưa kết nối';state.className='v4179-pd-state off';}
+    if(help)help.textContent='Backend Apps Script chưa có chức năng PĐ. Cần cập nhật Code.gs V4.181 rồi triển khai lại Web app.';
     console.warn('Không tải được trạng thái PĐ',e);
   }).getPdRegularToggle(key);
 }
@@ -7101,7 +7101,15 @@ function v4179SavePdToggle(enabled){
     v4179RenderPdToggle(res);
     if(typeof setStatus==='function')setStatus(res.description||'Đã lưu tùy chọn PĐ.',true);
     if(typeof loadClasses==='function')loadClasses();
-  }).withFailureHandler(function(e){if(input)input.disabled=false;v4179LoadPdToggle();if(typeof setStatus==='function')setStatus((e&&e.message)||String(e),false);}).setPdRegularToggle(key,!!enabled);
+  }).withFailureHandler(function(e){
+    if(input){input.disabled=false;input.checked=!enabled;}
+    const state=document.getElementById('v4179PdState'),help=document.getElementById('v4179PdHelp');
+    if(state){state.textContent='Chưa kết nối';state.className='v4179-pd-state off';}
+    if(help)help.textContent='Không lưu được vì backend Apps Script chưa được cập nhật/triển khai lại.';
+    const msg='Chưa lưu được PĐ → Chính khóa. Hãy cập nhật apps-script/Code.gs V4.181 và triển khai lại Apps Script Web app trước.';
+    if(typeof setStatus==='function')setStatus(msg,false); else alert(msg);
+    console.warn('Không lưu được trạng thái PĐ',e);
+  }).setPdRegularToggle(key,!!enabled);
 }
 
 window.addEventListener('pageshow',function(){setTimeout(v4179LoadPdToggle,80);});
