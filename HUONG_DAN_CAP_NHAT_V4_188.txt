@@ -1,0 +1,11 @@
+V4.188 - CẬP NHẬT PPCT TIN HỌC 10, 11, 12
+
+1. Trên Google Apps Script, thay nội dung Code.gs bằng file apps-script/Code.gs trong bộ này.
+2. Chọn Deploy > Manage deployments > Edit > New version > Deploy.
+3. Phần Vercel không thay đổi giao diện; có thể cập nhật cả bộ ZIP để lưu đúng phiên bản V4.188.
+
+KẾT QUẢ PPCT TIN HỌC
+- Lớp 10: CT1 đến CT70.
+- Lớp 11: CT1 đến CT70.
+- Lớp 12: CT1 đến CT70.
+- Chỉ PPCT môn Tin học được thay đổi; các môn khác giữ nguyên.

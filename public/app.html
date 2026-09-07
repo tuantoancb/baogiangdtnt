@@ -4854,7 +4854,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.180</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.189</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -5194,7 +5194,7 @@ if(!(window.google&&window.google.script&&window.google.script.run)){
         {name:'24-29.8',token:'24.8-29.8',label:'Tuần 24-29.8',monday:'2026-08-24'}
       ],
       tkbSheets:[{name:'17-22.8',token:'17.8-22.8',label:'17-22.8'},{name:'TKB 24-29.8',token:'24.8-29.8',label:'TKB 24-29.8'},{name:'TKB(GV) 24-29.8',token:'24.8-29.8',label:'TKB(GV) 24-29.8'}],tkbSheet:'17-22.8',
-      reportSheet:'17-22.8',reportUrl:'#',progressUrl:'#'
+      reportSheet:'17-22.8',reportUrl:'#',reportBaseUrl:'#',reportRange:'A1:G120',reportGid:'',progressUrl:'#'
     };
     let success=function(){},failure=function(){};
     const runner={
@@ -5222,6 +5222,7 @@ if(!(window.google&&window.google.script&&window.google.script.run)){
         ],
         classes:{}
       }),
+      getBaoGiangOpenTarget:(payload)=>({sheet:(payload&&payload.reportSheet)||initial.reportSheet,url:'#',range:'A1:G120',gid:'',startColumn:'A'}),
       getTkbClassCheck:()=>({ok:true,warnings:[]}),
       checkExistingWrite:()=>({hasExisting:false,count:0}),
       ghiBaoGiangStep1:()=>({written:16,teacher:'Nguyễn Thanh Tuấn',skipped:[],details:[],sheet:'Tuan 17-22.8',reportUrl:'#',weekInfo:{},undoToken:'preview'}),
@@ -5276,6 +5277,7 @@ function toggleProgressDetails(){
 }
 
 let initData = null;
+const v4189ReportTargets = {};
 let lastPreview = null;
 
 let V4161_ACCESS_MODE='active';
@@ -5310,6 +5312,7 @@ const requestedTeacherRef=(()=>{try{const p=new URLSearchParams(window.location.
 
 google.script.run.withSuccessHandler(data=>{
   initData=data;
+  if(data.reportSheet) v4189ReportTargets[data.reportSheet]={url:data.reportUrl||'',range:data.reportRange||'',gid:data.reportGid||''};
   v4161ApplyAccessMode(data.access);
   const sel=document.getElementById('teacher');
   data.teachers.forEach(t=>{
@@ -5322,7 +5325,7 @@ google.script.run.withSuccessHandler(data=>{
   if(teacherText&&active) teacherText.textContent=active.fullName+' · '+active.key;
   if(active){ document.title='Lịch Báo Giảng – '+active.fullName; }
   const ws=document.getElementById('reportSheet');
-  (data.weekSheets||[]).forEach((x,idx)=>{const o=document.createElement('option');o.value=x.name;o.textContent=x.label||x.name;o.dataset.monday=x.monday||'';o.dataset.token=x.token||'';ws.appendChild(o);});
+  (data.weekSheets||[]).forEach((x,idx)=>{const o=document.createElement('option');o.value=x.name;o.textContent=x.label||x.name;o.dataset.monday=x.monday||'';o.dataset.token=x.token||'';o.dataset.gid=x.gid||'';ws.appendChild(o);});
   const ts=document.getElementById('tkbSheet');
   fillTkbOptionsGrouped(ts,data.tkbSheets||[]);
   // V4.156: mỗi lần mở app luôn chọn tuần TKB mới nhất.
@@ -5412,6 +5415,7 @@ function onTkbSheetChange(initial){
   if(idx>=0){ws.selectedIndex=idx;const opt=ws.options[idx];document.getElementById('sheetName').textContent=ws.value;document.getElementById('week').value=idx+1;if(opt.dataset.monday)document.getElementById('monday').value=opt.dataset.monday;if(txt)txt.textContent='Dùng “'+ts.value+'”  →  Báo giảng tuần '+v4101CompactToken(token);if(info){info.classList.remove('error');info.classList.add('ok');}updateDatePreview();loadClasses();}
   else {ws.value='';if(txt)txt.textContent='“'+ts.value+'” chưa có Báo giảng tuần '+v4101CompactToken(token);if(info){info.classList.add('error');info.classList.remove('ok');}setStatus('TKB đã chọn chưa có sheet Báo giảng cùng tuần.',false);}
   ts.title='Nguồn TKB: '+ts.value;
+  if(typeof v4189PrimeReportTarget==='function') v4189PrimeReportTarget();
   if(typeof v4155AfterWeekChange==='function') v4155AfterWeekChange();
 }
 
@@ -6103,21 +6107,46 @@ function openProgressReport(){
   if(initData && initData.progressUrl) window.open(initData.progressUrl,'_blank');
 }
 
-function openReport(){
-  if(!initData) return;
-  const popup=window.open('about:blank','_blank');
+function v4189FastReportUrl(){
+  if(!initData)return '';
+  const reportSelect=document.getElementById('reportSheet');
+  const option=reportSelect&&reportSelect.options&&reportSelect.options[reportSelect.selectedIndex];
+  const sheetName=reportSelect&&reportSelect.value||'';
+  const cached=v4189ReportTargets[sheetName]||{};
+  const gid=cached.gid||(option&&option.dataset&&option.dataset.gid)||initData.reportGid||'';
+  const range=cached.range||initData.reportRange||'';
+  const base=initData.reportBaseUrl||String(initData.reportUrl||'').split('#')[0].split('?')[0];
+  if(!base)return initData.reportUrl||'';
+  return cached.url||(gid ? base+'#gid='+gid+(range?'&range='+encodeURIComponent(range):'') : (initData.reportUrl||base));
+}
+
+function v4189PrimeReportTarget(){
+  if(!initData)return;
+  const reportSelect=document.getElementById('reportSheet');
+  const sheetName=reportSelect&&reportSelect.value||'';
+  if(!sheetName||v4189ReportTargets[sheetName])return;
   const key=(document.getElementById('teacher')&&document.getElementById('teacher').value)||'';
   const payload=Object.assign({teacherKey:key},getWeekPayload());
-  if(typeof setStatus==='function') setStatus('⏳ Đang tự điền Tổ và Tổ trưởng chuyên môn...',true);
+  google.script.run.withSuccessHandler(res=>{
+    if(!res||!res.sheet)return;
+    v4189ReportTargets[res.sheet]={url:res.url||'',range:res.range||'',gid:res.gid||''};
+  }).withFailureHandler(()=>{}).getBaoGiangOpenTarget(payload);
+}
+
+function openReport(){
+  if(!initData) return;
+  const fastUrl=v4189FastReportUrl();
+  const popup=window.open(fastUrl||initData.reportUrl,'_blank');
+  const key=(document.getElementById('teacher')&&document.getElementById('teacher').value)||'';
+  const payload=Object.assign({teacherKey:key},getWeekPayload());
+  if(typeof setStatus==='function') setStatus('✅ Đã mở Báo giảng đúng vị trí giáo viên · Đang đồng bộ Tổ/Tổ trưởng ở nền...',true);
   google.script.run
     .withSuccessHandler(res=>{
-      const url=(res&&res.url)||initData.reportUrl;
-      if(popup) popup.location.href=url; else window.open(url,'_blank');
-      if(typeof setStatus==='function') setStatus('✅ Đã điền '+((res&&res.team)?('Tổ '+res.team):'Tổ')+' · Tổ trưởng '+((res&&res.leader)||'')+' và mở Báo giảng '+((res&&res.sheet)||'')+'.',true);
+      if(res&&res.range)initData.reportRange=res.range;
+      if(typeof setStatus==='function') setStatus('✅ Đã mở đúng khối giáo viên và đồng bộ '+((res&&res.team)?('Tổ '+res.team):'Tổ')+' · '+((res&&res.leader)||'')+'.',true);
     })
     .withFailureHandler(e=>{
-      if(typeof setStatus==='function') setStatus('⚠️ Chưa tự điền được Tổ / Tổ trưởng chuyên môn: '+(e&&e.message?e.message:e),false);
-      if(popup) popup.location.href=initData.reportUrl; else window.open(initData.reportUrl,'_blank');
+      if(typeof setStatus==='function') setStatus('⚠️ Báo giảng đã mở; phần đồng bộ Tổ/Tổ trưởng chưa hoàn tất: '+(e&&e.message?e.message:e),false);
     })
     .prepareBaoGiangForOpen(payload);
 }

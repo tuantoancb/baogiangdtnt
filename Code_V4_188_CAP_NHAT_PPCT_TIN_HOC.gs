@@ -1,4 +1,3 @@
-// V4.189 — MỞ NHANH BÁO GIẢNG ĐÚNG VỊ TRÍ GIÁO VIÊN.
 // V4.188 — CẬP NHẬT PPCT TIN HỌC 10, 11, 12 TỪ PHỤ LỤC I.
 // V4.182 FIX Ô ĐÍCH BÁO GIẢNG: hỗ trợ nhãn Thứ 2..7 và fallback cấu trúc 6x5.
 // V4.181 — PD toggle backend must be redeployed together with Vercel frontend.
@@ -155,7 +154,7 @@ function extractWeekToken_(name) {
 }
 function compactWeekLabel_(token){const m=String(token||'').match(/(\d+)\.(\d+)-(\d+)\.(\d+)/);if(!m)return token||'';return Number(m[2])===Number(m[4])?(Number(m[1])+'-'+Number(m[3])+'.'+Number(m[4])):(Number(m[1])+'.'+Number(m[2])+'-'+Number(m[3])+'.'+Number(m[4]));}
 function inferMondayFromWeekToken_(token){const m=String(token||'').match(/(\d+)\.(\d+)-(\d+)\.(\d+)/);if(!m)return '';const d=new Date(2026,Number(m[2])-1,Number(m[1]),12,0,0);return Utilities.formatDate(d,'Asia/Ho_Chi_Minh','yyyy-MM-dd');}
-function listWeekSheets_(){const ss=SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);return ss.getSheets().map(sh=>({name:sh.getName(),gid:sh.getSheetId()})).map(x=>({name:x.name,gid:x.gid,token:extractWeekToken_(x.name)})).filter(x=>x.token&&!/^(mau|vi\s*tri|vị\s*trí)/i.test(x.name)).map(x=>({name:x.name,gid:x.gid,token:x.token,label:'Tuần '+compactWeekLabel_(x.token),monday:inferMondayFromWeekToken_(x.token)}));}
+function listWeekSheets_(){const ss=SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);return ss.getSheets().map(sh=>sh.getName()).map(name=>({name:name,token:extractWeekToken_(name)})).filter(x=>x.token&&!/^(mau|vi\s*tri|vị\s*trí)/i.test(x.name)).map(x=>({name:x.name,token:x.token,label:'Tuần '+compactWeekLabel_(x.token),monday:inferMondayFromWeekToken_(x.token)}));}
 function listTkbWeekSheets_(){
   const ss=SpreadsheetApp.openById(TKB_SPREADSHEET_ID);
   const rows=ss.getSheets().map((sh,order)=>{
@@ -209,13 +208,12 @@ function getInitialData(teacherRef) {
   const weekSheets=listWeekSheets_();
   const tkbSheets=listTkbWeekSheets_();
   const firstTkb=tkbSheets.length?tkbSheets[0]:null;
-  const matched=firstTkb?(weekSheets.find(x=>x.token===firstTkb.token)||null):null;
+  const matched=firstTkb?findReportSheetForToken_(firstTkb.token):null;
   const first=matched||(weekSheets.length?weekSheets[0]:{name:DEFAULT_BAO_GIANG_SHEET_NAME,monday:'2026-08-17',token:'17.8-22.8'});
   const activeTeacherKey=resolveTeacherKey_(teacherRef);
   const fixedTeacherInfo=getTeacherDirectoryInfo_(activeTeacherKey);
   const profile=TEACHER_PROFILES[activeTeacherKey]||{fullName:TEACHER_MAP[activeTeacherKey]||activeTeacherKey,slug:teacherSlug_(activeTeacherKey)};
-  const reportOpenTarget=v4189ResolveReportOpenTarget_(activeTeacherKey,first.name);
-  return {teachers:[{key:activeTeacherKey,fullName:profile.fullName,directory:fixedTeacherInfo,slug:profile.slug}],activeTeacherKey:activeTeacherKey,activeTeacherSlug:profile.slug,week:1,monday:first.monday||'2026-08-17',teams:Object.keys(TEAM_LEADERS).map(k=>({key:k,leader:TEAM_LEADERS[k]})),recognizedTeam:fixedTeacherInfo.team||'',teacherDirectoryInfo:fixedTeacherInfo,weekSheets:weekSheets,tkbSheets:tkbSheets,tkbSheet:firstTkb?firstTkb.name:'',reportSheet:first.name,weekToken:firstTkb?firstTkb.token:first.token,tkbVariantCount:firstTkb?firstTkb.variantCount:0,reportUrl:reportOpenTarget.url||('https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit'),reportBaseUrl:'https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit',reportRange:reportOpenTarget.range||'',reportGid:reportOpenTarget.gid||first.gid||'',progressUrl:'https://docs.google.com/spreadsheets/d/'+TIEN_DO_SPREADSHEET_ID+'/edit'};
+  return {teachers:[{key:activeTeacherKey,fullName:profile.fullName,directory:fixedTeacherInfo,slug:profile.slug}],activeTeacherKey:activeTeacherKey,activeTeacherSlug:profile.slug,week:1,monday:first.monday||'2026-08-17',teams:Object.keys(TEAM_LEADERS).map(k=>({key:k,leader:TEAM_LEADERS[k]})),recognizedTeam:fixedTeacherInfo.team||'',teacherDirectoryInfo:fixedTeacherInfo,weekSheets:weekSheets,tkbSheets:tkbSheets,tkbSheet:firstTkb?firstTkb.name:'',reportSheet:first.name,weekToken:firstTkb?firstTkb.token:first.token,tkbVariantCount:firstTkb?firstTkb.variantCount:0,reportUrl:'https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit',progressUrl:'https://docs.google.com/spreadsheets/d/'+TIEN_DO_SPREADSHEET_ID+'/edit'};
 }
 
 function normalizeText_(s) {
@@ -1004,59 +1002,6 @@ function findTeacherBlockStart_(sheet, fullName) {
   throw new Error('Đã tìm thấy giáo viên ' + fullName + ' nhưng chưa xác định được cột “Ngày, thứ” của khối báo giảng.');
 }
 
-// V4.189 — Tạo đích mở Google Sheet đúng khối 7 cột của giáo viên.
-function v4189ColumnLabel_(column1) {
-  let n = Number(column1);
-  let label = '';
-  while (n > 0) {
-    const remainder = (n - 1) % 26;
-    label = String.fromCharCode(65 + remainder) + label;
-    n = Math.floor((n - 1) / 26);
-  }
-  return label;
-}
-
-function v4189RangeForBlock_(blockStartZero) {
-  const firstColumn = Number(blockStartZero) + 1;
-  return v4189ColumnLabel_(firstColumn) + '1:' + v4189ColumnLabel_(firstColumn + 6) + '120';
-}
-
-function v4189ReportUrl_(sheetId, range) {
-  const base = 'https://docs.google.com/spreadsheets/d/' + BAO_GIANG_SPREADSHEET_ID + '/edit';
-  if (!sheetId) return base;
-  return base + '#gid=' + sheetId + (range ? '&range=' + encodeURIComponent(range) : '');
-}
-
-function v4189ResolveReportOpenTarget_(teacherKey, reportSheetName) {
-  const fallback = {url:v4189ReportUrl_('', ''), gid:'', range:'', startColumn:''};
-  try {
-    const fullName = TEACHER_MAP[teacherKey] || getTeacherDirectoryInfo_(teacherKey).name;
-    if (!fullName || !reportSheetName) return fallback;
-    const ss = SpreadsheetApp.openById(BAO_GIANG_SPREADSHEET_ID);
-    const sheet = ss.getSheetByName(reportSheetName);
-    if (!sheet) return fallback;
-    const blockStartZero = findTeacherBlockStart_(sheet, fullName);
-    const range = v4189RangeForBlock_(blockStartZero);
-    return {
-      url:v4189ReportUrl_(sheet.getSheetId(), range),
-      gid:sheet.getSheetId(),
-      range:range,
-      startColumn:v4189ColumnLabel_(blockStartZero + 1)
-    };
-  } catch (error) {
-    return fallback;
-  }
-}
-
-function getBaoGiangOpenTarget(payload) {
-  payload = payload || {};
-  const teacherKey = String(payload.teacherKey || FIXED_TEACHER_KEY);
-  const reportSheetName = getSelectedReportSheetName_(payload);
-  const target = v4189ResolveReportOpenTarget_(teacherKey, reportSheetName);
-  target.sheet = reportSheetName;
-  return target;
-}
-
 function buildTargetRowMap_(sheet, blockStartZero) {
   // Dòng 5-34 = 6 ngày x 5 tiết sáng.
   const startRow = 5;
@@ -1354,7 +1299,6 @@ function prepareBaoGiangForOpen(payload) {
   if (!sh) throw new Error('Không tìm thấy sheet Báo giảng: ' + reportSheetName);
 
   const blockStartZero = findTeacherBlockStart_(sh, fullName);
-  const reportRange = v4189RangeForBlock_(blockStartZero);
   const meta = updateReportMetadata_(sh, blockStartZero, Object.assign({}, payload, {teacherKey: teacherKey}));
   SpreadsheetApp.flush();
 
@@ -1364,9 +1308,7 @@ function prepareBaoGiangForOpen(payload) {
     sheet: reportSheetName,
     team: meta.team,
     leader: meta.leader,
-    range: reportRange,
-    startColumn: v4189ColumnLabel_(blockStartZero + 1),
-    url: v4189ReportUrl_(sh.getSheetId(), reportRange)
+    url: 'https://docs.google.com/spreadsheets/d/' + BAO_GIANG_SPREADSHEET_ID + '/edit?gid=' + sh.getSheetId() + '#gid=' + sh.getSheetId()
   };
 }
 
@@ -6812,7 +6754,6 @@ const VERCEL_API_ACTIONS = {
   'undoPpctRebalance': undoPpctRebalance,
   'getClassPpctSuggestions': getClassPpctSuggestions,
   'previewBaoGiang': previewBaoGiang,
-  'getBaoGiangOpenTarget': getBaoGiangOpenTarget,
   'prepareBaoGiangForOpen': prepareBaoGiangForOpen,
   'getTkbClassCheck': getTkbClassCheck,
   'previewWeeklyPlan': previewWeeklyPlan,

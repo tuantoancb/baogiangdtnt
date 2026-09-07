@@ -1,0 +1,11 @@
+V4.189 - MỞ NHANH BÁO GIẢNG ĐÚNG VỊ TRÍ GIÁO VIÊN
+
+1. Thay apps-script/Code.gs và apps-script/Index.html trên Google Apps Script.
+2. Chọn Deploy > Manage deployments > Edit > New version > Deploy.
+3. Cập nhật bộ Vercel bằng ZIP V4.189 để phần giao diện dùng đường dẫn mở nhanh mới.
+
+Kết quả:
+- Bấm Báo giảng là mở ngay.
+- Đúng sheet của tuần đang chọn.
+- Đúng vùng 7 cột của giáo viên đang đăng nhập.
+- Tổ/Tổ trưởng tiếp tục được đồng bộ ở nền.

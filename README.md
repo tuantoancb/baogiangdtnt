@@ -191,5 +191,17 @@ Giao diện compact, khoảng trống hai bên, nhãn Thời khóa biểu, giữ
 Khi cập nhật: thay `apps-script/Code.gs`, triển khai Apps Script phiên bản mới; đồng thời cập nhật Vercel bằng toàn bộ bộ mã này để câu chữ công tắc khớp với backend.
 
 
+## V4.189
+
+- Nút Báo giảng mở ngay đúng tuần và đúng khối của giáo viên đang đăng nhập.
+- Không còn mở trang trắng để chờ cập nhật Tổ/Tổ trưởng.
+- Khi đổi tuần, vị trí giáo viên được chuẩn bị ở nền.
+
+## V4.188
+
+- Cập nhật lại PPCT Tin học 10, 11, 12 từ Phụ lục I mới.
+- Mỗi khối đủ CT1-CT70; tổng cộng 210 tiết Tin học.
+- Giữ nguyên các chức năng của V4.187.
+
 ## V4.187
 Có thêm nút Kiểm tra tiến độ để rà soát tính liền mạch toàn bộ Báo giảng theo từng môn/lớp/luồng.
