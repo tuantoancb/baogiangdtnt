@@ -4846,6 +4846,11 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 .v4179-pd-state{display:inline-flex;align-items:center;gap:5px;font-weight:850}.v4179-pd-state.on{color:#087a50}.v4179-pd-state.off{color:#64748b}
 @media(max-width:900px){.v4179-pd-card{padding:8px 9px}.v4179-pd-copy b{font-size:11px}.v4179-pd-copy small{font-size:9.3px}.v4179-switch{width:44px;height:25px;flex-basis:44px}.v4179-switch span:after{width:19px;height:19px}.v4179-switch input:checked+span:after{transform:translateX(19px)}}
 </style>
+
+<style id="v4187-progress-audit-style">
+.v4187-audit-backdrop{position:fixed;inset:0;background:rgba(18,43,72,.38);display:none;align-items:center;justify-content:center;padding:18px;z-index:10080}.v4187-audit-backdrop.show{display:flex}.v4187-audit{width:min(900px,96vw);max-height:88vh;overflow:hidden;background:#fff;border:1px solid #d9e6f4;border-radius:20px;box-shadow:0 24px 70px rgba(19,59,103,.22);display:flex;flex-direction:column}.v4187-audit-head{padding:18px 20px 13px;border-bottom:1px solid #e7eef7;display:flex;gap:12px;align-items:flex-start}.v4187-audit-head i{width:42px;height:42px;border-radius:13px;background:#eaf3ff;color:#176fd8;display:grid;place-items:center;font-style:normal;font-size:22px}.v4187-audit-head h3{margin:0;color:#123f78;font-size:19px}.v4187-audit-head p{margin:4px 0 0;color:#6f8196;font-size:12px}.v4187-audit-body{padding:14px 18px 18px;overflow:auto}.v4187-audit-summary{border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700}.v4187-audit-summary.ok{background:#eefaf4;border:1px solid #bfe9d1;color:#087b48}.v4187-audit-summary.error{background:#fff5ea;border:1px solid #ffd2a2;color:#a65a00}.v4187-audit-group{border:1px solid #e0eaf5;border-radius:14px;padding:12px 13px;margin:9px 0;background:#fff}.v4187-audit-row{display:grid;grid-template-columns:minmax(180px,1fr) 120px 105px 110px;gap:8px;align-items:center}.v4187-audit-row b{color:#143f73;font-size:13px}.v4187-audit-chip{display:inline-flex;justify-content:center;border-radius:999px;padding:5px 8px;background:#f2f6fb;color:#536d88;font-size:10.5px;font-weight:800}.v4187-audit-state{font-size:11px;font-weight:900;text-align:right}.v4187-audit-state.ok{color:#07915a}.v4187-audit-state.error{color:#d46a00}.v4187-audit-issue{margin-top:9px;padding:9px 10px;border-radius:10px;background:#fff8ef;border-left:3px solid #f59e0b;color:#7a4a00;font-size:11.5px;line-height:1.45}.v4187-audit-issue small{display:block;color:#7d8b9d;margin-top:3px}.v4187-audit-actions{padding:12px 18px;border-top:1px solid #e7eef7;display:flex;justify-content:flex-end;gap:9px}.v4187-audit-actions button{border:1px solid #d4e0ee;background:#fff;color:#264b73;border-radius:10px;padding:9px 13px;font-weight:800;cursor:pointer}.v4187-audit-actions .primary{background:#176fd8;color:#fff;border-color:#176fd8}@media(max-width:650px){.v4187-audit{max-height:92vh}.v4187-audit-row{grid-template-columns:1fr 1fr}.v4187-audit-state{text-align:left}.v4187-audit-head{padding:14px}.v4187-audit-body{padding:11px}}
+</style>
+
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
@@ -5006,7 +5011,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 <div class="v458-tools"><div class="v4121-tools-head"><h3>CÔNG CỤ KHÁC</h3><div class="v4136-tools-configs"><button class="v4121-source-config v4136-makeup-config" onclick="openMakeupScheduleModal()" type="button" title="Thiết lập dạy bù / đổi TKB cho tuần đang chọn">🔁 Dạy bù</button><button class="v4121-source-config" onclick="openPpctSourceModal()" type="button" title="Kho PPCT chuẩn của trường">📚 Kho PPCT</button></div></div><div class="v458-grid">
 <button onclick="openReport()" type="button"><i>📖</i><b>Báo giảng</b><small>Xem / sửa lịch<br/>đã lưu</small><em>→</em></button>
 <button class="v4121-rebalance-tool" onclick="openPpctRebalanceModal()" type="button"><i>🔄</i><b>Cập nhật PPCT</b><small>Dồn lại sau khi<br/>xóa / sửa lịch</small><em>→</em></button>
-<button onclick="openProgressReport()" type="button"><i>📈</i><b>Tiến độ</b><small>Theo dõi tiến độ<br/>dạy học</small><em>→</em></button>
+<button onclick="openProgressContinuityAudit()" type="button"><i>🧭</i><b>Kiểm tra tiến độ</b><small>Rà soát liền mạch<br/>các tuần</small><em>→</em></button>
 <button onclick="window.open('https://docs.google.com/spreadsheets/d/1Hzq7mouds8EiREs1VBg6a9ciTTVNe3x0dnpjvujr7Kc/edit?usp=drivesdk','_blank','noopener,noreferrer')" type="button"><i>🗓️</i><b>Lịch tuần</b><small>Xem lịch<br/>công tác</small><em>→</em></button>
 <button class="v462-export-tool" onclick="openExportBaoGiang()" type="button"><i>🖨️</i><b>In / Xuất</b><small>Ảnh PNG<br/>hoặc PDF</small><em>→</em></button>
 <button class="v453-undo" disabled="" id="undoLastWriteBtn" onclick="confirmUndoLastWrite()" type="button"><i>☁</i><b>Hoàn tác</b><small>Khôi phục<br/>lần ghi gần nhất</small><em>→</em></button>
@@ -6163,6 +6168,15 @@ window.addEventListener('load',()=>{
 </div>
 </div>
 </div>
+
+<div class="v4187-audit-backdrop" id="v4187AuditModal">
+  <div class="v4187-audit" role="dialog" aria-modal="true" aria-labelledby="v4187AuditTitle">
+    <div class="v4187-audit-head"><i>🧭</i><div><h3 id="v4187AuditTitle">Kiểm tra tiến độ liền mạch</h3><p>Quét toàn bộ Báo giảng đã có · tách riêng Chính khóa / Chuyên đề / Phụ đạo</p></div></div>
+    <div class="v4187-audit-body" id="v4187AuditBody"><div class="v4187-audit-summary">Đang kiểm tra...</div></div>
+    <div class="v4187-audit-actions"><button type="button" onclick="closeProgressContinuityAudit()">Đóng</button><button type="button" onclick="openProgressReport()">Mở bảng tiến độ</button><button class="primary" type="button" onclick="v4187LoadAudit()">↻ Kiểm tra lại</button></div>
+  </div>
+</div>
+
 <div class="safe-modal-backdrop" id="overwriteModal"><div class="safe-modal"><h3>⚠️ Dữ liệu tuần này đã tồn tại</h3><p>App phát hiện các ô Báo giảng sắp ghi đã có dữ liệu. App chưa ghi đè.</p><div class="safe-modal-info" id="overwriteInfo"></div><div class="safe-modal-actions"><button onclick="closeOverwriteModal()">Hủy</button><button class="danger-write" onclick="forceWriteSheet()">Ghi đè dữ liệu</button></div></div></div><div class="safe-modal-backdrop" id="undoModal"><div class="safe-modal"><h3>↩ Hoàn tác lần ghi gần nhất?</h3><p>Báo giảng và Tiến độ sẽ được khôi phục về trạng thái trước lần ghi vừa rồi.</p><div class="safe-modal-actions"><button onclick="closeUndoModal()">Hủy</button><button class="danger-write" onclick="undoLastWrite()">↩ Hoàn tác</button></div></div></div><script>
 (function(){
  function buildV430(){
@@ -7114,6 +7128,17 @@ function v4179SavePdToggle(enabled){
 
 window.addEventListener('pageshow',function(){setTimeout(v4179LoadPdToggle,80);});
 </script>
+
+<script id="v4187-progress-audit-js">
+function v4187Esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function openProgressContinuityAudit(){const m=document.getElementById('v4187AuditModal');if(m)m.classList.add('show');v4187LoadAudit()}
+function closeProgressContinuityAudit(){const m=document.getElementById('v4187AuditModal');if(m)m.classList.remove('show')}
+function v4187Where(x){if(!x)return '';return (x.weekLabel||x.sheet||'')+' · Thứ '+(x.dayNum||'')+' · '+(x.session||'')+' · Tiết '+(x.period||'')}
+function v4187RenderAudit(res){const body=document.getElementById('v4187AuditBody');if(!body)return;const seq=(res&&res.sequences)||[];if(!seq.length){body.innerHTML='<div class="v4187-audit-summary error">Chưa có dữ liệu Báo giảng đủ để kiểm tra.</div>';return}let html='<div class="v4187-audit-summary '+(res.issueCount?'error':'ok')+'">'+(res.issueCount?'⚠ Phát hiện <b>'+res.issueCount+'</b> điểm cần kiểm tra trong '+res.sequenceCount+' chuỗi tiến độ.':'✓ Tất cả <b>'+res.sequenceCount+'</b> chuỗi tiến độ đang liền mạch.')+' · Đã quét '+((res.checkedWeeks||[]).length)+' tuần.</div>';seq.forEach(function(g){html+='<div class="v4187-audit-group"><div class="v4187-audit-row"><b>'+v4187Esc(g.subject)+' · '+v4187Esc(g.className)+'</b><span class="v4187-audit-chip">'+v4187Esc(g.trackLabel)+'</span><span class="v4187-audit-chip">'+v4187Esc(g.first)+' → '+v4187Esc(g.last)+'</span><span class="v4187-audit-state '+g.status+'">'+(g.status==='ok'?'✓ Liền mạch':'⚠ Cần kiểm tra')+'</span></div>';if(g.issues&&g.issues.length){g.issues.forEach(function(it){html+='<div class="v4187-audit-issue"><b>'+v4187Esc(it.message)+'</b> · Đề xuất tiếp theo: <b>'+v4187Esc(it.expected||'')+'</b><small>'+v4187Esc(v4187Where(it.previous))+' → '+v4187Esc(v4187Where(it.current))+'</small></div>'})}html+='</div>'});body.innerHTML=html}
+function v4187LoadAudit(){const body=document.getElementById('v4187AuditBody');if(body)body.innerHTML='<div class="v4187-audit-summary">⏳ Đang quét toàn bộ Báo giảng...</div>';google.script.run.withSuccessHandler(v4187RenderAudit).withFailureHandler(function(e){if(body)body.innerHTML='<div class="v4187-audit-summary error">⚠ Không kiểm tra được: '+v4187Esc((e&&e.message)||e||'Lỗi không xác định')+'</div>'}).auditProgressContinuity(currentWritePayload())}
+document.addEventListener('click',function(e){const m=document.getElementById('v4187AuditModal');if(m&&e.target===m)closeProgressContinuityAudit()});
+</script>
+
 </body>
 </html>
 <style id="v460-ppct-tools-polish">

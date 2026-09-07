@@ -189,3 +189,7 @@ Giao diện compact, khoảng trống hai bên, nhãn Thời khóa biểu, giữ
 - CĐ không đổi.
 
 Khi cập nhật: thay `apps-script/Code.gs`, triển khai Apps Script phiên bản mới; đồng thời cập nhật Vercel bằng toàn bộ bộ mã này để câu chữ công tắc khớp với backend.
+
+
+## V4.187
+Có thêm nút Kiểm tra tiến độ để rà soát tính liền mạch toàn bộ Báo giảng theo từng môn/lớp/luồng.
