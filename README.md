@@ -244,3 +244,9 @@ Báo cáo tiến độ ghi số tiết thực dạy trong tuần, tách Chính k
 ## V4.198 — Bản chốt
 - ① GHI BÁO GIẢNG: Ghi nội dung dạy của tuần vào Lịch báo giảng.
 - ② CẬP NHẬT BÁO CÁO TIẾN ĐỘ: Ghi số tiết thực dạy vào Báo cáo tiến độ của tuần.
+
+
+## V4.200
+- Xem trước tiến độ theo từng lớp trước khi ghi.
+- Cảnh báo và hiển thị cũ → mới khi ghi đè tuần đã có dữ liệu.
+- Chọn tuần nào cập nhật đúng tuần đó.

@@ -1,0 +1,16 @@
+V4.200 — CẬP NHẬT APP BÁO GIẢNG
+
+APPS SCRIPT
+1. Chép apps-script/Code.gs vào Code.gs.
+2. Chép apps-script/Index.html vào Index.html.
+3. Lưu và triển khai lại Web App nếu dự án của anh yêu cầu.
+
+GITHUB / VERCEL
+- Đưa toàn bộ các file trong gói này lên repository hiện tại.
+- Giữ nguyên cấu trúc app/, lib/, public/, apps-script/.
+
+CHỨC NĂNG MỚI
+- Chọn tuần nào -> cập nhật đúng tuần đó.
+- Bấm Cập nhật Báo cáo tiến độ -> app đọc Lịch báo giảng và hiển thị xem trước theo từng lớp.
+- Nếu đã có số liệu cũ -> hiện cũ -> mới và yêu cầu xác nhận ghi đè.
+- Sau khi cập nhật -> có kết quả theo lớp và nút mở đúng Báo cáo tiến độ.

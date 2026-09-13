@@ -7,7 +7,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="#0b5fca" name="theme-color"/>
-<title>Báo giảng điện tử – V4.198</title>
+<title>Báo giảng điện tử – V4.200</title>
 <style>
     :root{
       --bg:#f4f7fb;--card:#fff;--text:#162033;--muted:#64748b;--line:#dbe5f0;
@@ -4863,15 +4863,27 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 #writeReportBtn.v4197-locked-by-progress i{background:#aeb9c4!important;color:#fff!important;box-shadow:none!important}
 #writeReportBtn.v4197-locked-by-progress small{color:#8492a3!important}
 #updateProgressBtn.v4197-progress-running{
-  opacity:.92!important;cursor:wait!important;pointer-events:none!important;
-  box-shadow:0 0 0 3px rgba(37,99,235,.14),0 8px 20px rgba(37,99,235,.16)!important;
+  opacity:1!important;cursor:wait!important;pointer-events:none!important;
+  background:radial-gradient(circle at 88% 12%,rgba(77,147,255,.15),transparent 28%),linear-gradient(135deg,#f3f8ff,#e5f0ff)!important;
+  color:#0c5ec5!important;border-color:#8fb9f3!important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.10),0 8px 20px rgba(37,99,235,.12)!important;
 }
 #updateProgressBtn.v4197-progress-running i{animation:v4128Pulse 1s ease-in-out infinite}
+</style>
+
+<style id="v4200ProgressPreviewStyle">
+.v4200-preview-backdrop{position:fixed;inset:0;z-index:12050;background:rgba(16,37,61,.48);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(2px)}
+.v4200-preview-card{width:min(640px,96vw);max-height:88vh;overflow:hidden;background:#fff;border:1px solid #d9e7f5;border-radius:20px;box-shadow:0 24px 70px rgba(18,52,89,.25);display:flex;flex-direction:column}
+.v4200-preview-head{display:flex;gap:12px;align-items:center;padding:18px 20px 13px;border-bottom:1px solid #e8eff7}.v4200-preview-head i{font-style:normal;width:44px;height:44px;border-radius:13px;background:#eaf3ff;display:grid;place-items:center;font-size:23px}.v4200-preview-head h3{margin:0;color:#123f78;font-size:19px}.v4200-preview-head p{margin:4px 0 0;color:#657b91;font-size:12px;font-weight:700}
+.v4200-overwrite,.v4200-safe{margin:12px 16px 0;padding:10px 12px;border-radius:11px;font-size:12px;line-height:1.4}.v4200-overwrite{background:#fff5e8;border:1px solid #ffd19a;color:#8c4e00}.v4200-safe{background:#eefaf4;border:1px solid #bde9d0;color:#087c49}
+.v4200-class-list{padding:10px 16px 15px;overflow:auto}.v4200-class-row{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;margin:7px 0;border:1px solid #dce8f4;border-radius:12px;background:#fbfdff}.v4200-class-row>div{min-width:0}.v4200-class-row b{display:block;color:#173f6b;font-size:14px}.v4200-class-row span{display:block;margin-top:3px;color:#5a738e;font-size:11px;font-weight:700}.v4200-class-row small{display:block;margin-top:4px;color:#6a7e92;font-size:10.5px}.v4200-class-row small b{display:inline;font-size:10.5px;color:#154f91}.v4200-class-row em{align-self:flex-start;white-space:nowrap;font-style:normal;font-size:9.5px;font-weight:900;border-radius:999px;padding:5px 7px}.v4200-class-row em.old{background:#fff0df;color:#a45700}.v4200-class-row em.new{background:#eaf8f1;color:#087849}.v4200-empty{padding:20px;text-align:center;color:#72869a}
+.v4200-preview-actions{padding:13px 16px 16px;border-top:1px solid #e7eef7;display:flex;justify-content:flex-end;gap:9px}.v4200-preview-actions button{border-radius:11px;padding:10px 15px;font-weight:850;cursor:pointer}.v4200-preview-actions .cancel{background:#fff;border:1px solid #d3dfeb;color:#405c77}.v4200-preview-actions .confirm{background:#176fd8;border:1px solid #176fd8;color:#fff;box-shadow:0 6px 14px rgba(23,111,216,.18)}
+@media(max-width:560px){.v4200-preview-card{max-height:92vh}.v4200-preview-head{padding:14px}.v4200-class-list{padding:8px 11px 12px}.v4200-class-row{padding:10px}.v4200-class-row b{font-size:13px}.v4200-preview-actions{padding:11px}.v4200-preview-actions button{flex:1}}
 </style>
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.198</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.200</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -6134,18 +6146,49 @@ function v4197SetProgressBusy(busy){
   }
 }
 
-function updateProgressOnly(){
-  if(v4128WriteBusy)return;
-  const payload=currentWritePayload();
-  const week=Number(payload&&payload.week||0);
-  const label=week>0?('Tuần '+week):'tuần đang chọn';
-  if(!confirm('Cập nhật số tiết thực dạy của '+label+' vào Báo cáo tiến độ?\n\nNguồn dữ liệu: Lịch báo giảng đã ghi.\nChính khóa / Chuyên đề / Phụ đạo được đếm riêng.')) return;
-
+function v4200Esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function v4200ClosePreview(){const m=document.getElementById('v4200ProgressPreview');if(m)m.remove()}
+function v4200TrackText(c){
+  const parts=[];
+  if(Number(c.regular||0))parts.push('Chính khóa '+c.regular);
+  if(Number(c.elective||0))parts.push('CĐ '+c.elective);
+  if(Number(c.remedial||0))parts.push('PĐ '+c.remedial);
+  return parts.join(' · ');
+}
+function v4200ShowProgressPreview(preview,payload){
+  v4200ClosePreview();
+  const classes=(preview&&preview.classes)||[];
+  const details=(preview&&preview.details)||[];
+  const week=Number(preview&&preview.week||payload.week||0);
+  const hasExisting=!!(preview&&preview.hasExisting);
+  const total=Number(preview&&preview.total||0);
+  const rows=classes.map(function(c){
+    const itemText=(c.items||[]).map(function(it){
+      const old=(it.oldValue===''||it.oldValue==null)?'—':String(it.oldValue);
+      const change=it.oldValue===''||it.oldValue==null ? ('mới '+it.newValue) : (old+' → '+it.newValue);
+      return '<small>'+v4200Esc(it.subject)+' · '+v4200Esc(it.trackLabel)+': <b>'+v4200Esc(change)+'</b></small>';
+    }).join('');
+    return '<div class="v4200-class-row"><div><b>'+v4200Esc(c.className)+': '+Number(c.total||0)+' tiết</b><span>'+v4200Esc(v4200TrackText(c))+'</span>'+itemText+'</div><em class="'+(c.hasExisting?'old':'new')+'">'+(c.hasExisting?(c.changed?'CÓ THAY ĐỔI':'ĐÃ CÓ'):'MỚI')+'</em></div>';
+  }).join('');
+  const overlay=document.createElement('div');
+  overlay.id='v4200ProgressPreview';
+  overlay.className='v4200-preview-backdrop';
+  overlay.innerHTML='<div class="v4200-preview-card">'
+    +'<div class="v4200-preview-head"><i>📊</i><div><h3>Kiểm tra trước khi cập nhật</h3><p>Tuần '+week+' · '+classes.length+' lớp · Tổng '+total+' tiết</p></div></div>'
+    +(hasExisting?'<div class="v4200-overwrite">⚠ Tuần '+week+' đã có dữ liệu. Các ô bên dưới sẽ được <b>ghi đè</b> sau khi anh xác nhận.</div>':'<div class="v4200-safe">✓ Tuần '+week+' chưa có số liệu ở các ô sẽ ghi.</div>')
+    +'<div class="v4200-class-list">'+(rows||'<div class="v4200-empty">Không có tiết thực dạy hợp lệ để cập nhật.</div>')+'</div>'
+    +'<div class="v4200-preview-actions"><button type="button" class="cancel">Hủy</button>'+(rows?'<button type="button" class="confirm">'+(hasExisting?'Ghi đè và cập nhật':'Cập nhật tiến độ')+'</button>':'')+'</div>'
+    +'</div>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('.cancel').onclick=function(){v4200ClosePreview()};
+  const ok=overlay.querySelector('.confirm');
+  if(ok)ok.onclick=function(){v4200ClosePreview();v4200CommitProgress(payload,week)};
+  overlay.addEventListener('click',function(e){if(e.target===overlay)v4200ClosePreview()});
+}
+function v4200CommitProgress(payload,week){
   v4197SetProgressBusy(true);
-  const btn=document.getElementById('updateProgressBtn');
-  loading('Đang đếm số tiết thực dạy từ Lịch báo giảng...');
+  loading('Đang ghi số tiết thực dạy của Tuần '+week+'...');
   setReadyState('ready','Đang cập nhật tiến độ');
-
   google.script.run
     .withSuccessHandler(progress=>{
       v4197SetProgressBusy(false);
@@ -6155,34 +6198,43 @@ function updateProgressOnly(){
         showSaveToast('warning','⚠️ Chưa cập nhật Tiến độ','Lịch báo giảng không bị thay đổi.',err,false);
         return;
       }
-      const details=progress.details||[];
-      let regular=0,elective=0,remedial=0;
-      details.forEach(x=>{
-        const n=Number(x.periods||0);
-        if(x.track==='elective') elective+=n;
-        else if(x.track==='remedial') remedial+=n;
-        else regular+=n;
-      });
-      v4197LastProgressTargetUrl=(progress&&progress.targetUrl)||((initData&&initData.progressUrl)||'');
-      setReadyState('ready','Sẵn sàng');
-      setStatus('✓ Đã cập nhật tiến độ '+label+': Chính khóa '+regular+' tiết · Chuyên đề '+elective+' tiết · Phụ đạo '+remedial+' tiết.',true);
-      showSaveToast(
-        'success',
-        '📊 Đã cập nhật Tiến độ',
-        'Chính khóa '+regular+' tiết · Chuyên đề '+elective+' tiết · Phụ đạo '+remedial+' tiết.',
-        'Bấm “Mở Báo cáo tiến độ” để xem đúng vùng vừa cập nhật.',
-        false,
-        'progress'
-      );
+      v4197LastProgressTargetUrl=progress.targetUrl||'';
+      const ds=(progress.details||[]);
+      const byClass={};
+      ds.forEach(function(d){byClass[d.className]=(byClass[d.className]||0)+Number(d.periods||0)});
+      const classText=Object.keys(byClass).sort(function(a,b){return a.localeCompare(b,'vi',{numeric:true})}).map(function(k){return k+': '+byClass[k]}).join(' · ');
+      const total=ds.reduce((s,d)=>s+Number(d.periods||0),0);
+      setReadyState('ok','Đã cập nhật tiến độ');
+      showSaveToast('success','✅ Đã cập nhật Báo cáo tiến độ','Tuần '+week+' · '+total+' tiết',classText||'Đã ghi số tiết thực dạy.',false,'progress');
     })
-    .withFailureHandler(e=>{
+    .withFailureHandler(err=>{
       v4197SetProgressBusy(false);
       setReadyState('warn','Cần kiểm tra');
-      showSaveToast('error','Cập nhật Tiến độ thất bại','Lịch báo giảng không bị thay đổi.',e.message||'',false);
+      showSaveToast('error','Cập nhật Tiến độ thất bại','Lịch báo giảng không bị thay đổi.',(err&&err.message)||String(err),false);
     })
     .capNhatTienDoStep2(payload);
 }
-
+function updateProgressOnly(){
+  if(v4128WriteBusy)return;
+  const payload=currentWritePayload();
+  const week=Number(payload&&payload.week||0);
+  v4197SetProgressBusy(true);
+  loading('Đang kiểm tra số tiết thực dạy của Tuần '+week+'...');
+  google.script.run
+    .withSuccessHandler(preview=>{
+      v4197SetProgressBusy(false);
+      if(!(preview&&preview.ok)){
+        showSaveToast('warning','⚠️ Chưa thể xem trước tiến độ','Không có dữ liệu nào bị thay đổi.',(preview&&preview.error)||'Không rõ nguyên nhân',false);
+        return;
+      }
+      v4200ShowProgressPreview(preview,payload);
+    })
+    .withFailureHandler(err=>{
+      v4197SetProgressBusy(false);
+      showSaveToast('error','Không đọc được tiến độ','Không có dữ liệu nào bị thay đổi.',(err&&err.message)||String(err),false);
+    })
+    .xemTruocCapNhatTienDo(payload);
+}
 function openProgressReport(){
   if(initData && initData.progressUrl) window.open(initData.progressUrl,'_blank');
 }
@@ -7252,9 +7304,9 @@ document.addEventListener('click',function(e){const m=document.getElementById('v
 <style id="v4194-split-write-style">
 /* V4.196: 4 thao tác chính, tách Ghi báo giảng và Cập nhật tiến độ. */
 body.v4110-step1-review #step1Top .s1-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
-.v4194-progress-btn{background:linear-gradient(135deg,#1477d4,#315bd5)!important;color:#fff!important;border-color:#2266cf!important}
-.v4194-progress-btn i{background:rgba(255,255,255,.16)!important;color:#fff!important}
-.v4194-progress-btn small{color:rgba(255,255,255,.96)!important;font-size:12px!important;line-height:1.25!important;font-weight:700!important;opacity:1!important;text-shadow:0 1px 1px rgba(0,0,0,.12)!important}
+.v4194-progress-btn{background:radial-gradient(circle at 88% 12%,rgba(77,147,255,.12),transparent 28%),linear-gradient(135deg,#eef6ff,#dfeeff)!important;color:#0c5ec5!important;border-color:#9ec5f8!important}
+.v4194-progress-btn i{background:linear-gradient(135deg,#7cb7ff,#4f8df4)!important;color:#fff!important;box-shadow:0 8px 18px rgba(38,104,214,.18)!important;border:1px solid rgba(255,255,255,.72)!important}
+.v4194-progress-btn small{color:#426a95!important;font-size:12.5px!important;line-height:1.32!important;font-weight:700!important;opacity:1!important;text-shadow:none!important}
 .v4194-progress-btn[aria-busy="true"]{opacity:.68;pointer-events:none}
 @media(max-width:900px){body.v4110-step1-review #step1Top .s1-actions{grid-template-columns:1fr!important;gap:7px!important}}
 </style>
@@ -8526,6 +8578,7 @@ body.v4115-final #step1Top>.s1-actions-card .s1-action{
   transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,filter .16s ease!important;
 }
 body.v4115-final #step1Top>.s1-actions-card .s1-green{--ar:12,168,102;--ac:#07975b;background:radial-gradient(circle at 92% 10%,rgba(12,168,102,.08),transparent 28%),linear-gradient(135deg,#ffffff,#f1fbf6)!important;border-color:rgba(12,168,102,.34)!important;color:#078e56!important}
+body.v4115-final #step1Top>.s1-actions-card .s1-blue{--ar:52,115,224;--ac:#1766d8;background:radial-gradient(circle at 92% 10%,rgba(56,132,255,.12),transparent 30%),linear-gradient(135deg,#eef6ff,#dfeeff)!important;border-color:rgba(73,131,227,.34)!important;color:#1766d8!important}
 body.v4115-final #step1Top>.s1-actions-card .s1-purple{--ar:111,70,224;--ac:#6541d6;background:radial-gradient(circle at 92% 10%,rgba(111,70,224,.08),transparent 28%),linear-gradient(135deg,#ffffff,#f7f4ff)!important;border-color:rgba(111,70,224,.30)!important;color:#6541d6!important}
 body.v4115-final #step1Top>.s1-actions-card .s1-orange{--ar:245,113,12;--ac:#e96200;background:radial-gradient(circle at 92% 10%,rgba(245,113,12,.08),transparent 28%),linear-gradient(135deg,#ffffff,#fff7ef)!important;border-color:rgba(245,113,12,.30)!important;color:#e96200!important}
 body.v4115-final #step1Top>.s1-actions-card .s1-action:hover{
@@ -8543,8 +8596,10 @@ body.v4115-final #step1Top>.s1-actions-card .s1-action b{
 }
 body.v4115-final #step1Top>.s1-actions-card .s1-action small{
   color:#526a84!important;
-  font-weight:600!important;
+  font-weight:700!important;
 }
+body.v4115-final #step1Top>.s1-actions-card .s1-blue small{color:#3f628c!important;font-weight:700!important}
+body.v4115-final #step1Top>.s1-actions-card .s1-blue i{background:linear-gradient(135deg,#7cb7ff,#4f8df4)!important;color:#fff!important;border:1px solid rgba(255,255,255,.72)!important;box-shadow:0 9px 18px rgba(38,104,214,.18)!important}
 
 /* Desktop: thêm nút mũi tên tròn để thao tác rõ và giống hệ Công cụ khác. */
 @media(min-width:901px){
