@@ -230,12 +230,17 @@ Sinh học chính khóa dùng Kho PPCT chuẩn 70 tiết cho mỗi khối 10–1
 ## V4.193
 Báo cáo tiến độ ghi số tiết thực dạy trong tuần, tách Chính khóa / Chuyên đề / Phụ đạo; không ghi PPCT cuối tuần vào ô tổng hợp.
 
-## V4.196
+## V4.197
 - Tách hoàn toàn thao tác **Ghi báo giảng** và **Cập nhật tiến độ** trên giao diện chính.
 - Ghi báo giảng không còn tự động gọi bước cập nhật tiến độ.
 - Cập nhật tiến độ là thao tác chủ động, dùng Lịch báo giảng làm nguồn và đếm số tiết thực dạy theo CT/CĐ/PĐ.
 
 
-## V4.196
+## V4.197
 - Dòng phụ nút Cập nhật Báo cáo tiến độ: **Ghi số tiết thực dạy**.
 - Tăng độ rõ chữ trên nền xanh; không thay đổi logic ghi báo giảng/tiến độ.
+
+
+## V4.198 — Bản chốt
+- ① GHI BÁO GIẢNG: Ghi nội dung dạy của tuần vào Lịch báo giảng.
+- ② CẬP NHẬT BÁO CÁO TIẾN ĐỘ: Ghi số tiết thực dạy vào Báo cáo tiến độ của tuần.

@@ -1,0 +1,16 @@
+V4.198 — BẢN CHỐT APP BÁO GIẢNG
+
+1. APPS SCRIPT
+- Dùng apps-script/Code.gs thay Code.gs hiện tại.
+- Dùng apps-script/Index.html thay Index.html hiện tại.
+- Giữ apps-script/appsscript.json nếu cấu hình dự án hiện tại đang đúng.
+
+2. GITHUB / VERCEL
+- Giải nén gói này và cập nhật toàn bộ thư mục dự án lên GitHub.
+- Vercel sẽ build/deploy theo repository hiện tại.
+
+3. QUY TRÌNH DÙNG
+- ① GHI BÁO GIẢNG: Ghi nội dung dạy của tuần vào Lịch báo giảng.
+- Kiểm tra lại Lịch báo giảng.
+- ② CẬP NHẬT BÁO CÁO TIẾN ĐỘ: Ghi số tiết thực dạy vào Báo cáo tiến độ của tuần.
+- Sau khi hoàn tất có thể mở trực tiếp Báo cáo tiến độ từ thông báo kết quả.

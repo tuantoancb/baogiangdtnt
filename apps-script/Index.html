@@ -7,7 +7,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="#0b5fca" name="theme-color"/>
-<title>Báo giảng điện tử – V4.196</title>
+<title>Báo giảng điện tử – V4.198</title>
 <style>
     :root{
       --bg:#f4f7fb;--card:#fff;--text:#162033;--muted:#64748b;--line:#dbe5f0;
@@ -4851,10 +4851,27 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 .v4187-audit-backdrop{position:fixed;inset:0;background:rgba(18,43,72,.38);display:none;align-items:center;justify-content:center;padding:18px;z-index:10080}.v4187-audit-backdrop.show{display:flex}.v4187-audit{width:min(900px,96vw);max-height:88vh;overflow:hidden;background:#fff;border:1px solid #d9e6f4;border-radius:20px;box-shadow:0 24px 70px rgba(19,59,103,.22);display:flex;flex-direction:column}.v4187-audit-head{padding:18px 20px 13px;border-bottom:1px solid #e7eef7;display:flex;gap:12px;align-items:flex-start}.v4187-audit-head i{width:42px;height:42px;border-radius:13px;background:#eaf3ff;color:#176fd8;display:grid;place-items:center;font-style:normal;font-size:22px}.v4187-audit-head h3{margin:0;color:#123f78;font-size:19px}.v4187-audit-head p{margin:4px 0 0;color:#6f8196;font-size:12px}.v4187-audit-body{padding:14px 18px 18px;overflow:auto}.v4187-audit-summary{border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700}.v4187-audit-summary.ok{background:#eefaf4;border:1px solid #bfe9d1;color:#087b48}.v4187-audit-summary.error{background:#fff5ea;border:1px solid #ffd2a2;color:#a65a00}.v4187-audit-group{border:1px solid #e0eaf5;border-radius:14px;padding:12px 13px;margin:9px 0;background:#fff}.v4187-audit-row{display:grid;grid-template-columns:minmax(180px,1fr) 120px 105px 110px;gap:8px;align-items:center}.v4187-audit-row b{color:#143f73;font-size:13px}.v4187-audit-chip{display:inline-flex;justify-content:center;border-radius:999px;padding:5px 8px;background:#f2f6fb;color:#536d88;font-size:10.5px;font-weight:800}.v4187-audit-state{font-size:11px;font-weight:900;text-align:right}.v4187-audit-state.ok{color:#07915a}.v4187-audit-state.error{color:#d46a00}.v4187-audit-issue{margin-top:9px;padding:9px 10px;border-radius:10px;background:#fff8ef;border-left:3px solid #f59e0b;color:#7a4a00;font-size:11.5px;line-height:1.45}.v4187-audit-issue small{display:block;color:#7d8b9d;margin-top:3px}.v4187-audit-actions{padding:12px 18px;border-top:1px solid #e7eef7;display:flex;justify-content:flex-end;gap:9px}.v4187-audit-actions button{border:1px solid #d4e0ee;background:#fff;color:#264b73;border-radius:10px;padding:9px 13px;font-weight:800;cursor:pointer}.v4187-audit-actions .primary{background:#176fd8;color:#fff;border-color:#176fd8}@media(max-width:650px){.v4187-audit{max-height:92vh}.v4187-audit-row{grid-template-columns:1fr 1fr}.v4187-audit-state{text-align:left}.v4187-audit-head{padding:14px}.v4187-audit-body{padding:11px}}
 </style>
 
+
+<style id="v4197ProgressSafety">
+/* V4.197 — khóa rõ Ghi Báo giảng khi đang cập nhật Tiến độ */
+#writeReportBtn.v4197-locked-by-progress{
+  opacity:.34!important;filter:grayscale(.9) saturate(.25)!important;
+  background:#eef2f5!important;border-color:#cbd5df!important;color:#789!important;
+  box-shadow:none!important;cursor:not-allowed!important;pointer-events:none!important;
+  transform:none!important;
+}
+#writeReportBtn.v4197-locked-by-progress i{background:#aeb9c4!important;color:#fff!important;box-shadow:none!important}
+#writeReportBtn.v4197-locked-by-progress small{color:#8492a3!important}
+#updateProgressBtn.v4197-progress-running{
+  opacity:.92!important;cursor:wait!important;pointer-events:none!important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.14),0 8px 20px rgba(37,99,235,.16)!important;
+}
+#updateProgressBtn.v4197-progress-running i{animation:v4128Pulse 1s ease-in-out infinite}
+</style>
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.196</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.198</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -4915,8 +4932,8 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
       </div>
     </div>
     <div class="s1-actions">
-      <button class="s1-action s1-green" id="writeReportBtn" onclick="writeSheet()" type="button"><i>✎</i><b>GHI BÁO GIẢNG</b><small>Chỉ ghi Lịch báo giảng · không cập nhật Tiến độ</small></button>
-      <button class="s1-action s1-blue v4194-progress-btn" id="updateProgressBtn" onclick="updateProgressOnly()" type="button"><i>📊</i><b>CẬP NHẬT BÁO CÁO TIẾN ĐỘ</b><small>Ghi số tiết thực dạy</small></button>
+      <button class="s1-action s1-green" id="writeReportBtn" onclick="writeSheet()" type="button"><i>✎</i><b>① GHI BÁO GIẢNG</b><small>Ghi nội dung dạy của tuần vào Lịch báo giảng</small></button>
+      <button class="s1-action s1-blue v4194-progress-btn" id="updateProgressBtn" onclick="updateProgressOnly()" type="button"><i>📊</i><b>② CẬP NHẬT BÁO CÁO TIẾN ĐỘ</b><small>Ghi số tiết thực dạy vào Báo cáo tiến độ của tuần</small></button>
       <button class="s1-action s1-purple" onclick="openWeeklyPlanModal()" type="button"><i>▦</i><b>GHI LỊCH TUẦN</b><small>Ghi lịch công tác trong tuần</small></button>
       <button class="s1-action s1-orange" onclick="window.open('https://nopgiaoan.vercel.app/','_blank','noopener,noreferrer')" type="button"><i>▰</i><b>NỘP GIÁO ÁN</b><small>Nộp giáo án điện tử</small></button>
     </div>
@@ -5888,13 +5905,24 @@ function hideSaveToast(){
   if(saveToastTimer){clearTimeout(saveToastTimer);saveToastTimer=null;}
 }
 
-function showSaveToast(type,title,message,meta,autoHide=true){
+function showSaveToast(type,title,message,meta,autoHide=true,openTarget='report'){
   const el=document.getElementById('saveResultToast');
   if(!el) return;
   const icon=document.getElementById('saveToastIcon');
   document.getElementById('saveToastTitle').textContent=title||'Thông báo';
   document.getElementById('saveToastMessage').textContent=message||'';
   document.getElementById('saveToastMeta').textContent=meta||'';
+
+  const openBtn=document.getElementById('saveToastOpenBtn');
+  if(openBtn){
+    if(openTarget==='progress'){
+      openBtn.textContent='↗ Mở Báo cáo tiến độ';
+      openBtn.onclick=openProgressResultTarget;
+    }else{
+      openBtn.textContent='↗ Mở Báo giảng';
+      openBtn.onclick=openReport;
+    }
+  }
 
   el.className='save-toast show '+type;
   icon.textContent=type==='success'?'✅':(type==='warning'?'⚠️':'❌');
@@ -6081,6 +6109,31 @@ function originalWriteSheet(){
     .ghiBaoGiangStep1(payload);
 }
 
+let v4197LastProgressTargetUrl='';
+function openProgressResultTarget(){
+  const url=v4197LastProgressTargetUrl || (initData&&initData.progressUrl) || '';
+  if(url) window.open(url,'_blank','noopener,noreferrer');
+}
+function v4197SetProgressBusy(busy){
+  v4128WriteBusy=!!busy;
+  const writeBtn=document.getElementById('writeReportBtn');
+  const progressBtn=document.getElementById('updateProgressBtn');
+  if(writeBtn){
+    writeBtn.disabled=!!busy;
+    writeBtn.classList.toggle('v4197-locked-by-progress',!!busy);
+    writeBtn.setAttribute('aria-disabled',busy?'true':'false');
+  }
+  if(progressBtn){
+    progressBtn.disabled=!!busy;
+    progressBtn.classList.toggle('v4197-progress-running',!!busy);
+    progressBtn.setAttribute('aria-busy',busy?'true':'false');
+    const title=progressBtn.querySelector('b');
+    const sub=progressBtn.querySelector('small');
+    if(title) title.textContent=busy?'ĐANG CẬP NHẬT TIẾN ĐỘ…':'② CẬP NHẬT BÁO CÁO TIẾN ĐỘ';
+    if(sub) sub.textContent=busy?'Đang ghi số tiết thực dạy':'Ghi số tiết thực dạy vào Báo cáo tiến độ của tuần';
+  }
+}
+
 function updateProgressOnly(){
   if(v4128WriteBusy)return;
   const payload=currentWritePayload();
@@ -6088,16 +6141,14 @@ function updateProgressOnly(){
   const label=week>0?('Tuần '+week):'tuần đang chọn';
   if(!confirm('Cập nhật số tiết thực dạy của '+label+' vào Báo cáo tiến độ?\n\nNguồn dữ liệu: Lịch báo giảng đã ghi.\nChính khóa / Chuyên đề / Phụ đạo được đếm riêng.')) return;
 
-  v4128SetWriteBusy(true);
+  v4197SetProgressBusy(true);
   const btn=document.getElementById('updateProgressBtn');
-  if(btn) btn.setAttribute('aria-busy','true');
   loading('Đang đếm số tiết thực dạy từ Lịch báo giảng...');
   setReadyState('ready','Đang cập nhật tiến độ');
 
   google.script.run
     .withSuccessHandler(progress=>{
-      v4128SetWriteBusy(false);
-      if(btn) btn.removeAttribute('aria-busy');
+      v4197SetProgressBusy(false);
       if(!(progress&&progress.ok)){
         const err=(progress&&progress.error)||'Không rõ nguyên nhân';
         setReadyState('warn','Cần kiểm tra');
@@ -6112,19 +6163,20 @@ function updateProgressOnly(){
         else if(x.track==='remedial') remedial+=n;
         else regular+=n;
       });
+      v4197LastProgressTargetUrl=(progress&&progress.targetUrl)||((initData&&initData.progressUrl)||'');
       setReadyState('ready','Sẵn sàng');
       setStatus('✓ Đã cập nhật tiến độ '+label+': Chính khóa '+regular+' tiết · Chuyên đề '+elective+' tiết · Phụ đạo '+remedial+' tiết.',true);
       showSaveToast(
         'success',
         '📊 Đã cập nhật Tiến độ',
         'Chính khóa '+regular+' tiết · Chuyên đề '+elective+' tiết · Phụ đạo '+remedial+' tiết.',
-        'Dữ liệu được đếm từ Lịch báo giảng đã ghi.',
-        true
+        'Bấm “Mở Báo cáo tiến độ” để xem đúng vùng vừa cập nhật.',
+        false,
+        'progress'
       );
     })
     .withFailureHandler(e=>{
-      v4128SetWriteBusy(false);
-      if(btn) btn.removeAttribute('aria-busy');
+      v4197SetProgressBusy(false);
       setReadyState('warn','Cần kiểm tra');
       showSaveToast('error','Cập nhật Tiến độ thất bại','Lịch báo giảng không bị thay đổi.',e.message||'',false);
     })
@@ -6220,7 +6272,7 @@ window.addEventListener('load',()=>{
 <div class="save-toast-message" id="saveToastMessage">Đã ghi dữ liệu.</div>
 <div class="save-toast-meta" id="saveToastMeta"></div>
 <div class="save-toast-actions">
-<button class="save-toast-open" onclick="openReport()" type="button">↗ Mở Báo giảng</button>
+<button class="save-toast-open" id="saveToastOpenBtn" onclick="openReport()" type="button">↗ Mở Báo giảng</button>
 <button class="save-toast-close" onclick="hideSaveToast()" type="button">Đóng</button>
 </div>
 </div>
