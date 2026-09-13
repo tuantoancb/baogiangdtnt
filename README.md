@@ -225,3 +225,17 @@ Có thêm nút Kiểm tra tiến độ để rà soát tính liền mạch toàn
 ## V4.192
 
 Sinh học chính khóa dùng Kho PPCT chuẩn 70 tiết cho mỗi khối 10–11–12. Bổ sung kho Phụ đạo riêng cho Tiếng Anh (10–12), Sinh học (10,12) và Ngữ văn (10), chạy nhãn PĐ độc lập với Chính khóa/CĐ.
+
+
+## V4.193
+Báo cáo tiến độ ghi số tiết thực dạy trong tuần, tách Chính khóa / Chuyên đề / Phụ đạo; không ghi PPCT cuối tuần vào ô tổng hợp.
+
+## V4.196
+- Tách hoàn toàn thao tác **Ghi báo giảng** và **Cập nhật tiến độ** trên giao diện chính.
+- Ghi báo giảng không còn tự động gọi bước cập nhật tiến độ.
+- Cập nhật tiến độ là thao tác chủ động, dùng Lịch báo giảng làm nguồn và đếm số tiết thực dạy theo CT/CĐ/PĐ.
+
+
+## V4.196
+- Dòng phụ nút Cập nhật Báo cáo tiến độ: **Ghi số tiết thực dạy**.
+- Tăng độ rõ chữ trên nền xanh; không thay đổi logic ghi báo giảng/tiến độ.

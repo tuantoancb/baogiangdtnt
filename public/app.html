@@ -7,7 +7,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="#0b5fca" name="theme-color"/>
-<title>Báo giảng điện tử – V4.192</title>
+<title>Báo giảng điện tử – V4.196</title>
 <style>
     :root{
       --bg:#f4f7fb;--card:#fff;--text:#162033;--muted:#64748b;--line:#dbe5f0;
@@ -4854,7 +4854,7 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </head>
 <body class="v440-reference-layout v4110-step1-review v4110-step2-review v4110-step3-review v4110-step4-final v4111-preview v4115-final">
 <div aria-label="Điều hướng chính" class="v494-sidebar">
-<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.192</small></div>
+<div class="v494-side-brand"><div class="v494-side-icon">📅</div><b>Lịch báo giảng</b><span>Online – NTT</span><small>V4.196</small></div>
 <nav class="v494-side-nav">
 <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i>⌂</i>Tổng quan</button>
 <button onclick="document.getElementById('v470TodayQuick')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>▣</i>Lịch dạy</button>
@@ -4915,7 +4915,8 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
       </div>
     </div>
     <div class="s1-actions">
-      <button class="s1-action s1-green" id="writeReportBtn" onclick="writeSheet()" type="button"><i>✎</i><b>GHI BÁO GIẢNG</b><small>Ghi lịch thực tế rồi tự tính tiến độ</small></button>
+      <button class="s1-action s1-green" id="writeReportBtn" onclick="writeSheet()" type="button"><i>✎</i><b>GHI BÁO GIẢNG</b><small>Chỉ ghi Lịch báo giảng · không cập nhật Tiến độ</small></button>
+      <button class="s1-action s1-blue v4194-progress-btn" id="updateProgressBtn" onclick="updateProgressOnly()" type="button"><i>📊</i><b>CẬP NHẬT BÁO CÁO TIẾN ĐỘ</b><small>Ghi số tiết thực dạy</small></button>
       <button class="s1-action s1-purple" onclick="openWeeklyPlanModal()" type="button"><i>▦</i><b>GHI LỊCH TUẦN</b><small>Ghi lịch công tác trong tuần</small></button>
       <button class="s1-action s1-orange" onclick="window.open('https://nopgiaoan.vercel.app/','_blank','noopener,noreferrer')" type="button"><i>▰</i><b>NỘP GIÁO ÁN</b><small>Nộp giáo án điện tử</small></button>
     </div>
@@ -6048,8 +6049,8 @@ function originalWriteSheet(){
   const payload=currentWritePayload();
   v4128SetWriteBusy(true);
   hideSaveToast();
-  setReadyState('ready','Đang xử lý');
-  if(typeof v477OpenProgress==='function') v477OpenProgress();
+  setReadyState('ready','Đang ghi Báo giảng');
+  loading('Đang ghi Lịch báo giảng...');
 
   google.script.run
     .withSuccessHandler(step1=>{
@@ -6058,49 +6059,76 @@ function originalWriteSheet(){
         const ub=document.getElementById('undoLastWriteBtn');
         if(ub) ub.disabled=false;
       }
-
-      if(typeof v477Step1Done==='function') v477Step1Done(step1.written);
-
-      google.script.run
-        .withSuccessHandler(progress=>{
-          if(progress && progress.ok){
-            const classes=(progress.details||[]).length;
-            setReadyState('ready','Sẵn sàng');
-            if(typeof v477Complete==='function') v477Complete(step1.written,classes);
-            setTimeout(()=>{
-              v4128SetWriteBusy(false);
-              showSaveToast(
-                'success',
-                '✅ Đã cập nhật',
-                'Đã ghi '+step1.written+' tiết Báo giảng · Cập nhật Tiến độ '+classes+' lớp/môn.',
-                '',
-                true
-              );
-            },1350);
-          }else{
-            const err=(progress&&progress.error)||'Không rõ nguyên nhân';
-            setReadyState('warn','Cần kiểm tra');
-            v4128SetWriteBusy(false);
-            if(typeof v477ProgressError==='function') v477ProgressError(2,err,step1.written);
-          }
-        })
-        .withFailureHandler(e=>{
-          setReadyState('warn','Cần kiểm tra');
-          v4128SetWriteBusy(false);
-          if(typeof v477ProgressError==='function') v477ProgressError(2,e.message||'Cập nhật thất bại',step1.written);
-        })
-        .capNhatTienDoStep2(payload);
+      v4128SetWriteBusy(false);
+      setReadyState('ready','Sẵn sàng');
+      setStatus('✓ Đã ghi '+step1.written+' tiết vào Lịch báo giảng. Tiến độ chưa thay đổi; bấm Cập nhật tiến độ khi đã kiểm tra xong.',true);
+      showSaveToast(
+        'success',
+        '✅ Đã ghi Báo giảng',
+        'Đã ghi '+step1.written+' tiết vào Lịch báo giảng.',
+        'Tiến độ được tách riêng và chưa cập nhật.',
+        true
+      );
+      if(typeof refreshTodayQuickView==='function') refreshTodayQuickView();
+      if(typeof refreshTkbCheck==='function') refreshTkbCheck();
     })
     .withFailureHandler(e=>{
-      if(v4131HandlePpctMissing(e)){
-        if(typeof v477CloseProgress==='function') v477CloseProgress();
-        return;
-      }
+      if(v4131HandlePpctMissing(e)) return;
       setReadyState('warn','Cần kiểm tra');
       v4128SetWriteBusy(false);
-      if(typeof v477ProgressError==='function') v477ProgressError(1,e.message||'Ghi Báo giảng thất bại',0);
+      showSaveToast('error','Ghi Báo giảng thất bại','Chưa ghi dữ liệu.',e.message||'',false);
     })
     .ghiBaoGiangStep1(payload);
+}
+
+function updateProgressOnly(){
+  if(v4128WriteBusy)return;
+  const payload=currentWritePayload();
+  const week=Number(payload&&payload.week||0);
+  const label=week>0?('Tuần '+week):'tuần đang chọn';
+  if(!confirm('Cập nhật số tiết thực dạy của '+label+' vào Báo cáo tiến độ?\n\nNguồn dữ liệu: Lịch báo giảng đã ghi.\nChính khóa / Chuyên đề / Phụ đạo được đếm riêng.')) return;
+
+  v4128SetWriteBusy(true);
+  const btn=document.getElementById('updateProgressBtn');
+  if(btn) btn.setAttribute('aria-busy','true');
+  loading('Đang đếm số tiết thực dạy từ Lịch báo giảng...');
+  setReadyState('ready','Đang cập nhật tiến độ');
+
+  google.script.run
+    .withSuccessHandler(progress=>{
+      v4128SetWriteBusy(false);
+      if(btn) btn.removeAttribute('aria-busy');
+      if(!(progress&&progress.ok)){
+        const err=(progress&&progress.error)||'Không rõ nguyên nhân';
+        setReadyState('warn','Cần kiểm tra');
+        showSaveToast('warning','⚠️ Chưa cập nhật Tiến độ','Lịch báo giảng không bị thay đổi.',err,false);
+        return;
+      }
+      const details=progress.details||[];
+      let regular=0,elective=0,remedial=0;
+      details.forEach(x=>{
+        const n=Number(x.periods||0);
+        if(x.track==='elective') elective+=n;
+        else if(x.track==='remedial') remedial+=n;
+        else regular+=n;
+      });
+      setReadyState('ready','Sẵn sàng');
+      setStatus('✓ Đã cập nhật tiến độ '+label+': Chính khóa '+regular+' tiết · Chuyên đề '+elective+' tiết · Phụ đạo '+remedial+' tiết.',true);
+      showSaveToast(
+        'success',
+        '📊 Đã cập nhật Tiến độ',
+        'Chính khóa '+regular+' tiết · Chuyên đề '+elective+' tiết · Phụ đạo '+remedial+' tiết.',
+        'Dữ liệu được đếm từ Lịch báo giảng đã ghi.',
+        true
+      );
+    })
+    .withFailureHandler(e=>{
+      v4128SetWriteBusy(false);
+      if(btn) btn.removeAttribute('aria-busy');
+      setReadyState('warn','Cần kiểm tra');
+      showSaveToast('error','Cập nhật Tiến độ thất bại','Lịch báo giảng không bị thay đổi.',e.message||'',false);
+    })
+    .capNhatTienDoStep2(payload);
 }
 
 function openProgressReport(){
@@ -6395,7 +6423,7 @@ function v477OpenProgress(){
   const b=document.getElementById('v477ProgressBackdrop');if(b){b.classList.remove('error');b.classList.add('show');}
   const status=document.getElementById('status');if(status)status.classList.add('v4128-muted-status');
   const hi=document.getElementById('v477HeadIcon'),ht=document.getElementById('v477HeadTitle'),hs=document.getElementById('v477HeadSub'),chip=document.getElementById('v477ProgressChip');
-  if(hi)hi.textContent='⏳';if(ht)ht.textContent='ĐANG GHI BÁO GIẢNG';if(hs)hs.textContent='Hai bước được thực hiện tự động.';if(chip)chip.textContent='Bước 1/2';
+  if(hi)hi.textContent='⏳';if(ht)ht.textContent='ĐANG GHI BÁO GIẢNG';if(hs)hs.textContent='Ghi Báo giảng và Tiến độ đã tách thành hai thao tác độc lập.';if(chip)chip.textContent='Bước 1/2';
   const c=document.getElementById('v477ProgressClose');if(c){c.className='v477-progress-close';c.textContent='Đóng';}
   v477SetStep(1,'indeterminate',null,'Đang ghi dữ liệu Báo giảng...');
   v477SetStep(2,'',0,'Chờ Bước 1 hoàn tất.');
@@ -7168,6 +7196,16 @@ function v4187LoadAudit(){const body=document.getElementById('v4187AuditBody');i
 document.addEventListener('click',function(e){const m=document.getElementById('v4187AuditModal');if(m&&e.target===m)closeProgressContinuityAudit()});
 </script>
 
+
+<style id="v4194-split-write-style">
+/* V4.196: 4 thao tác chính, tách Ghi báo giảng và Cập nhật tiến độ. */
+body.v4110-step1-review #step1Top .s1-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+.v4194-progress-btn{background:linear-gradient(135deg,#1477d4,#315bd5)!important;color:#fff!important;border-color:#2266cf!important}
+.v4194-progress-btn i{background:rgba(255,255,255,.16)!important;color:#fff!important}
+.v4194-progress-btn small{color:rgba(255,255,255,.96)!important;font-size:12px!important;line-height:1.25!important;font-weight:700!important;opacity:1!important;text-shadow:0 1px 1px rgba(0,0,0,.12)!important}
+.v4194-progress-btn[aria-busy="true"]{opacity:.68;pointer-events:none}
+@media(max-width:900px){body.v4110-step1-review #step1Top .s1-actions{grid-template-columns:1fr!important;gap:7px!important}}
+</style>
 </body>
 </html>
 <style id="v460-ppct-tools-polish">

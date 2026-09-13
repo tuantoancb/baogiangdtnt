@@ -1,0 +1,17 @@
+V4.196 — CẬP NHẬT NHANH
+
+1. Apps Script:
+   - Thay Code.gs bằng apps-script/Code.gs.
+   - Thay Index.html bằng apps-script/Index.html.
+   - Giữ/apply apps-script/appsscript.json nếu dự án đang dùng cùng cấu hình.
+   - Deploy lại Web App.
+
+2. Vercel / GitHub:
+   - Upload toàn bộ gói này lên repo.
+   - Deploy lại trên Vercel.
+
+3. Luồng sử dụng mới:
+   - Bấm GHI BÁO GIẢNG để ghi dữ liệu tuần.
+   - Kiểm tra Lịch báo giảng.
+   - Khi đúng, bấm CẬP NHẬT BÁO CÁO TIẾN ĐỘ.
+   - Nút tiến độ chỉ đọc Lịch báo giảng và ghi số tiết thực dạy vào bảng tiến độ.
