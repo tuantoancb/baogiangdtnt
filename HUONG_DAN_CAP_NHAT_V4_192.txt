@@ -1,0 +1,20 @@
+BÁO GIẢNG V4.192 — CẬP NHẬT APPS SCRIPT + VERCEL
+
+A. APPS SCRIPT
+1) Mở dự án Apps Script đang chạy V4.191.
+2) Thay toàn bộ Code.gs bằng file: apps-script/Code.gs (hoặc Code_V4_192_KHO_SINH_PD_ANH_SINH_VAN.gs).
+3) Thay Index.html bằng: apps-script/Index.html.
+4) Giữ appsscript.json từ gói V4.192.
+5) Deploy > Manage deployments > Edit > New version > Deploy.
+
+B. VERCEL
+1) Dùng toàn bộ thư mục gói V4.192 để cập nhật repository/project.
+2) Kiểm tra biến môi trường đang dùng từ V4.191 (không đổi tên).
+3) Deploy lại. package.json đã nâng lên 4.192.0.
+
+C. KIỂM TRA NHANH
+- Sinh học 10/11/12 hiển thị Kho PPCT chuẩn: 70/70/70.
+- TKB ghi “Anh PĐ” -> PĐ1... và tên bài từ PPCT phụ đạo Anh.
+- TKB ghi “Sinh PĐ” -> PĐ1... (khối 10 hoặc 12).
+- TKB ghi “Văn PĐ”/“Ngữ văn PĐ” -> PĐ1... (khối 10).
+- Không để PĐ làm tăng CT hoặc CĐ khi công tắc PĐ → Chính khóa đang TẮT.

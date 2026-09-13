@@ -197,6 +197,21 @@ Khi cập nhật: thay `apps-script/Code.gs`, triển khai Apps Script phiên b�
 - Không còn mở trang trắng để chờ cập nhật Tổ/Tổ trưởng.
 - Khi đổi tuần, vị trí giáo viên được chuẩn bị ở nền.
 
+## V4.190
+
+- Sửa lỗi `PĐ1` bị đọc nhầm thành mốc `CT1` khi lấy tiến độ từ tuần trước.
+- Ba luồng Chính khóa, Chuyên đề và Phụ đạo dùng ba khóa tiến độ độc lập.
+- PĐ khi công tắc tắt vẫn lên Báo giảng và nối `PĐ1 → PĐ2 → PĐ3...` qua các tuần.
+- PĐ khi công tắc bật được chuyển sang Chính khóa và tiếp tục CT chính khóa.
+- Trường hợp Nguyễn Thanh Tuấn – Toán 12A4 tuần 14–19/9 bắt đầu đúng từ CT15 sau CT14.
+
+## V4.191
+
+- Nhận đúng cả hai kiểu tiêu đề giáo viên trong Báo giảng: tên nằm ở ô kế bên hoặc nằm chung trong ô `Họ tên:`.
+- Không còn bỏ sót tuần 7–12/9 của cô Hoàng Thị Lan khi tính mốc tiến độ tuần trước.
+- Tuần 14–19/9 của cô Lan bắt đầu đúng: 10A2 CT9, 11A3 CT13, 12A1 CT15; PĐ 11A3 là PĐ4 và PĐ 12A1 là PĐ2.
+- Giữ nguyên ba luồng CT/CĐ/PĐ độc lập của V4.190 và không gán cứng vị trí cột của giáo viên.
+
 ## V4.188
 
 - Cập nhật lại PPCT Tin học 10, 11, 12 từ Phụ lục I mới.
@@ -205,3 +220,8 @@ Khi cập nhật: thay `apps-script/Code.gs`, triển khai Apps Script phiên b�
 
 ## V4.187
 Có thêm nút Kiểm tra tiến độ để rà soát tính liền mạch toàn bộ Báo giảng theo từng môn/lớp/luồng.
+
+
+## V4.192
+
+Sinh học chính khóa dùng Kho PPCT chuẩn 70 tiết cho mỗi khối 10–11–12. Bổ sung kho Phụ đạo riêng cho Tiếng Anh (10–12), Sinh học (10,12) và Ngữ văn (10), chạy nhãn PĐ độc lập với Chính khóa/CĐ.
