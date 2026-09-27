@@ -205,7 +205,6 @@ function getSelectedTkbSheetName_(payloadOrName){
   const name=String(typeof payloadOrName==='string'?payloadOrName:(payloadOrName&&payloadOrName.tkbSheet)||'').trim();
   if(!name)throw new Error('Hãy chọn Thời khóa biểu trước.');
   const ss=SpreadsheetApp.openById(TKB_SPREADSHEET_ID);
-  // Giữ nguyên tên tab khi truy vấn: Google Sheets phân biệt một và hai dấu cách.
   const exact=ss.getSheetByName(name);
   if(exact)return exact.getName();
   const matches=ss.getSheets().filter(sh=>normalizeText_(sh.getName())===normalizeText_(name));
@@ -234,7 +233,7 @@ function getInitialData(teacherRef) {
   const fixedTeacherInfo=getTeacherDirectoryInfo_(activeTeacherKey);
   const profile=TEACHER_PROFILES[activeTeacherKey]||{fullName:TEACHER_MAP[activeTeacherKey]||activeTeacherKey,slug:teacherSlug_(activeTeacherKey)};
   const reportOpenTarget=v4189ResolveReportOpenTarget_(activeTeacherKey,first.name);
-  return {teachers:[{key:activeTeacherKey,fullName:profile.fullName,directory:fixedTeacherInfo,slug:profile.slug}],activeTeacherKey:activeTeacherKey,activeTeacherSlug:profile.slug,week:1,monday:first.monday||'2026-08-17',teams:Object.keys(TEAM_LEADERS).map(k=>({key:k,leader:TEAM_LEADERS[k]})),recognizedTeam:fixedTeacherInfo.team||'',teacherDirectoryInfo:fixedTeacherInfo,weekSheets:weekSheets,tkbSheets:tkbSheets,tkbSheet:firstTkb?firstTkb.name:'',reportSheet:first.name,weekToken:firstTkb?firstTkb.token:first.token,tkbVariantCount:firstTkb?firstTkb.variantCount:0,reportUrl:reportOpenTarget.url||('https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit'),reportBaseUrl:'https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit',reportRange:reportOpenTarget.range||'',reportGid:reportOpenTarget.gid||first.gid||'',progressUrl:'https://docs.google.com/spreadsheets/d/'+TIEN_DO_SPREADSHEET_ID+'/edit'};
+  return {teachers:[{key:activeTeacherKey,fullName:profile.fullName,directory:fixedTeacherInfo,slug:profile.slug}],activeTeacherKey:activeTeacherKey,activeTeacherSlug:profile.slug,week:v4200WeekFromMonday_(first.monday)||1,monday:first.monday||'2026-08-17',teams:Object.keys(TEAM_LEADERS).map(k=>({key:k,leader:TEAM_LEADERS[k]})),recognizedTeam:fixedTeacherInfo.team||'',teacherDirectoryInfo:fixedTeacherInfo,weekSheets:weekSheets,tkbSheets:tkbSheets,tkbSheet:firstTkb?firstTkb.name:'',reportSheet:first.name,weekToken:firstTkb?firstTkb.token:first.token,tkbVariantCount:firstTkb?firstTkb.variantCount:0,reportUrl:reportOpenTarget.url||('https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit'),reportBaseUrl:'https://docs.google.com/spreadsheets/d/'+BAO_GIANG_SPREADSHEET_ID+'/edit',reportRange:reportOpenTarget.range||'',reportGid:reportOpenTarget.gid||first.gid||'',progressUrl:'https://docs.google.com/spreadsheets/d/'+TIEN_DO_SPREADSHEET_ID+'/edit'};
 }
 
 function normalizeText_(s) {
@@ -2084,6 +2083,7 @@ function ghiBaoGiangStep1(payload) {
 
 function capNhatTienDoStep2(payload) {
   try {
+    v4200CheckWeekPayload_(payload);
     // V4.158: sau khi Lịch báo giảng đã ghi xong, đọc ngược chính Lịch báo giảng
     // rồi mới tính tiến độ. Không lấy TKB/preview làm nguồn tiến độ nữa.
     const records = v4158ReadTeacherProgressRecordsFromReport_(payload);
@@ -7764,9 +7764,26 @@ const V4194_VERSION = '4.194';
 // - UI hiển thị cũ → mới nếu tuần đã có dữ liệu để người dùng xác nhận.
 // ============================================================================
 const V4200_VERSION = '4.200';
+// Tuần 1 của năm học 2026–2027 bắt đầu thứ Hai 17/08/2026.
+// Tính từ ngày thay vì vị trí tab vì Sheet có thể thiếu tuần hoặc đổi thứ tự.
+function v4200WeekFromMonday_(monday){
+  const m=String(monday||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m)return 0;
+  const day=Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]));
+  const start=Date.UTC(2026,7,17);
+  const weeks=Math.round((day-start)/604800000)+1;
+  return weeks>=1&&weeks<=53?weeks:0;
+}
+function v4200CheckWeekPayload_(payload){
+  const expected=v4200WeekFromMonday_(payload&&payload.monday);
+  const received=Number(payload&&payload.week);
+  if(expected&&received!==expected)throw new Error('Tuần học không khớp ngày bắt đầu: '+payload.monday+' là Tuần '+expected+', nhưng yêu cầu ghi Tuần '+received+'. Hãy tải lại trang trước khi cập nhật.');
+}
+
 
 function xemTruocCapNhatTienDo(payload) {
   try {
+    v4200CheckWeekPayload_(payload);
     const week = Number(payload && payload.week || 1);
     if (!Number.isFinite(week) || week < 1) throw new Error('Tuần không hợp lệ.');
     const records = v4158ReadTeacherProgressRecordsFromReport_(payload);
