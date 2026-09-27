@@ -201,7 +201,18 @@ function getSelectedReportSheetName_(payload){
   }
   throw new Error('Chưa chọn Thời khóa biểu.');
 }
-function getSelectedTkbSheetName_(payloadOrName){const name=normalizeText_(typeof payloadOrName==='string'?payloadOrName:(payloadOrName&&payloadOrName.tkbSheet));if(!name)throw new Error('Hãy chọn Thời khóa biểu trước.');const ss=SpreadsheetApp.openById(TKB_SPREADSHEET_ID);if(!ss.getSheetByName(name))throw new Error('Không tìm thấy sheet TKB: '+name);return name;}
+function getSelectedTkbSheetName_(payloadOrName){
+  const name=String(typeof payloadOrName==='string'?payloadOrName:(payloadOrName&&payloadOrName.tkbSheet)||'').trim();
+  if(!name)throw new Error('Hãy chọn Thời khóa biểu trước.');
+  const ss=SpreadsheetApp.openById(TKB_SPREADSHEET_ID);
+  // Giữ nguyên tên tab khi truy vấn: Google Sheets phân biệt một và hai dấu cách.
+  const exact=ss.getSheetByName(name);
+  if(exact)return exact.getName();
+  const matches=ss.getSheets().filter(sh=>normalizeText_(sh.getName())===normalizeText_(name));
+  if(matches.length===1)return matches[0].getName();
+  if(matches.length>1)throw new Error('Có nhiều tab TKB chỉ khác khoảng trắng; hãy chọn đúng tên tab.');
+  throw new Error('Không tìm thấy sheet TKB: '+name);
+}
 
 function doGet() {
   return HtmlService.createTemplateFromFile('Index')
