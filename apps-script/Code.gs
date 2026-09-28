@@ -61,6 +61,7 @@ const TEACHER_PROFILES = {
   'Ng.Liễu': {fullName:'Nguyễn Thị Liễu', slug:'ng-lieu'},
   'Hoài': {fullName:'Nông Thị Thanh Hoài', slug:'hoai'},
   'L.Thủy': {fullName:'Lương Thị Thanh Thủy', slug:'l-thuy'},
+  'H.L.Thủy': {fullName:'Hoàng Lệ Thủy', slug:'h-l-thuy'},
   'T.Oanh': {fullName:'Trần Thị Kim Oanh', slug:'t-oanh'},
   'Hà': {fullName:'Hoàng Thị Ngọc Hà', slug:'ha'},
   'Mai': {fullName:'Lê Thị Mai', slug:'mai'},
@@ -125,7 +126,7 @@ const TEACHER_DIRECTORY = {
   'Lê Kim Thoa': {org:'KHXH', team:'KHXH', subject:'Lịch sử'},
   'Lý Thu Hiền': {org:'KHXH', team:'KHXH', subject:'Ngữ văn'},
   'Lê Thị Mai': {org:'KHXH', team:'KHXH', subject:'Tiếng Anh'},
-  'Hoàng Lệ Thủy': {org:'QLHS', team:'', subject:'Âm nhạc'},
+  'Hoàng Lệ Thủy': {org:'QLHS', team:'KHXH', subject:'Âm nhạc'},
   'Lương Vũ Long': {org:'QLHS', team:'KHTN', subject:'Công nghệ'}, // Báo giảng đang dùng KHTN
   'Lâm Thị Thu Hường': {org:'KHTN', team:'KHTN', subject:'Toán'},
   'Trần Thị Kim Oanh': {org:'KHXH', team:'KHXH', subject:'Địa lí'},
