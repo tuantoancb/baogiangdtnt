@@ -5874,6 +5874,23 @@ function previewSwapLesson(payload, item) {
   return {ok:true, item:Object.assign({}, p.candidate, {givePreview:p.givePreview, receivePreview:p.receivePreview, affectedPairKeys:p.affectedPairKeys})};
 }
 
+// Chỉ đọc lịch giáo viên đối tác; giao dịch vẫn chỉ thay đổi lịch người đang mở app.
+function getSwapPartnerSlots(payload, partnerKey, className) {
+  payload=payload||{};
+  const ownKey=payload.teacherKey||FIXED_TEACHER_KEY;
+  const key=String(partnerKey||'');
+  if(!TEACHER_PROFILES[ownKey]||!TEACHER_PROFILES[key]||key===ownKey) throw new Error('Hãy chọn giáo viên khác để đổi tiết.');
+  const sheet=getSelectedTkbSheetName_(payload.tkbSheet);
+  const cls=normalizeText_(className).replace(/\s+/g,'').toLowerCase();
+  if(!cls) return {teacher:TEACHER_PROFILES[key].fullName,slots:[]};
+  const rows=v4136ReadEffectiveSchedule_(key,sheet);
+  const slots=rows.filter(r=>normalizeText_(r.className).replace(/\s+/g,'').toLowerCase()===cls && Number(r.period)>=1 && Number(r.period)<=(r.session==='Chiều'?3:5))
+    .map(r=>({dayNum:Number(r.dayNum),session:r.session,period:Number(r.period),className:r.className,subject:r.subject,
+      label:'Thứ '+r.dayNum+' · '+r.session+' · Tiết '+r.period+' · '+r.className+' · '+r.subject}))
+    .sort((a,b)=>a.dayNum-b.dayNum||((a.session==='Sáng'?0:1)-(b.session==='Sáng'?0:1))||a.period-b.period);
+  return {teacher:TEACHER_PROFILES[key].fullName,slots:slots};
+}
+
 function getSwapLessonConfig(payload) {
   payload = payload || {};
   const teacherKey = payload.teacherKey || FIXED_TEACHER_KEY;
@@ -5893,6 +5910,7 @@ function getSwapLessonConfig(payload) {
     weekToken:extractWeekToken_(tkbSheetName),
     classOptions:meta.classes || [], subjectOptions:meta.subjects || [],
     giveOptions:v4153GiveOptions_(teacherKey, tkbSheetName, swaps),
+    partnerTeachers:Object.keys(TEACHER_PROFILES).filter(k=>k!==teacherKey).map(k=>({key:k,name:TEACHER_PROFILES[k].fullName})),
     extraOptions:extras.map(x => ({id:x.id,dayNum:x.dayNum,session:x.session,period:x.period,className:x.className,subject:x.subject,baseSubject:x.baseSubject,track:x.track,note:x.note||'',label:'Thứ '+x.dayNum+' · '+x.session+' · Tiết '+x.period+' · '+x.className+' · '+x.subject})),
     items:items, count:items.length
   };
@@ -6890,6 +6908,7 @@ const VERCEL_API_ACTIONS = {
   'deleteExtraLesson': deleteExtraLesson,
   'clearExtraLessons': clearExtraLessons,
   'getSwapLessonConfig': getSwapLessonConfig,
+  'getSwapPartnerSlots': getSwapPartnerSlots,
   'previewSwapLesson': previewSwapLesson,
   'saveSwapLesson': saveSwapLesson,
   'deleteSwapLesson': deleteSwapLesson,

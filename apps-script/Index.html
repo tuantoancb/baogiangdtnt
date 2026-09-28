@@ -4986,13 +4986,13 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
 </div>
 <div class="v4153-swap-backdrop" id="v4153SwapBackdrop" onclick="v4153BackdropClose(event)">
   <div class="v4153-swap-modal" onclick="event.stopPropagation()">
-    <div class="v4153-swap-head"><div><h3>⇄ Hoán đổi tiết</h3><p>Một lần lưu gồm <b>Tiết nhận</b> + <b>Tiết nhường</b> · tự cập nhật Lịch báo giảng và PPCT.</p></div><button type="button" onclick="v4153CloseSwapModal()">×</button></div>
+    <div class="v4153-swap-head"><div><h3>⇄ Hoán đổi tiết</h3><p>Chọn tiết mình nhường, chọn tiết muốn dạy thay. Mỗi giáo viên tự cập nhật lịch của mình.</p></div><button type="button" onclick="v4153CloseSwapModal()">×</button></div>
     <div class="v4153-swap-summary" id="v4153SwapSummary">Đang đọc lịch tuần...</div>
     <div class="v4153-mode"><button class="active" id="v4153ModeNew" type="button" onclick="v4153SetMode('new')">＋ Tạo tiết nhận mới</button><button id="v4153ModeExtra" type="button" onclick="v4153SetMode('extra')">★ Dùng Tiết phát sinh đã có</button></div>
     <div class="v4153-extra-origin" id="v4153ExtraOrigin" hidden><label><span>Tiết phát sinh dùng làm Tiết nhận</span><select id="v4153ExistingExtra" onchange="v4153SwapFieldChanged()"></select></label><small>Khi lưu, tiết này chuyển thành <b>Hoán đổi</b>. Nếu Hủy hoán đổi sau này, app khôi phục lại Tiết phát sinh ban đầu.</small></div>
     <div class="v4153-swap-panes">
       <section class="v4153-pane receive">
-        <div class="v4153-pane-title"><span>1</span><div><b>TIẾT NHẬN</b><small>Tiết anh sẽ dạy thêm / nhận từ giáo viên khác</small></div></div>
+        <div class="v4153-pane-title"><span>2</span><div><b>TIẾT ANH NHẬN</b><small>Chọn tiết của giáo viên kia để điền nhanh ngày, buổi, tiết và lớp</small></div></div>
         <div class="v4153-receive-fields" id="v4153ReceiveFields">
           <label><span>Ngày dạy</span><input id="v4153ReceiveDate" type="date" onchange="v4153SwapFieldChanged()"></label>
           <label><span>Buổi</span><select id="v4153ReceiveSession" onchange="v4153ReceiveSessionChanged()"><option>Sáng</option><option>Chiều</option></select></label>
@@ -5005,13 +5005,15 @@ body.v4111-preview #step1Top .s1-actions-card .s1-section-copy .s1-sub{
       </section>
       <div class="v4153-swap-arrow">⇄</div>
       <section class="v4153-pane give">
-        <div class="v4153-pane-title"><span>2</span><div><b>TIẾT NHƯỜNG</b><small>Chọn một tiết hiện có của anh để không dạy ở thời điểm đó</small></div></div>
-        <label class="v4153-give-select"><span>Tiết đang có trong lịch</span><select id="v4153Give" onchange="v4153SwapFieldChanged()"></select></label>
-        <div class="v4153-preview-card give"><span>Tiết sẽ được bỏ khỏi lịch thực tế</span><b id="v4153GivePreview">Chưa chọn</b></div>
+        <div class="v4153-pane-title"><span>1</span><div><b>TIẾT ANH NHƯỜNG</b><small>Chọn tiết trong lịch của anh sẽ chuyển sang ngày khác</small></div></div>
+        <label class="v4153-give-select"><span>Tiết đang có trong lịch</span><select id="v4153Give" onchange="v4153GiveChanged()"></select></label>
+        <div class="v4153-preview-card give"><span>Tiết sẽ được bỏ khỏi lịch thực tế</span><b id="v4153GivePreview">Chưa chọn</b></div><label class="v4200-partner-field"><span>Đổi với giáo viên</span><select id="v4153OtherTeacher" onchange="v4153PartnerChanged()"><option value="">Chọn giáo viên...</option></select></label>
+        <label class="v4200-partner-field"><span>Tiết của giáo viên kia (cùng lớp)</span><select id="v4153PartnerSlot" onchange="v4153PartnerSlotChanged()" disabled><option value="">Chọn giáo viên trước</option></select></label>
+        <small class="v4200-partner-help" id="v4153PartnerHelp">Ứng dụng chỉ cập nhật lịch của anh. Giáo viên kia tự cập nhật lịch của họ.</small>
       </section>
     </div>
-    <div class="v4153-meta-grid"><label><span>Đổi với giáo viên <em>(không bắt buộc)</em></span><input id="v4153OtherTeacher" maxlength="120" placeholder="Ví dụ: Cô Lan"></label><label><span>Ghi chú <em>(không bắt buộc)</em></span><input id="v4153SwapNote" maxlength="300" placeholder="Lý do / nội dung đổi tiết"></label></div>
-    <div class="v4153-swap-status" id="v4153SwapStatus">App không sửa TKB gốc. Sau khi lưu, Tiết nhường bị loại khỏi lịch thực tế; Tiết nhận được gắn nhãn <b>Hoán đổi</b>.</div>
+    <div class="v4153-meta-grid"><label><span>Ghi chú <em>(không bắt buộc)</em></span><input id="v4153SwapNote" maxlength="300" placeholder="Lý do / nội dung đổi tiết"></label></div>
+    <div class="v4153-swap-status" id="v4153SwapStatus">Chỉ lịch của giáo viên đang mở app được cập nhật. Giáo viên kia cần lưu phần đổi của họ trên tài khoản riêng.</div>
     <div class="v4153-swap-actions"><button type="button" onclick="v4153PreviewSwap(false)">◉ Xem trước</button><span></span><button type="button" onclick="v4153CloseSwapModal()">Đóng</button><button class="primary" id="v4153SwapSave" type="button" onclick="v4153SaveSwap()">✓ Lưu hoán đổi</button></div>
     <div class="v4153-swap-list-wrap" id="v4153SwapListWrap" hidden><div class="v4153-swap-list-title"><b>Hoán đổi đã lưu</b><span id="v4153SwapCount">0</span></div><div id="v4153SwapList"></div></div>
   </div>
@@ -7208,14 +7210,53 @@ function v4153PopulateSelect(id,items,valueFn,labelFn,selected){const el=documen
 function v4153BuildReceivePeriods(){const s=document.getElementById('v4153ReceiveSession')?.value||'Sáng',el=document.getElementById('v4153ReceivePeriod');if(!el)return;const prev=Number(el.value||1),max=s==='Chiều'?3:5;el.innerHTML='';for(let i=1;i<=max;i++){const o=document.createElement('option');o.value=i;o.textContent='Tiết '+i;el.appendChild(o)}el.value=String(Math.min(Math.max(prev,1),max));}
 function v4153ReceiveSessionChanged(){v4153BuildReceivePeriods();v4153SwapFieldChanged();}
 function v4153DefaultReceiveDate(){return typeof v4150DefaultDate==='function'?v4150DefaultDate():'';}
-function v4153LoadConfig(){v4153SetSummary('Đang đọc các tiết có thể Hoán đổi...','');google.script.run.withSuccessHandler(res=>{v4153Meta=res||{items:[],giveOptions:[],extraOptions:[],classOptions:[],subjectOptions:[]};const extraBtn=document.getElementById('v4153ModeExtra');if(extraBtn)extraBtn.disabled=!(v4153Meta.extraOptions||[]).length;v4153PopulateSelect('v4153Give',v4153Meta.giveOptions||[],x=>x.key,x=>x.label);v4153PopulateSelect('v4153ExistingExtra',v4153Meta.extraOptions||[],x=>x.id,x=>x.label);v4153PopulateSelect('v4153ReceiveClass',v4153Meta.classOptions||[],x=>x,x=>x);v4153PopulateSelect('v4153ReceiveSubject',v4153Meta.subjectOptions||[],x=>x,x=>x);const d=document.getElementById('v4153ReceiveDate');if(d&&!d.value)d.value=v4153DefaultReceiveDate();v4153BuildReceivePeriods();if(v4153Mode==='extra'&&!(v4153Meta.extraOptions||[]).length)v4153Mode='new';v4153SetMode(v4153Mode);v4153RenderList();v4153SetSummary('Tuần đang chọn có <b>'+Number((v4153Meta.giveOptions||[]).length)+'</b> tiết có thể nhường · <b>'+Number((v4153Meta.extraOptions||[]).length)+'</b> Tiết phát sinh có thể ghép vào Hoán đổi.','ok');}).withFailureHandler(e=>v4153SetSummary('⚠ '+v4153Esc((e&&e.message)||e||'Không đọc được Hoán đổi.'),'warn')).getSwapLessonConfig(currentWritePayload());}
+function v4153LoadConfig(){v4153SetSummary('Đang đọc các tiết có thể Hoán đổi...','');google.script.run.withSuccessHandler(res=>{v4153Meta=res||{items:[],giveOptions:[],extraOptions:[],classOptions:[],subjectOptions:[]};const extraBtn=document.getElementById('v4153ModeExtra');if(extraBtn)extraBtn.disabled=!(v4153Meta.extraOptions||[]).length;v4153PopulateSelect('v4153Give',v4153Meta.giveOptions||[],x=>x.key,x=>x.label);v4153PopulateSelect('v4153OtherTeacher',v4153Meta.partnerTeachers||[],x=>x.key,x=>x.name);const partner=document.getElementById('v4153OtherTeacher');if(partner)partner.insertAdjacentHTML('afterbegin','<option value="">Chọn giáo viên...</option>');if(partner)partner.value='';v4153PartnerChanged();v4153PopulateSelect('v4153ExistingExtra',v4153Meta.extraOptions||[],x=>x.id,x=>x.label);v4153PopulateSelect('v4153ReceiveClass',v4153Meta.classOptions||[],x=>x,x=>x);v4153PopulateSelect('v4153ReceiveSubject',v4153Meta.subjectOptions||[],x=>x,x=>x);const d=document.getElementById('v4153ReceiveDate');if(d&&!d.value)d.value=v4153DefaultReceiveDate();v4153BuildReceivePeriods();if(v4153Mode==='extra'&&!(v4153Meta.extraOptions||[]).length)v4153Mode='new';v4153SetMode(v4153Mode);v4153RenderList();v4153SetSummary('Tuần đang chọn có <b>'+Number((v4153Meta.giveOptions||[]).length)+'</b> tiết có thể nhường · <b>'+Number((v4153Meta.extraOptions||[]).length)+'</b> Tiết phát sinh có thể ghép vào Hoán đổi.','ok');}).withFailureHandler(e=>v4153SetSummary('⚠ '+v4153Esc((e&&e.message)||e||'Không đọc được Hoán đổi.'),'warn')).getSwapLessonConfig(currentWritePayload());}
+let v4200PartnerSlots=[];
+let v4200PartnerRequest=0;
+function v4153GiveChanged(){const give=v4153GiveObject(),cls=document.getElementById('v4153ReceiveClass'),subject=document.getElementById('v4153ReceiveSubject'),track=document.getElementById('v4153ReceiveTrack');if(cls&&give.className)cls.value=give.className;if(subject&&give.baseSubject)subject.value=give.baseSubject;if(track&&give.track)track.value=give.track;v4153PartnerChanged();v4153SwapFieldChanged();}
+function v4153PartnerChanged(){
+  const key=document.getElementById('v4153OtherTeacher')?.value||'';
+  const el=document.getElementById('v4153PartnerSlot'),help=document.getElementById('v4153PartnerHelp');
+  const give=v4153GiveObject();v4200PartnerSlots=[];v4200PartnerRequest++;
+  if(el){el.innerHTML='<option value="">'+(key?'Đang đọc lịch...':'Chọn giáo viên trước')+'</option>';el.disabled=true;}
+  if(!key||!give.className){if(help)help.textContent='Ứng dụng chỉ cập nhật lịch của anh. Giáo viên kia tự cập nhật lịch của họ.';return;}
+  const request=v4200PartnerRequest;
+  google.script.run.withSuccessHandler(res=>{
+    if(request!==v4200PartnerRequest)return;
+    v4200PartnerSlots=res&&res.slots||[];
+    if(!el)return;
+    el.innerHTML='<option value="">'+(v4200PartnerSlots.length?'Chọn tiết để điền nhanh':'Không thấy tiết cùng lớp; nhập ngày và tiết thủ công')+'</option>';
+    v4200PartnerSlots.forEach((slot,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=slot.label;el.appendChild(o);});
+    el.disabled=!v4200PartnerSlots.length;
+    if(help)help.textContent=v4200PartnerSlots.length?'Chọn một tiết của '+res.teacher+'; ứng dụng sẽ điền thời điểm dạy thay cho anh.':'Không thấy tiết cùng lớp; anh có thể nhập thời điểm mới ở khung bên phải.';
+  }).withFailureHandler(e=>{
+    if(request!==v4200PartnerRequest)return;
+    if(el){el.innerHTML='<option value="">Nhập ngày và tiết thủ công</option>';el.disabled=true;}
+    if(help)help.textContent=(e&&e.message)||'Chưa đọc được lịch giáo viên kia. Anh vẫn có thể nhập thủ công.';
+  }).getSwapPartnerSlots(currentWritePayload(),key,give.className);
+}
+function v4153PartnerSlotChanged(){
+  const idx=document.getElementById('v4153PartnerSlot')?.value;
+  if(idx===''||!v4200PartnerSlots[Number(idx)])return;
+  const slot=v4200PartnerSlots[Number(idx)],give=v4153GiveObject();
+  const monday=document.getElementById('monday')?.value||'';
+  const date=document.getElementById('v4153ReceiveDate');
+  if(date&&monday)date.value=v4150AddDaysYmd(monday,slot.dayNum-2);
+  const session=document.getElementById('v4153ReceiveSession');if(session)session.value=slot.session;
+  v4153BuildReceivePeriods();
+  const period=document.getElementById('v4153ReceivePeriod');if(period)period.value=String(slot.period);
+  const cls=document.getElementById('v4153ReceiveClass');if(cls)cls.value=give.className||slot.className;
+  const subject=document.getElementById('v4153ReceiveSubject');if(subject&&give.baseSubject)subject.value=give.baseSubject;
+  const track=document.getElementById('v4153ReceiveTrack');if(track&&give.track)track.value=give.track;
+  v4153SwapFieldChanged();
+}
 function v4153GiveObject(){const key=document.getElementById('v4153Give')?.value||'';return (v4153Meta.giveOptions||[]).find(x=>x.key===key)||{};}
-function v4153FormItem(){const give=v4153GiveObject();const item={give:{dayNum:give.dayNum,session:give.session,period:give.period},otherTeacher:document.getElementById('v4153OtherTeacher')?.value||'',note:document.getElementById('v4153SwapNote')?.value||''};if(v4153Mode==='extra'){item.existingExtraId=document.getElementById('v4153ExistingExtra')?.value||'';}else{const ymd=document.getElementById('v4153ReceiveDate')?.value||'';item.receive={dayNum:typeof v4150DayNumFromYmd==='function'?v4150DayNumFromYmd(ymd):null,session:document.getElementById('v4153ReceiveSession')?.value||'Sáng',period:Number(document.getElementById('v4153ReceivePeriod')?.value||1),className:document.getElementById('v4153ReceiveClass')?.value||'',subject:document.getElementById('v4153ReceiveSubject')?.value||'',track:document.getElementById('v4153ReceiveTrack')?.value||'regular'};}return item;}
+function v4153FormItem(){const give=v4153GiveObject();const item={give:{dayNum:give.dayNum,session:give.session,period:give.period},otherTeacher:(v4153Meta.partnerTeachers||[]).find(x=>x.key===document.getElementById('v4153OtherTeacher')?.value)?.name||'',note:document.getElementById('v4153SwapNote')?.value||''};if(v4153Mode==='extra'){item.existingExtraId=document.getElementById('v4153ExistingExtra')?.value||'';}else{const ymd=document.getElementById('v4153ReceiveDate')?.value||'';item.receive={dayNum:typeof v4150DayNumFromYmd==='function'?v4150DayNumFromYmd(ymd):null,session:document.getElementById('v4153ReceiveSession')?.value||'Sáng',period:Number(document.getElementById('v4153ReceivePeriod')?.value||1),className:document.getElementById('v4153ReceiveClass')?.value||'',subject:document.getElementById('v4153ReceiveSubject')?.value||'',track:document.getElementById('v4153ReceiveTrack')?.value||'regular'};}return item;}
 function v4153SwapFieldChanged(){clearTimeout(v4153PreviewTimer);v4153PreviewTimer=setTimeout(()=>v4153PreviewSwap(true),220);}
 function v4153PreviewSwap(silent){const item=v4153FormItem(),rp=document.getElementById('v4153ReceivePreview'),gp=document.getElementById('v4153GivePreview');if(rp)rp.textContent='Đang tính PPCT...';if(gp)gp.textContent='Đang kiểm tra tiết nhường...';google.script.run.withSuccessHandler(res=>{const x=res&&res.item||{},r=x.receivePreview||{},g=x.givePreview||{};if(rp)rp.textContent=(r.className||'')+' · '+(typeof v4135PpctBadgeText==='function'?v4135PpctBadgeText(r.ppct):r.ppct)+' · '+(r.lesson||'');if(gp)gp.textContent='Thứ '+(g.dayNum||'')+' · '+(g.session||'')+' · Tiết '+(g.period||'')+' · '+(g.className||'')+' · '+(g.subject||'');v4153SetStatus('✓ Hoán đổi hợp lệ. PPCT của '+v4153Esc(r.className||'Tiết nhận')+' và '+v4153Esc(g.className||'Tiết nhường')+' sẽ được tính lại tự động.','ok');}).withFailureHandler(e=>{if(rp)rp.textContent='Chưa xác định';if(gp)gp.textContent='Chưa xác định';v4153SetStatus('⚠ '+v4153Esc((e&&e.message)||e||'Không xem trước được.'),'warn');}).previewSwapLesson(currentWritePayload(),item);}
-function v4153SaveSwap(){const b=document.getElementById('v4153SwapSave');if(b){b.disabled=true;b.textContent='Đang lưu & đồng bộ...';}google.script.run.withSuccessHandler(res=>{v4153Meta=res||v4153Meta;v4153RenderList();v4153PopulateSelect('v4153Give',v4153Meta.giveOptions||[],x=>x.key,x=>x.label);v4153PopulateSelect('v4153ExistingExtra',v4153Meta.extraOptions||[],x=>x.id,x=>x.label);const extraBtn=document.getElementById('v4153ModeExtra');if(extraBtn)extraBtn.disabled=!(v4153Meta.extraOptions||[]).length;if(v4153Mode==='extra'&&!(v4153Meta.extraOptions||[]).length)v4153SetMode('new');if(typeof v4150ReloadIfOpen==='function')v4150ReloadIfOpen();refreshTodayQuickView();if(typeof refreshTkbCheck==='function')refreshTkbCheck();const sync=res&&res.sync||{};let msg='✓ Đã lưu Hoán đổi · Đã cập nhật Lịch báo giảng · PPCT đã tự tính lại.';if(sync.progress&&sync.progress.ok===false)msg+=' ⚠ Tiến độ chưa cập nhật: '+v4153Esc(sync.progress.error||'');v4153SetStatus(msg,'ok');if(typeof setStatus==='function')setStatus('✓ Hoán đổi đã được ghi vào Lịch báo giảng và PPCT tự cập nhật.',true);if(typeof showSaveToast==='function')showSaveToast('success','✓ Đã đồng bộ Hoán đổi','Tiết nhận và Tiết nhường đã được xử lý cùng một giao dịch.','Không cần bấm Ghi Báo giảng lại.',false);if(b){b.disabled=false;b.textContent='✓ Lưu hoán đổi';}v4153SetSummary('Đã có <b>'+Number((v4153Meta.items||[]).length)+'</b> Hoán đổi trong tuần.','ok');}).withFailureHandler(e=>{v4153SetStatus('⚠ '+v4153Esc((e&&e.message)||e||'Không lưu được Hoán đổi.'),'warn');if(b){b.disabled=false;b.textContent='✓ Lưu hoán đổi';}}).saveSwapLesson(currentWritePayload(),v4153FormItem());}
+function v4153SaveSwap(){const b=document.getElementById('v4153SwapSave');if(b){b.disabled=true;b.textContent='Đang lưu & đồng bộ...';}google.script.run.withSuccessHandler(res=>{v4153Meta=res||v4153Meta;v4153RenderList();v4153PopulateSelect('v4153Give',v4153Meta.giveOptions||[],x=>x.key,x=>x.label);v4153PartnerChanged();v4153PopulateSelect('v4153ExistingExtra',v4153Meta.extraOptions||[],x=>x.id,x=>x.label);const extraBtn=document.getElementById('v4153ModeExtra');if(extraBtn)extraBtn.disabled=!(v4153Meta.extraOptions||[]).length;if(v4153Mode==='extra'&&!(v4153Meta.extraOptions||[]).length)v4153SetMode('new');if(typeof v4150ReloadIfOpen==='function')v4150ReloadIfOpen();refreshTodayQuickView();if(typeof refreshTkbCheck==='function')refreshTkbCheck();const sync=res&&res.sync||{};let msg='✓ Đã lưu Hoán đổi · Đã cập nhật Lịch báo giảng · PPCT đã tự tính lại.';if(sync.progress&&sync.progress.ok===false)msg+=' ⚠ Tiến độ chưa cập nhật: '+v4153Esc(sync.progress.error||'');v4153SetStatus(msg,'ok');if(typeof setStatus==='function')setStatus('✓ Hoán đổi đã được ghi vào Lịch báo giảng và PPCT tự cập nhật.',true);if(typeof showSaveToast==='function')showSaveToast('success','✓ Đã đồng bộ Hoán đổi','Tiết nhận và Tiết nhường đã được xử lý cùng một giao dịch.','Không cần bấm Ghi Báo giảng lại.',false);if(b){b.disabled=false;b.textContent='✓ Lưu hoán đổi';}v4153SetSummary('Đã có <b>'+Number((v4153Meta.items||[]).length)+'</b> Hoán đổi trong tuần.','ok');}).withFailureHandler(e=>{v4153SetStatus('⚠ '+v4153Esc((e&&e.message)||e||'Không lưu được Hoán đổi.'),'warn');if(b){b.disabled=false;b.textContent='✓ Lưu hoán đổi';}}).saveSwapLesson(currentWritePayload(),v4153FormItem());}
 function v4153RenderList(){const arr=v4153Meta.items||[],wrap=document.getElementById('v4153SwapListWrap'),list=document.getElementById('v4153SwapList'),count=document.getElementById('v4153SwapCount');if(!wrap||!list)return;wrap.hidden=!arr.length;if(count)count.textContent=arr.length;list.innerHTML='';arr.forEach(x=>{const r=x.receivePreview||x.receive||{},g=x.give||{};const row=document.createElement('div');row.className='v4153-swap-item';row.innerHTML='<div class="v4153-swap-side recv"><b>NHẬN · Thứ '+v4153Esc(r.dayNum)+' · '+v4153Esc(r.session)+' · Tiết '+v4153Esc(r.period)+'</b><small>'+v4153Esc(r.className||'')+' · '+v4153Esc((typeof v4135PpctBadgeText==='function'?v4135PpctBadgeText(r.ppct):r.ppct)||r.subject||'')+' · '+v4153Esc(r.lesson||'')+'</small></div><div class="arrow">⇄</div><div class="v4153-swap-side give"><b>NHƯỜNG · Thứ '+v4153Esc(g.dayNum)+' · '+v4153Esc(g.session)+' · Tiết '+v4153Esc(g.period)+'</b><small>'+v4153Esc(g.className||'')+' · '+v4153Esc(g.subject||'')+(x.otherTeacher?' · với '+v4153Esc(x.otherTeacher):'')+'</small></div><button type="button">Hủy hoán đổi</button>';row.querySelector('button').onclick=()=>v4153DeleteSwap(x.id);list.appendChild(row);});}
-function v4153DeleteSwap(id){const x=(v4153Meta.items||[]).find(z=>z.id===id);if(!x)return;const r=x.receivePreview||x.receive||{},g=x.give||{};if(!confirm('Hủy Hoán đổi: nhận '+(r.className||'')+' ở Thứ '+r.dayNum+' và phục hồi '+(g.className||'')+' ở Thứ '+g.dayNum+'?'))return;google.script.run.withSuccessHandler(res=>{v4153Meta=res||v4153Meta;v4153RenderList();v4153PopulateSelect('v4153Give',v4153Meta.giveOptions||[],x=>x.key,x=>x.label);v4153PopulateSelect('v4153ExistingExtra',v4153Meta.extraOptions||[],x=>x.id,x=>x.label);const extraBtn=document.getElementById('v4153ModeExtra');if(extraBtn)extraBtn.disabled=!(v4153Meta.extraOptions||[]).length;if(typeof v4150ReloadIfOpen==='function')v4150ReloadIfOpen();refreshTodayQuickView();if(typeof refreshTkbCheck==='function')refreshTkbCheck();let msg='✓ Đã hủy Hoán đổi · Lịch báo giảng và PPCT đã tự tính lại.';if(res&&res.restoredExtra)msg+=' Tiết phát sinh ban đầu đã được khôi phục.';v4153SetStatus(msg,'ok');v4153SetSummary('Đã có <b>'+Number((v4153Meta.items||[]).length)+'</b> Hoán đổi trong tuần.','ok');}).withFailureHandler(e=>v4153SetStatus('⚠ '+v4153Esc((e&&e.message)||e||'Không Hủy được Hoán đổi.'),'warn')).deleteSwapLesson(currentWritePayload(),id);}
+function v4153DeleteSwap(id){const x=(v4153Meta.items||[]).find(z=>z.id===id);if(!x)return;const r=x.receivePreview||x.receive||{},g=x.give||{};if(!confirm('Hủy Hoán đổi: nhận '+(r.className||'')+' ở Thứ '+r.dayNum+' và phục hồi '+(g.className||'')+' ở Thứ '+g.dayNum+'?'))return;google.script.run.withSuccessHandler(res=>{v4153Meta=res||v4153Meta;v4153RenderList();v4153PopulateSelect('v4153Give',v4153Meta.giveOptions||[],x=>x.key,x=>x.label);v4153PartnerChanged();v4153PopulateSelect('v4153ExistingExtra',v4153Meta.extraOptions||[],x=>x.id,x=>x.label);const extraBtn=document.getElementById('v4153ModeExtra');if(extraBtn)extraBtn.disabled=!(v4153Meta.extraOptions||[]).length;if(typeof v4150ReloadIfOpen==='function')v4150ReloadIfOpen();refreshTodayQuickView();if(typeof refreshTkbCheck==='function')refreshTkbCheck();let msg='✓ Đã hủy Hoán đổi · Lịch báo giảng và PPCT đã tự tính lại.';if(res&&res.restoredExtra)msg+=' Tiết phát sinh ban đầu đã được khôi phục.';v4153SetStatus(msg,'ok');v4153SetSummary('Đã có <b>'+Number((v4153Meta.items||[]).length)+'</b> Hoán đổi trong tuần.','ok');}).withFailureHandler(e=>v4153SetStatus('⚠ '+v4153Esc((e&&e.message)||e||'Không Hủy được Hoán đổi.'),'warn')).deleteSwapLesson(currentWritePayload(),id);}
 </script>
 
 <script>
@@ -9285,3 +9326,51 @@ function renderPpctSourceConfigs(res){
   });
 }
 </script>
+
+<style id="v4200-print-two-sessions-fix">
+/* Let both report sheets participate in print pagination instead of clipping
+   the second sheet inside the fixed preview dialog. */
+@media print {
+  @page { size:A4 portrait; margin:7mm; }
+  html,body { width:auto!important; height:auto!important; min-height:0!important; overflow:visible!important; margin:0!important; padding:0!important; }
+  body > :not(#exportBaoGiangModal) { display:none!important; }
+  #exportBaoGiangModal.v462-export-backdrop {
+    display:block!important; position:static!important; inset:auto!important;
+    width:auto!important; height:auto!important; max-height:none!important;
+    margin:0!important; padding:0!important; overflow:visible!important;
+    background:#fff!important; transform:none!important; box-shadow:none!important;
+  }
+  #exportBaoGiangModal .v462-export-modal,
+  #exportBaoGiangModal .v462-preview-wrap {
+    display:block!important; position:static!important;
+    width:auto!important; max-width:none!important; height:auto!important; max-height:none!important;
+    margin:0!important; padding:0!important; overflow:visible!important;
+    border:0!important; border-radius:0!important; background:#fff!important;
+    transform:none!important; box-shadow:none!important;
+  }
+  #exportBaoGiangModal .v462-export-head,
+  #exportBaoGiangModal .v462-export-actions { display:none!important; }
+  #v462PrintArea {
+    display:block!important; position:static!important; left:auto!important; top:auto!important;
+    width:196mm!important; max-width:none!important; height:auto!important; margin:0 auto!important;
+    padding:0!important; overflow:visible!important; transform:none!important;
+  }
+  #v462PrintArea .v462-sheet {
+    display:block!important; position:static!important; box-sizing:border-box!important;
+    width:196mm!important; height:283mm!important; min-height:283mm!important; max-height:283mm!important;
+    margin:0!important; padding:5mm 4mm!important; border:0!important;
+    overflow:hidden!important; break-inside:avoid!important; page-break-inside:avoid!important;
+    break-after:page!important; page-break-after:always!important;
+  }
+  #v462PrintArea .v462-sheet:last-child { break-after:auto!important; page-break-after:auto!important; }
+}
+</style>
+
+<style id="v4200-swap-guided-style">
+.v4153-swap-panes .v4153-pane.give{order:1}.v4153-swap-panes .v4153-swap-arrow{order:2}.v4153-swap-panes .v4153-pane.receive{order:3}
+.v4200-partner-field{display:block;margin-top:12px}.v4200-partner-field span{display:block;margin-bottom:5px;font-size:11px;font-weight:850;color:#31516e}
+.v4200-partner-field select{width:100%;min-height:43px;border:1px solid #b8cde5;border-radius:8px;background:#fff;color:#173b60;padding:7px;font-size:13px}
+.v4200-partner-help{display:block;margin-top:9px;padding:8px 10px;background:#edf6ff;border-radius:8px;color:#476683;font-size:11px;line-height:1.4}
+.v4153-meta-grid{grid-template-columns:1fr}.v4153-swap-head p{font-size:12px;line-height:1.4}
+@media(max-width:700px){.v4153-swap-panes .v4153-pane.give{order:1}.v4153-swap-panes .v4153-swap-arrow{order:2}.v4153-swap-panes .v4153-pane.receive{order:3}}
+</style>
